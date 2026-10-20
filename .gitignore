@@ -1,0 +1,26 @@
+# Python and tools
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+# Secrets and sensitive/local data
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+# Local generated assets
+_site/
+site/
+*.db
+*.sqlite
+*.sqlite3
+# Output reports from sample projects (generated locally)
+esempi/**/reports/

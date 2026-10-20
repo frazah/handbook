@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JavaScript Handbook — Laboratorio browser</title>
+  <style>
+    :root { color-scheme: dark; font: 16px/1.6 system-ui, sans-serif; background:#101521; color:#e7eaf1; }
+    body { max-width:780px; margin:0 auto; padding:2rem 1rem 4rem; }
+    a { color:#95beff; } h1 { font-size:1.85rem; } h2 { font-size:1.2rem; }
+    section { padding:1.1rem 1.5rem; border:1px solid #334052; border-radius:14px; margin:1rem 0; background:#182031; }
+    button, input { padding:.6rem .75rem; font:inherit; border-radius:8px; border:1px solid #667489; }
+    button { background:#2d405c; color:white; cursor:pointer; }
+    button.selected { background:#31664f; } input { background:#101521; color:white; }
+    .box { width:100%; min-height:65px; background:#304669; padding:.8rem; box-sizing:border-box; }
+    .box.active { outline:2px solid #9bbcfa; } .box.highlight { filter:brightness(1.25); }
+    pre { background:#101521; padding:1rem; border-radius:10px; overflow-x:auto; }
+    li { margin:.35rem 0; }
+  </style>
+  <!-- File separati: puoi aprirli in VS Code e studiare cosa fanno -->
+  <script defer src="../09-dom/01-dom-selezione-manipolazione.js"></script>
+  <script defer src="../09-dom/02-stili-dimensioni-scroll.js"></script>
+  <script defer src="../10-eventi-e-form/01-eventi-propagazione-delegation.js"></script>
+  <script defer src="../10-eventi-e-form/02-mouse-pointer-keyboard-scroll.js"></script>
+  <script defer src="../10-eventi-e-form/03-form-controlli.js"></script>
+  <script defer src="../11-browser-runtime/01-load-event-loop-mutation.js"></script>
+  <script defer src="../13-file-componenti-animazioni/02-animazioni.js"></script>
+  <script defer src="../13-file-componenti-animazioni/03-web-components.js"></script>
+</head>
+<body>
+  <a href="../CONSULTA-HANDBOOK.html">← Torna al lettore</a>
+  <h1>Laboratorio browser</h1>
+  <p>Apri <strong>F12 → Console</strong> per vedere output degli esempi. Clicca i pulsanti e prova il form; tutto funziona senza connessione internet.</p>
+  <section>
+    <h2>DOM e modifica pagina</h2>
+    <div data-handbook-output></div>
+    <p>Il testo qui sopra è aggiunto da <code>document.createElement()</code> + <code>textContent</code>.</p>
+  </section>
+  <section data-handbook-list>
+    <h2>Event delegation</h2>
+    <p>Un solo handler sul contenitore gestisce tutti i pulsanti, anche quelli aggiunti dopo.</p>
+    <button type="button" data-action="like">Like</button>
+    <button type="button" data-action="save">Salva</button>
+    <button type="button" id="add-button">Aggiungi pulsante</button>
+  </section>
+  <section>
+    <h2>Pointer, classi, layout e animazioni</h2>
+    <div class="box" data-handbook-box>Muovi il puntatore, premi qui, premi ESC e guarda la console.</div>
+  </section>
+  <section>
+    <h2>Form + FormData</h2>
+    <form data-handbook-form>
+      <label>Nome <input name="username" placeholder="Ada" required minlength="2"></label>
+      <button type="submit">Invia senza ricaricare</button>
+    </form>
+    <p id="form-status" aria-live="polite"></p>
+  </section>
+  <section>
+    <h2>Web component con Shadow DOM</h2>
+    <notice-box><span>Sono dentro uno slot!</span></notice-box>
+  </section>
+  <p>Per capire le differenze fra <code>node</code> e browser, prova prima a leggere le cartelle 09–13 e poi sperimenta qui.</p>
+  <script>
+    // Piccoli esercizi extra della pagina di laboratorio.
+    document.querySelector('#add-button').addEventListener('click', () => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.action = 'dynamic';
+      btn.textContent = 'Nuovo pulsante';
+      document.querySelector('[data-handbook-list]').append(btn);
+    });
+    document.querySelector('[data-handbook-form]').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.querySelector('#form-status').textContent =
+        'Ricevuto: ' + new FormData(e.currentTarget).get('username');
+    });
+  </script>
+</body>
+</html>

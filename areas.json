@@ -1,0 +1,32 @@
+[
+  {
+    "id": "languages",
+    "name": "Linguaggi & Fondamenti",
+    "description": "Sintassi, tipi e fondamenta da riutilizzare ovunque",
+    "icon": "{ }"
+  },
+  {
+    "id": "web",
+    "name": "Web & Mobile Development",
+    "description": "Interfacce, applicazioni e servizi web",
+    "icon": "◫"
+  },
+  {
+    "id": "engineering",
+    "name": "Developer Tools & Engineering",
+    "description": "Git, testing, deployment e architettura quando ti serviranno",
+    "icon": "⌘"
+  },
+  {
+    "id": "data",
+    "name": "Data & Artificial Intelligence",
+    "description": "Analisi dei dati, machine learning e agenti",
+    "icon": "✦"
+  },
+  {
+    "id": "design",
+    "name": "Design & Specializations",
+    "description": "UX, accessibilità e approfondimenti specialistici",
+    "icon": "◇"
+  }
+]

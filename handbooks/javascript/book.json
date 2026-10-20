@@ -1,0 +1,10 @@
+{
+  "id": "javascript",
+  "order": 10,
+  "name": "JavaScript",
+  "icon": "JS",
+  "desc": "Il linguaggio: dalle fondamenta al browser",
+  "docs": "javascript.info",
+  "color": "#f7df1e",
+  "area": "languages"
+}

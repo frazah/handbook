@@ -1,0 +1,10 @@
+{
+  "id": "typescript",
+  "order": 20,
+  "name": "TypeScript",
+  "icon": "TS",
+  "desc": "Tipi affidabili su JavaScript",
+  "docs": "https://www.typescriptlang.org/docs/",
+  "color": "#64a8f7",
+  "area": "languages"
+}

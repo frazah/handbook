@@ -1,0 +1,10 @@
+{
+  "id": "fastapi",
+  "order": 50,
+  "name": "FastAPI",
+  "icon": "API",
+  "desc": "API moderne con Python e Pydantic",
+  "docs": "https://fastapi.tiangolo.com/tutorial/",
+  "color": "#65d6b0",
+  "area": "web"
+}

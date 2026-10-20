@@ -1,0 +1,10 @@
+{
+  "id": "data-science",
+  "order": 70,
+  "name": "Data Science & Analysis",
+  "icon": "DS",
+  "desc": "Dati reali: pulizia, analisi, visualizzazione e machine learning",
+  "docs": "https://pandas.pydata.org/docs/getting_started/",
+  "color": "#70d6a8",
+  "area": "data"
+}

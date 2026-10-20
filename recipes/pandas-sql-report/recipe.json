@@ -1,0 +1,18 @@
+{
+  "id": "pandas-sql-report",
+  "order": 20,
+  "title": "CSV → pandas → SQL: report vendite",
+  "description": "Importa un CSV, pulisci i dati, salva in SQLite e genera un riepilogo SQL.",
+  "difficulty": "Base / intermedio",
+  "tags": [
+    "Python",
+    "pandas",
+    "SQL",
+    "SQLite"
+  ],
+  "related": [
+    "python",
+    "sql",
+    "data-science"
+  ]
+}
