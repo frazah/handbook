@@ -8,9 +8,14 @@ L'EDA serve a **porre domande ai dati** prima di scegliere un metodo più comple
 
 - **`DataFrame` / `df`**: tabella in pandas; `df` è solo un nome di variabile convenzionale.
 
+## Prima del codice: cosa riconoscere
+
+EDA significa esplorare distribuzioni, anomalie e segmenti prima di modellare. Definisci il denominatore delle metriche (ordini? utenti? sessioni?) per evitare interpretazioni sbagliate.
+
 ```python
 import pandas as pd
 # Carica i dati del file CSV in una tabella pandas.
+# read_csv legge un file esterno: colonne e tipi vanno verificati.
 df = pd.read_csv("orders.csv")
 print(df.shape)
 print(df.isna().mean().sort_values(ascending=False))

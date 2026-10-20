@@ -3,6 +3,10 @@
 **Idea.** SQL descrive *quali dati* vuoi, lasciando al database la scelta di come recuperarli.
 Una tabella rappresenta entità, una riga una istanza e una foreign key una relazione.
 
+## Prima del codice: cosa riconoscere
+
+Una **chiave primaria** identifica una riga, una **chiave esterna** referenzia una riga di un’altra tabella. Un rapporto 1:N significa che una riga della prima può corrispondere a molte della seconda.
+
 ```sql
 -- Esempi compatibili con SQLite, che useremo nel laboratorio
 CREATE TABLE customers (

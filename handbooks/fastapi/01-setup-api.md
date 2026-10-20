@@ -7,6 +7,10 @@ Usa le annotazioni dei tipi per parsing, validazione e documentazione automatica
 
 - **`@app.get(...)` / `@app.post(...)`**: decoratori che collegano una funzione a una rotta HTTP.
 
+## Prima del codice: cosa riconoscere
+
+`app = FastAPI()` crea l’applicazione. `@app.get("/health")` registra un endpoint: la funzione sotto verrà chiamata quando arriva una richiesta GET, non al momento della dichiarazione.
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate

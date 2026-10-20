@@ -4,8 +4,11 @@
 
 Un `ndarray` contiene elementi dello stesso `dtype` in una struttura multidimensionale; le operazioni vettoriali spesso sostituiscono i loop Python.
 
+## Prima del codice: cosa riconoscere
+
+Un `ndarray` NumPy ha forma (*shape*) e tipo degli elementi (*dtype*). Le operazioni *vettorizzate* applicano calcoli a più valori; il **broadcasting** combina forme compatibili secondo regole precise.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 import numpy as np
 prices = np.array([12.0, 25.0, 8.5])
 quantities = np.array([3, 1, 4])
@@ -17,7 +20,6 @@ print(revenue.shape, revenue.dtype)  # (3,), float64 (di norma)
 ## Shape e assi
 
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 sales = np.array([[10, 12, 8], [7, 11, 9]])  # 2 negozi × 3 mesi
 print(sales.shape)           # (2, 3)
 print(sales.sum(axis=0))     # totale per mese

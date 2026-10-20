@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 03.4 — Destructuring, Date, JSON
 // Fonte: https://javascript.info/destructuring-assignment
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Destructuring estrae proprietà; rest e spread usano ... in posizioni diverse.
+// - JSON.stringify serializza, JSON.parse interpreta testo JSON; JSON non conserva tutte le strutture JS.
+
 (() => {
 
   // 1. DESTRUCTURING: estrai/assegna valori in una sola istruzione.

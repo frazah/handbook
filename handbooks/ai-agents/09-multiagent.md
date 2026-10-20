@@ -10,6 +10,10 @@ Non significa che serva una squadra di agenti per ogni problema.
 - **Handoff:** il controllo passa allo specialista, che porta avanti il turno.
 - **Manager / agents-as-tools:** un agente principale invoca gli specialisti come tool e compone la risposta.
 
+## Prima del codice: cosa riconoscere
+
+Il multi-agent usa più specialisti o un orchestratore. Introduce latenza e complessità; usalo quando la separazione di responsabilità produce vantaggi misurabili.
+
 ```python
 from agents import Agent, Runner
 

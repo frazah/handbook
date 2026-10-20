@@ -9,6 +9,10 @@ Utile per manuali aziendali, policy, documentazione e ricerca in PDF.
 
 - ***Embedding***: rappresentazione numerica del significato utile per la ricerca per similarità.
 
+## Prima del codice: cosa riconoscere
+
+RAG = Retrieval-Augmented Generation: prima cerchi documenti rilevanti, poi li fornisci al modello come fonti, non come istruzioni. Un **chunk** è una porzione di documento indicizzabile.
+
 ```text
 Documenti → estrazione testo → chunk → embeddings → indice
 Domanda → embedding → top-k chunk → prompt + fonti → risposta
@@ -17,7 +21,6 @@ Domanda → embedding → top-k chunk → prompt + fonti → risposta
 ## Retriever minimale, offline
 
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from collections import Counter
 
 docs = {

@@ -4,6 +4,8 @@
 
 **Come usarla:** cerca il simbolo, copia il pattern e torna al capitolo collegato quando vuoi capire il *perché*.
 
+**Se le firme TypeScript ti sembrano criptiche:** comincia dal capitolo `00a-come-leggere-la-sintassi.md`, dove separiamo tipi, callback e destructuring prima di combinarli.
+
 ## 1. Tipi e variabili
 
 | Ti serve | Sintassi / significato |
@@ -33,7 +35,10 @@ type OrderStatus = 'draft' | 'paid' | 'shipped';
 const prices: number[] = [12, 8];
 
 // ? sulla proprietà significa che può essere assente.
-type Customer = { id: string; email?: string };
+type Customer = {
+  id: string;
+  email?: string;
+};
 ```
 
 ## 2. Simboli da riconoscere al volo
@@ -115,13 +120,19 @@ function get<T, K extends keyof T>(obj: T, key: K): T[K] {
 
 ```ts
 // Definizione del modello.
-type Product = { id: string; name: string; price: number };
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+};
 
 // Creazione: id generato dal server.
 type ProductCreate = Omit<Product, 'id'>;
 
 // PATCH: solo alcuni campi modificabili.
-type ProductPatch = Partial<Pick<Product, 'name' | 'price'>>;
+// Prima selezioniamo i campi, POI li rendiamo opzionali.
+type EditableProduct = Pick<Product, 'name' | 'price'>;
+type ProductPatch = Partial<EditableProduct>;
 
 // Mappa per codice prodotto.
 const prices: Record<string, number> = { p1: 22 };
@@ -185,19 +196,40 @@ async function loadTitle(id: number): Promise<string> {
 ```tsx
 import { useState, type ChangeEvent } from 'react';
 
-type Props = { label: string; disabled?: boolean; onClick: () => void };
+// Definisci le props su più righe, lontano dalla firma del componente.
+type ActionProps = {
+  label: string;
+  disabled?: boolean;
+  onClick: () => void; // Callback senza parametri.
+};
 
-// Componente: le props seguono il contratto Props.
-export function Action({ label, disabled = false, onClick }: Props) {
-  return <button disabled={disabled} onClick={onClick}>{label}</button>;
+export function Action(props: ActionProps) {
+  return (
+    <button
+      disabled={props.disabled ?? false}
+      onClick={props.onClick}
+    >
+      {/* La callback è passata come valore, non eseguita qui. */}
+      {props.label}
+    </button>
+  );
 }
 
+// Esempio indipendente: componente con input controllato.
 export function SearchField() {
-  const [query, setQuery] = useState(''); // TS inferisce string
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const [query, setQuery] = useState(''); // TS inferisce string.
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    // currentTarget è il campo input che ha prodotto l'evento.
     setQuery(event.currentTarget.value);
-  };
-  return <input value={query} onChange={onChange} />;
+  }
+
+  return (
+    <input
+      value={query}
+      onChange={handleChange}
+    />
+  );
 }
 ```
 

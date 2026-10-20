@@ -4,6 +4,10 @@
 
 Per usare una risposta nel software preferisci un **oggetto tipizzato**, non un paragrafo da interpretare con regex.
 
+## Prima del codice: cosa riconoscere
+
+Un output strutturato ha uno **schema** (campi e tipi attesi). Anche con una risposta in JSON, valida i dati lato codice prima di usarli per compiere azioni.
+
 ```python
 from typing import Literal
 from pydantic import BaseModel, Field
@@ -11,6 +15,7 @@ from pydantic import BaseModel, Field
 # Pydantic definisce e valida la forma dei dati.
 class SupportDecision(BaseModel):
     intent: Literal["order_status", "refund", "other"]
+    # Field aggiunge vincoli di validazione a un campo del modello.
     confidence: float = Field(ge=0, le=1)
     needs_human: bool
     answer: str

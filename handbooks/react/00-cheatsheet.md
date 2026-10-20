@@ -1,93 +1,143 @@
-# React — Cheatsheet rapida
+<!-- level: Consultazione -->
+<!-- summary: Sintassi React + TypeScript, JSX, props, callback, stato, liste, form, effect e hook -->
+# React + TypeScript — Cheatsheet consultabile
 
-| Obiettivo | Pattern |
-|---|---|
-| Componente | `function Card({title}: {title: string}) { return <h2>{title}</h2> }` |
-| Stato | `const [value, setValue] = useState('')` |
-| Update prev | `setCount(n => n + 1)` |
-| Lista | `items.map(x => <li key={x.id}>{x.name}</li>)` |
-| Condizione | `{loading ? <Spinner /> : <List />}` |
-| Evento | `onClick={() => save()}` |
-| Form | `<input value={value} onChange={e => setValue(e.target.value)} />` |
-| Effect | `useEffect(() => { /* sync */ return cleanup }, [dep])` |
-| Stato complesso | `useReducer(reducer, initial)` |
-| Condiviso | `createContext`, `useContext` |
+Questa pagina è un **promemoria rapido**, non la prima lezione. Se una firma come `(title: string) => void` ti sembra oscura, parti da **`00a-come-leggere-tsx.md`**.
 
-**Da ricordare:** state immutabile, key stabili, rendering puro, niente Effect per dati derivati.  
-Hook soltanto in top-level componenti/custom hook.
+## Sintassi da trovare al volo
 
-**Docs:** https://react.dev/learn
+| Vuoi fare... | Scrivi... | Nota |
+|---|---|---|
+| Definire props | `type Props = { name: string }` | tipo dichiarato separatamente |
+| Prop facoltativa | `name?: string` | può mancare |
+| Usare props | `function Card(props: Props)` | facile da leggere |
+| Destructuring | `function Card({ name }: Props)` | solo quando già familiare |
+| Inserire JS nel JSX | `<h2>{name}</h2>` | graffe = espressione |
+| Classe CSS | `<div className="card">` | non `class` |
+| Evento click | `<button onClick={handleClick}>` | passa funzione, non chiamarla |
+| Evento con argomento | `onClick={() => remove(id)}` | funzione wrapper |
+| Callback in una prop | `onAdd: (title: string) => void` | tipo di funzione |
+| Contenuto annidato | `children: ReactNode` | importa il tipo da React |
+| Condizione | `{ready ? <List /> : <Spinner />}` | ternario |
+| Lista | `items.map(item => <li key={item.id}>...)` | ID stabile |
+| Fragment | `<>...</>` | niente wrapper DOM |
+| Stato locale | `const [x, setX] = useState(0)` | valore + setter |
+| Setter dal precedente | `setX(previous => previous + 1)` | evita snapshot obsoleti |
+| Form controllato | `value={text}` + `onChange={...}` | state = fonte del valore |
+| Effect | `useEffect(setup, [deps])` | sincronizzazione esterna |
+| Cleanup | `return () => controller.abort()` | chiusura risorsa |
+| Context | `createContext` + `useContext` | dato condiviso |
+| Stato articolato | `useReducer(reducer, initial)` | azioni tipizzate |
 
----
-
-## JSX, props e render: sintassi pronta
+## Props e callback: modello consigliato
 
 ```tsx
-// Props: dati immutabili ricevuti dal componente padre.
-type ProductCardProps = { title: string; price: number; onBuy: () => void };
+// 1. Il tipo delle props è leggibile anche da solo.
+type BuyButtonProps = {
+  label: string;
+  disabled?: boolean;
+  onBuy: (productId: string) => void;
+  productId: string;
+};
 
-function ProductCard({ title, price, onBuy }: ProductCardProps) {
+// 2. Prima delle abbreviazioni, possiamo usare "props".
+function BuyButton(props: BuyButtonProps) {
+  function handleBuy() {
+    // La funzione arriva dal genitore: la invochiamo AL CLICK.
+    props.onBuy(props.productId);
+  }
+
   return (
-    <article>
-      <h2>{title}</h2>
-      <p>{price} €</p>
-      <button onClick={onBuy}>Acquista</button>
-    </article>
+    <button
+      disabled={props.disabled ?? false}
+      onClick={handleBuy}
+    >
+      {props.label}
+    </button>
   );
 }
 ```
 
-| Caso | Pattern |
-|---|---|
-| Condizione | `{loading ? <Spinner /> : <Content />}` |
-| Condizione opzionale | `{error && <p>{error}</p>}` (usa boolean reale) |
-| Liste | `{items.map(item => <li key={item.id}>{item.name}</li>)}` |
-| Frammento | `<>...</>` senza elemento wrapper |
-| Classi | `className="card"` |
-| Styles inline | `style={{ padding: 8 }}` |
-| Callback | `onClick={() => remove(item.id)}` |
-| Prop opzionale | `type Props = { subtitle?: string }` |
-| Figli | `children: React.ReactNode` |
+- `disabled?` rende la prop opzionale.
+- `?? false` sceglie `false` solo se `disabled` è `null` o `undefined`.
+- `(productId: string) => void` è **il tipo di una funzione**, non una chiamata.
 
-## Stato e aggiornamenti corretti
-
-*I pattern seguenti sono frammenti da usare dentro un componente che ha dichiarato `id` e `setTasks`.*
+## Stato e array immutabili
 
 ```tsx
-// Un setter basato sul precedente stato evita valori obsoleti.
-const [count, setCount] = useState(0);
-setCount(previous => previous + 1);
+import { useState } from 'react';
 
-// Un array va sostituito, non mutato direttamente.
-setTasks(old => old.map(t => t.id === id ? { ...t, done: true } : t));
-setTasks(old => old.filter(t => t.id !== id));
+type Todo = { id: number; done: boolean };
 
-// Un input controllato riceve sempre value e onChange.
-const [query, setQuery] = useState('');
-// <input value={query} onChange={e => setQuery(e.target.value)} />
+function Demo() {
+  const [count, setCount] = useState(0);
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  function increment() {
+    setCount((previous) => previous + 1);
+  }
+
+  function markDone(id: number) {
+    setTodos((previous) => previous.map((todo) => {
+      if (todo.id !== id) return todo;
+      return { ...todo, done: true }; // Nuovo oggetto per elemento modificato.
+    }));
+  }
+
+  return <button onClick={increment}>Conteggio: {count}</button>;
+}
 ```
 
-## Hook e gestione degli effetti
+**Non fare:** `todos.push(...)`, `todos[0].done = true` oppure `setCount(count + 1)` più volte aspettandoti sempre incrementi cumulativi.
 
-| Hook | Scopo | Nota |
+## Form: firma da ricordare
+
+```tsx
+import type { FormEvent } from 'react';
+
+function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault(); // Evita navigazione/refresh standard del browser.
+}
+
+// Nel componente:
+// <form onSubmit={handleSubmit}>...</form>
+```
+
+`FormEvent<HTMLFormElement>` specifica a TypeScript l'elemento che genera l'evento.
+
+## Hook: quale scegliere?
+
+| Hook | Uso tipico | Da evitare |
 |---|---|---|
-| `useState(initial)` | stato locale | setter immutabile |
-| `useReducer(reducer, initial)` | stato a transizioni complesse | azioni descrittive |
-| `useEffect(setup, [deps])` | sincronizzazione con sistema esterno | cleanup `return () => ...` |
-| `useRef(initial)` | valore mutabile o riferimento DOM | non forza render |
-| `useMemo(() => calc(), [deps])` | memorizza un calcolo | ottimizzazione, non stato |
-| `useCallback(fn, [deps])` | mantiene identità funzione | non sempre necessario |
-| `useContext(Context)` | legge valore condiviso | richiede provider appropriato |
-| `useId()` | ID stabili per accessibilità | non usarli come key delle liste |
+| `useState` | input, contatori, flag | dati derivati duplicati |
+| `useReducer` | state con molte azioni | reducer con side effect |
+| `useEffect` | rete, timer, listener | calcoli da props/state |
+| `useRef` | riferimento DOM, valore mutabile | usarlo per dati da mostrare a video |
+| `useMemo` | calcolo costoso misurato | ottimizzare ogni variabile |
+| `useCallback` | identità funzione quando conta | applicarlo a tutti gli handler |
+| `useContext` | leggere valore condiviso | usarlo automaticamente per ogni stato |
+
+## Liste, condizioni, valori derivati
 
 ```tsx
-// Esempio: cancellare la richiesta quando il componente si smonta.
-useEffect(() => {
-  const controller = new AbortController();
-  void fetch('/api/tasks', { signal: controller.signal });
-  return () => controller.abort(); // cleanup
-}, []);
+// Tipi, items e isLoading sono già definiti nel componente.
+// Esempio del pattern di rendering (non un file autonomo).
+
+if (isLoading) {
+  return <p>Caricamento...</p>;
+}
+
+return (
+  <ul>
+    {items.map((item) => (
+      <li key={item.id}>
+        {item.name}
+      </li>
+    ))}
+  </ul>
+);
 ```
 
-**Attenzione:** chiamare gli Hook solo al livello superiore di componenti o custom Hook, non dentro condizioni o cicli.  
-Calcola i valori derivati durante il render, senza duplicarli nello stato.
+**Regole fisse:** nomi dei componenti maiuscoli; Hook solo al top-level; `key` stabili; rendering puro; niente mutazioni dirette dello stato.
+
+**Documentazione:** https://react.dev/learn

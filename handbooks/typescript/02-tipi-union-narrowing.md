@@ -14,12 +14,21 @@ type OrderStatus = 'pending' | 'paid' | 'shipped';
 type Search = string | number;
 
 function normalizeSearch(query: Search): string {
-  if (typeof query === 'number') return String(query);
-  return query.trim().toLowerCase(); // qui TS sa che è string
+  // Prima restringiamo la union: se è un numero, lo convertiamo.
+  if (typeof query === 'number') {
+    return String(query);
+  }
+
+  // In questo punto TypeScript sa che query è una stringa.
+  return query.trim().toLowerCase();
 }
 
 function parseError(input: unknown): string {
-  if (input instanceof Error) return input.message;
+  // unknown obbliga a controllare prima di leggere .message.
+  if (input instanceof Error) {
+    return input.message;
+  }
+
   return String(input);
 }
 ```
@@ -28,14 +37,29 @@ function parseError(input: unknown): string {
 
 ```ts
 // I tipi descrivono il contratto; le istruzioni restano JavaScript a runtime.
-type Payment =
-  | { kind: 'card'; last4: string }
-  | { kind: 'bank'; iban: string };
+type CardPayment = {
+  kind: 'card';
+  last4: string;
+};
 
-function labelPayment(p: Payment) {
-  switch (p.kind) {
-    case 'card': return `Carta •••• ${p.last4}`;
-    case 'bank': return `Bonifico ${p.iban}`;
+type BankPayment = {
+  kind: 'bank';
+  iban: string;
+};
+
+// Union discriminata: due forme possibili, distinte dal campo kind.
+type Payment = CardPayment | BankPayment;
+
+function labelPayment(payment: Payment): string {
+  switch (payment.kind) {
+    case 'card': {
+      // TypeScript sa che in questo ramo esiste last4.
+      return `Carta •••• ${payment.last4}`;
+    }
+    case 'bank': {
+      // In questo ramo è disponibile iban.
+      return `Bonifico ${payment.iban}`;
+    }
   }
 }
 ```

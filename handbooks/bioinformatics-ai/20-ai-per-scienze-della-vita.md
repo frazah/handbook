@@ -9,6 +9,10 @@ Un *agente* può orchestrare più strumenti: non è per questo più affidabile d
 
 Richiesta: «Riassumi studi pubblici sull'impatto di uso del suolo e biodiversità».
 
+## Prima del codice: cosa riconoscere
+
+LLM e agenti possono aiutare nella ricerca bibliografica e nell’analisi di dati autorizzati, ma devono citare fonti e separare ipotesi da evidenze.
+
 ```text
 utente → ricerca su fonti pubbliche → recupero articoli
        → controllo date / disegno degli studi

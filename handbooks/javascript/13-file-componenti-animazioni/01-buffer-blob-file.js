@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 13.1 — ArrayBuffer, TypedArray, TextEncoder, Blob, File
 // Fonte: https://javascript.info/binary
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - ArrayBuffer è memoria binaria grezza; TypedArray fornisce una vista interpretata.
+// - Blob e File rappresentano contenuti, non aprono automaticamente file locali.
+
 (() => {
   // ArrayBuffer = memoria binaria grezza; TypedArray e DataView la leggono.
   const buffer = new ArrayBuffer(4);

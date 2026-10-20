@@ -1,6 +1,10 @@
 <!-- level: AI + Biologia -->
 <!-- summary: Protein language models, strutture e differenza tra predire e validare -->
 # AI per proteine, strutture e scoperte biologiche
+## Prima del codice: cosa riconoscere
+
+Prevedere una struttura proteica non equivale a dimostrare sperimentalmente funzione, stabilità o interazione in tutte le condizioni. Le predizioni richiedono un’interpretazione competente.
+
 
 Una **proteina** è una catena di aminoacidi; configurazione spaziale, contesto cellulare e interazioni condizionano ciò che fa.  
 Un **protein language model** apprende regolarità dalle sequenze come un language model apprende pattern di testo, ma le probabilità apprese non costituiscono una prova sperimentale.

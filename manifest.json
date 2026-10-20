@@ -84,6 +84,14 @@
     },
     {
       "book": "javascript",
+      "title": "Prima di JavaScript avanzato: guida alla sintassi",
+      "summary": "Come leggere JavaScript: funzioni, destructuring, callback, closure, Promise e browser",
+      "level": "Fondamenti",
+      "path": "handbooks/javascript/00a-come-leggere.md",
+      "kind": "md"
+    },
+    {
+      "book": "javascript",
       "title": "Sintassi Variabili Tipi",
       "summary": "Fondamenti · appunti eseguibili con spiegazioni commentate",
       "level": "Fondamenti",
@@ -404,6 +412,14 @@
     },
     {
       "book": "typescript",
+      "title": "Prima di tutto: come leggere la sintassi TypeScript",
+      "summary": "Leggere due punti, generics, callback, union, destructuring e arrow function senza confondersi",
+      "level": "Fondamenti",
+      "path": "handbooks/typescript/00a-come-leggere-la-sintassi.md",
+      "kind": "md"
+    },
+    {
+      "book": "typescript",
       "title": "Perché TypeScript e come avviarlo",
       "summary": "Type checking, inferenza, tsc e configurazione strict",
       "level": "Basi",
@@ -460,8 +476,8 @@
     },
     {
       "book": "typescript",
-      "title": "TypeScript con React e migrazione da JavaScript",
-      "summary": "Tipizzare React con .tsx, props, eventi e una migrazione progressiva",
+      "title": "TypeScript in React: props, callback e migrazione",
+      "summary": "File TSX, tipi di props e callback, eventi React e migrazione progressiva",
       "level": "Progetto",
       "path": "handbooks/typescript/08-react-ts-migrazione.md",
       "kind": "md"
@@ -476,73 +492,81 @@
     },
     {
       "book": "react",
-      "title": "Cheatsheet e sintassi",
-      "summary": "Promemoria immediato di comandi, tipi e pattern",
-      "level": "Reference",
+      "title": "React + TypeScript — Cheatsheet consultabile",
+      "summary": "Sintassi React + TypeScript, JSX, props, callback, stato, liste, form, effect e hook",
+      "level": "Consultazione",
       "path": "handbooks/react/00-cheatsheet.md",
       "kind": "md"
     },
     {
       "book": "react",
+      "title": "Prima di React: come leggere un file `.tsx`",
+      "summary": "Guida graduale a JSX, props, destructuring, annotazioni TypeScript e callback",
+      "level": "Fondamenti",
+      "path": "handbooks/react/00a-come-leggere-tsx.md",
+      "kind": "md"
+    },
+    {
+      "book": "react",
       "title": "React, componenti e JSX",
-      "summary": "Render dichiarativo, alberi di componenti e regole JSX",
-      "level": "Basi",
+      "summary": "Componenti come funzioni, JSX, props, className e rendering puro",
+      "level": "Fondamenti",
       "path": "handbooks/react/01-mental-model-jsx.md",
       "kind": "md"
     },
     {
       "book": "react",
-      "title": "Props, children e rendering condizionale",
-      "summary": "Dati dall’alto, componenti riutilizzabili e liste",
-      "level": "Basi",
+      "title": "Props, `children` e liste",
+      "summary": "Props, children, ReactNode, composizione, condizioni e liste con key",
+      "level": "Fondamenti",
       "path": "handbooks/react/02-props-composizione.md",
       "kind": "md"
     },
     {
       "book": "react",
-      "title": "useState e gestione degli eventi",
-      "summary": "Aggiornamenti immutabili e stato minimo",
-      "level": "Basi",
+      "title": "`useState` ed eventi",
+      "summary": "useState, click handler, aggiornamenti funzionali e stato immutabile",
+      "level": "Fondamenti",
       "path": "handbooks/react/03-stato-eventi.md",
       "kind": "md"
     },
     {
       "book": "react",
-      "title": "Form e input controllati",
-      "summary": "Input, submit, validazione, accessibilità",
-      "level": "Basi",
+      "title": "Form controllati e callback",
+      "summary": "Form controllati, onChange, onSubmit, FormEvent e callback tipizzata",
+      "level": "Fondamenti",
       "path": "handbooks/react/04-form-controllati.md",
       "kind": "md"
     },
     {
       "book": "react",
-      "title": "Sharing state e useReducer",
-      "summary": "Stato sollevato, azioni, reducer e composizione",
+      "title": "Condividere lo stato e `useReducer`",
+      "summary": "Lifting state up, props callback, useReducer e azioni tipizzate",
       "level": "Intermedio",
       "path": "handbooks/react/05-lifting-state-reducer.md",
       "kind": "md"
     },
     {
       "book": "react",
-      "title": "useEffect, fetch e cleanup",
-      "summary": "Sincronizzarsi con sistemi esterni, cancellare richieste",
+      "title": "`useEffect`, richieste HTTP e cleanup",
+      "summary": "useEffect, dipendenze, fetch, AbortController e gestione errori",
       "level": "Intermedio",
       "path": "handbooks/react/06-effect-fetch.md",
       "kind": "md"
     },
     {
       "book": "react",
-      "title": "Custom Hooks e Context",
-      "summary": "Condivisione logica e dati tra componenti",
+      "title": "Custom Hook e Context",
+      "summary": "Custom hook, effect cleanup, Context provider e useContext",
       "level": "Intermedio",
       "path": "handbooks/react/07-custom-hooks-context.md",
       "kind": "md"
     },
     {
       "book": "react",
-      "title": "Performance, test e a11y",
-      "summary": "memoization mirata, test utente e UI accessibile",
-      "level": "Pratica",
+      "title": "Performance, testing e accessibilità",
+      "summary": "useMemo, ottimizzazione misurata, test React e accessibilità",
+      "level": "Approfondimenti",
       "path": "handbooks/react/08-performance-e-testing.md",
       "kind": "md"
     },
@@ -560,6 +584,14 @@
       "summary": "Promemoria immediato di comandi, tipi e pattern",
       "level": "Reference",
       "path": "handbooks/python/00-cheatsheet.md",
+      "kind": "md"
+    },
+    {
+      "book": "python",
+      "title": "Prima di Python: guida alla sintassi",
+      "summary": "Come leggere Python: indentazione, annotazioni, unpacking, comprehension, decorator e async",
+      "level": "Fondamenti",
+      "path": "handbooks/python/00a-come-leggere.md",
       "kind": "md"
     },
     {
@@ -652,6 +684,14 @@
     },
     {
       "book": "fastapi",
+      "title": "Prima di FastAPI: leggere gli endpoint Python",
+      "summary": "Prima di FastAPI: HTTP, request/response, path/query/body, modelli e Depends spiegati",
+      "level": "Fondamenti",
+      "path": "handbooks/fastapi/00a-come-leggere.md",
+      "kind": "md"
+    },
+    {
+      "book": "fastapi",
       "title": "Prima API e documentazione OpenAPI",
       "summary": "Installazione, route e avvio di sviluppo",
       "level": "Basi",
@@ -736,6 +776,14 @@
       "summary": "Promemoria immediato di comandi, tipi e pattern",
       "level": "Reference",
       "path": "handbooks/sql/00-cheatsheet.md",
+      "kind": "md"
+    },
+    {
+      "book": "sql",
+      "title": "Prima di SQL: come leggere le query",
+      "summary": "Leggere SELECT nell'ordine giusto, JOIN, GROUP BY, CTE e finestre",
+      "level": "Fondamenti",
+      "path": "handbooks/sql/00a-come-leggere.md",
       "kind": "md"
     },
     {
@@ -828,6 +876,14 @@
     },
     {
       "book": "data-science",
+      "title": "Prima della Data Science: leggere gli esempi Python",
+      "summary": "Come leggere pandas, NumPy e il flusso ML prima dei primi esempi",
+      "level": "Fondamenti",
+      "path": "handbooks/data-science/00a-come-leggere.md",
+      "kind": "md"
+    },
+    {
+      "book": "data-science",
       "title": "Il flusso di lavoro: chiedi → raccogli → pulisci → analizza → comunica",
       "summary": "Dalla domanda di business al report riproducibile",
       "level": "Basi",
@@ -853,7 +909,7 @@
     {
       "book": "data-science",
       "title": "Pandas: DataFrame, lettura e selezione",
-      "summary": "Series/DataFrame, read_csv, selezione, filtri e nuovi campi",
+      "summary": "Series, DataFrame, read_csv, filtri, loc/iloc e pulizia dei tipi",
       "level": "Basi",
       "path": "handbooks/data-science/04-pandas-selezione.md",
       "kind": "md"
@@ -964,6 +1020,14 @@
     },
     {
       "book": "ai-agents",
+      "title": "Prima degli agenti AI: componenti e sintassi",
+      "summary": "Come leggere esempi di agenti: modello, tool, JSON, orchestrazione e autorizzazioni",
+      "level": "Fondamenti",
+      "path": "handbooks/ai-agents/00a-come-leggere.md",
+      "kind": "md"
+    },
+    {
+      "book": "ai-agents",
       "title": "Cos'è un agente (e quando non serve)",
       "summary": "LLM, workflow deterministico, agente autonomo e casi d'uso",
       "level": "Fondamenti",
@@ -980,8 +1044,8 @@
     },
     {
       "book": "ai-agents",
-      "title": "Tool calling: il modello sceglie, il codice esegue",
-      "summary": "Schema, validazione, allowlist e ciclo di chiamata degli strumenti",
+      "title": "Tool calling: il modello chiede, il codice decide",
+      "summary": "Tool calling spiegato per passi, schema, permessi e runtime di esecuzione",
       "level": "Fondamenti",
       "path": "handbooks/ai-agents/03-tool-calling.md",
       "kind": "md"
@@ -1112,6 +1176,14 @@
       "summary": "Percorso per chi conosce informatica ma parte da zero in biologia",
       "level": "Inizia qui",
       "path": "handbooks/bioinformatics-ai/00-orientamento.md",
+      "kind": "md"
+    },
+    {
+      "book": "bioinformatics-ai",
+      "title": "Prima di bioinformatica e biosecurity: dizionario per informatici",
+      "summary": "Biologia da zero con analogie e limiti per chi arriva da informatica",
+      "level": "Introduzione",
+      "path": "handbooks/bioinformatics-ai/00a-come-leggere.md",
       "kind": "md"
     },
     {

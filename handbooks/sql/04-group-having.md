@@ -8,6 +8,10 @@
 - **`JOIN`**: combina righe da più tabelle secondo una condizione di relazione.
 - **`GROUP BY`**: raggruppa righe per calcolare aggregati come `COUNT` e `SUM`.
 
+## Prima del codice: cosa riconoscere
+
+`GROUP BY` raggruppa righe prima delle aggregazioni. `WHERE` filtra righe **prima**, `HAVING` filtra gruppi **dopo** la loro costruzione.
+
 ```sql
 -- Seleziona le colonne richieste, senza modificare i dati.
 SELECT c.name,
@@ -17,7 +21,9 @@ FROM customers AS c
 -- Conserva tutte le righe della tabella a sinistra, anche senza corrispondenze.
 LEFT JOIN orders AS o
   ON o.customer_id = c.id AND o.status = 'paid'
+-- GROUP BY produce gruppi su cui calcolare gli aggregati.
 GROUP BY c.id, c.name
+-- HAVING filtra i gruppi dopo la fase di aggregazione.
 HAVING COUNT(o.id) >= 1
 ORDER BY revenue_cents DESC;
 ```

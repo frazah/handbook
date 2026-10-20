@@ -11,6 +11,10 @@ Un report utile risponde in ordine a quattro domande:
 
 ## Output ideale
 
+## Prima del codice: cosa riconoscere
+
+Un report deve separare osservazioni, interpretazioni e decisioni. Dichiara periodo, fonte, unità di misura, segmenti, limiti e grado di incertezza.
+
 ```text
 reports/
 ├── executive-summary.md

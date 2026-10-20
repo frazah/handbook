@@ -39,7 +39,7 @@ Sostituisci URL con quello del tuo repository e autentica GitHub. Se la cartella
 Lavora direttamente in `.md` (VS Code ha Markdown Preview con `Ctrl/Cmd+Shift+V`), usando un assistente per scrivere e rivedere gli esempi. Prima del commit, controlla il `git diff`, verifica sintassi e output degli esempi, poi:
 
 ```bash
-python AGGIORNA-HUB.py     # necessario solo per aggiornare la copia HTML locale
+python3 AGGIORNA-HUB.py     # necessario solo per aggiornare la copia HTML locale
 
 git status
 git add .
@@ -101,7 +101,7 @@ Il sito è statico: **non puoi editare i file del repository dal sito pubblico**
 ### GitHub Pages vs lettore locale
 
 - **Online:** la Action rigenera a ogni push: basta committare i contenuti e la configurazione. Non è obbligatorio includere la nuova HTML nel commit.
-- **Offline:** dopo ogni modifica fai `python AGGIORNA-HUB.py` e riapri la pagina locale; se lo dimentichi, vedi la vecchia copia finché non la rigeneri.
+- **Offline:** dopo ogni modifica fai `python3 AGGIORNA-HUB.py` e riapri la pagina locale; se lo dimentichi, vedi la vecchia copia finché non la rigeneri.
 
 ## Per ricevere nuove sezioni da ChatGPT
 
@@ -137,6 +137,6 @@ Per aggiungere una guida pratica trasversale senza scrivere un altro corso:
 python tools/nuova_recipe.py fastapi-postgres "FastAPI + PostgreSQL"
 ```
 
-Modifica `recipes/fastapi-postgres/recipe.json` (titolo, descrizione, tag e `related`, ovvero gli ID degli handbook esistenti) e `README.md` con passi, snippet, output verificato ed errori comuni. Il lettore riconosce automaticamente le nuove cartelle dopo `python AGGIORNA-HUB.py` e la GitHub Action pubblica le recipe a ogni push.
+Modifica `recipes/fastapi-postgres/recipe.json` (titolo, descrizione, tag e `related`, ovvero gli ID degli handbook esistenti) e `README.md` con passi, snippet, output verificato ed errori comuni. Il lettore riconosce automaticamente le nuove cartelle dopo `python3 AGGIORNA-HUB.py` e la GitHub Action pubblica le recipe a ogni push.
 
 Le recipes sono **esempi circoscritti**, non sostituiscono l'approfondimento nei relativi handbook. Puoi usare link come `[React](#book/react)` per rimandare alle schede e ridurre le duplicazioni.

@@ -1,6 +1,10 @@
 <!-- level: Biologia da zero -->
 <!-- summary: Selezione naturale, mutazione, biodiversità e reti ecologiche -->
 # Evoluzione, biodiversità ed ecologia
+## Prima del codice: cosa riconoscere
+
+L’evoluzione riguarda cambiamenti ereditabili nelle popolazioni nel corso delle generazioni. Selezione, deriva e migrazione possono agire insieme: non esiste un progetto intenzionale del sistema.
+
 
 **Evoluzione** = cambiamento delle caratteristiche ereditarie di popolazioni attraverso generazioni.  
 La **mutazione** introduce una parte della variabilità; **selezione naturale**, **deriva genetica**, **migrazione** e ricombinazione possono modificarne la frequenza.

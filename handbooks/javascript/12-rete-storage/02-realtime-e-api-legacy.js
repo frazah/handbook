@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 12.2 — WebSocket, SSE, long polling, XHR
 // Fonte: https://javascript.info/websocket
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - WebSocket apre un canale bidirezionale; Server-Sent Events invia eventi server → client.
+// - Connessioni persistenti richiedono riconnessione, limiti e autenticazione appropriata.
+
 (() => {
   if (typeof window === 'undefined') return;
   // WebSocket: connessione bidirezionale persistente, ws:// o wss://.

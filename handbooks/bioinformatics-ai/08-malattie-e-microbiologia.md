@@ -16,6 +16,10 @@ Distingui:
 
 ## Triade epidemiologica (modello utile)
 
+## Prima del codice: cosa riconoscere
+
+Agente causale, trasmissione, esposizione, infezione e malattia sono concetti diversi. La presenza di materiale genetico in un campione non dimostra automaticamente contagiosità o malattia.
+
 ```text
 Agente ─── Ospite
      \      /

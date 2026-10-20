@@ -1,6 +1,10 @@
 <!-- level: Applicazioni -->
 <!-- summary: Bioinformatico, data scientist biomedico, digital epidemiologist e biosecurity -->
 # Dove si incontrano informatica e scienze della vita
+## Prima del codice: cosa riconoscere
+
+Ruoli diversi richiedono competenze diverse: bioinformatico, data scientist biomedico, epidemiologo computazionale, specialista cyberbiosecurity. Individua prima il problema che vuoi risolvere.
+
 
 | Area | Che cosa faresti | Competenze da aggiungere |
 | --- | --- | --- |

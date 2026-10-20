@@ -19,7 +19,10 @@ type Product = {
   name: string;
   price: number;
   active: boolean;
-  details: { category: string; weight: number };
+  details: {
+    category: string;
+    weight: number;
+  };
 };
 
 const product: Product = {
@@ -27,7 +30,10 @@ const product: Product = {
   name: 'Mouse',
   price: 25,
   active: true,
-  details: { category: 'tech', weight: 100 },
+  details: {
+    category: 'tech',
+    weight: 100,
+  },
 };
 ```
 
@@ -44,7 +50,10 @@ const product: Product = {
 // Il client mostra soltanto questi due campi.
 type ProductPreview = Pick<Product, 'id' | 'name'>;
 
-const preview: ProductPreview = { id: 'p1', name: 'Mouse' };
+const preview: ProductPreview = {
+  id: 'p1',
+  name: 'Mouse',
+};
 
 // Quando crei un prodotto, l'id viene generato dal server.
 type ProductDraft = Omit<Product, 'id'>;
@@ -59,12 +68,21 @@ Non eliminano proprietà dagli oggetti a runtime: per creare davvero un nuovo og
 
 ```ts
 // Con PATCH puoi inviare uno o più campi, non il prodotto intero.
-type ProductPatch = Partial<Pick<Product, 'name' | 'price' | 'active'>>;
+// 1. Scegliamo soltanto le proprietà modificabili.
+type EditableProduct = Pick<Product, 'name' | 'price' | 'active'>;
+
+// 2. Rendiamo facoltative quelle proprietà (al primo livello).
+type ProductPatch = Partial<EditableProduct>;
 
 const patch: ProductPatch = { price: 22 }; // gli altri campi possono mancare
 
 // Spread: crea un nuovo oggetto combinando originale e modifiche.
-function updateProduct(item: Product, changes: ProductPatch): Product {
+function updateProduct(
+  item: Product,
+  changes: ProductPatch,
+): Product {
+  // ...item copia le proprietà originali.
+  // ...changes sovrascrive soltanto quelle passate nel patch.
   return { ...item, ...changes };
 }
 
@@ -120,7 +138,11 @@ Le etichette `latitude:` e `longitude:` rendono più leggibili i due elementi; n
 
 ```ts
 // T è il tipo dell'oggetto; K è una sua chiave consentita.
-function getField<T, K extends keyof T>(obj: T, key: K): T[K] {
+function getField<T, K extends keyof T>(
+  obj: T,
+  key: K,
+): T[K] {
+  // T[K] indica il tipo del campo corrispondente alla chiave K.
   return obj[key];
 }
 

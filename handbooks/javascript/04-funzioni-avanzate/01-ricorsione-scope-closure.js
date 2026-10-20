@@ -2,6 +2,10 @@
 // JAVASCRIPT HANDBOOK 04.1 — Ricorsione, stack, scope, closure, var
 // Da QUI inizia il programma che non avevi ancora studiato.
 // Fonte: https://javascript.info/advanced-functions
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Ricorsione = funzione che richiama se stessa, con un caso base obbligatorio.
+// - Closure = accesso conservato a variabili dell’ambiente di definizione anche dopo il return.
+
 (() => {
   // RICORSIONE: una funzione richiama se stessa; serve un CASO BASE.
   function factorial(n) {
@@ -13,7 +17,9 @@
   // provocano RangeError: Maximum call stack size exceeded.
 
   // REST raccoglie argomenti in un ARRAY; SPREAD espande un iterabile.
-  function sum(...numbers) { return numbers.reduce((a, b) => a + b, 0); }
+  function sum(...numbers) {
+    return numbers.reduce((a, b) => a + b, 0);
+  }
   const nums = [10, 20, 30];
   console.log(sum(...nums)); // 60
   // ... in letterali: [...array] o {...object} produce copie SUPERFICIALI.

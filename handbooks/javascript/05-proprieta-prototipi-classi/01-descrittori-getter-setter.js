@@ -1,9 +1,14 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 05.1 — Descriptor, flags, getter/setter
 // Fonte: https://javascript.info/property-descriptors
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Un property descriptor controlla visibilità, scrivibilità e configurabilità di una proprietà.
+// - Un getter è letto come proprietà, non invocato con parentesi.
+
 (() => {
   // Una proprieta' dati ha value + flag writable/enumerable/configurable.
   const book = {};
+  // defineProperty imposta descriptor di proprietà (writable/get/set ecc.).
   Object.defineProperty(book, 'isbn', {
     value: '123', writable: false, enumerable: true, configurable: false
   });

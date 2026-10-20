@@ -9,6 +9,10 @@ Questo esempio **usa un'API esterna**, perciò richiede una chiave e potrebbe av
 
 - ***Tool calling***: il modello propone un’azione, ma il codice dell’app la valida e la esegue.
 
+## Prima del codice: cosa riconoscere
+
+L’Agents SDK incapsula modello, tool e turni; le API del pacchetto hanno versioni precise. Il codice d’esempio usa una chiave e una chiamata reale solo se decidi di abilitarle.
+
 ```bash
 python -m venv .venv
 # Attiva il venv
@@ -22,6 +26,7 @@ from agents import Agent, Runner
 from agents.decorators import tool
 
 @tool
+# Tool di lettura: lo stato letto non dimostra l’identità del richiedente.
 def lookup_order(order_id: str) -> str:
     """Return the current status of a demo order ID."""
     statuses = {"O-102": "spedito", "O-103": "in preparazione"}

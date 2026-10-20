@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 03.2 — Array: accesso, modifica, trasformazione
 // Fonte: https://javascript.info/array-methods
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - map, filter e slice restituiscono array nuovi; sort e splice modificano l’array originale.
+// - La funzione passata a map/filter è una callback richiamata per ogni elemento.
+
 (() => {
   const items = [3, 1, 2];
   console.log(items.length, items[0], items.at(-1));

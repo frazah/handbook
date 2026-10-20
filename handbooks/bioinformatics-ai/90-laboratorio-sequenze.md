@@ -19,7 +19,6 @@ Sono esempi **inventati** con identificatori di foglie fittizie.
 - ***FASTA / FASTQ***: formati per sequenze biologiche; FASTQ aggiunge valori di qualità alle basi.
 
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from pathlib import Path
 from sequences import parse_fasta, gc_fraction
 

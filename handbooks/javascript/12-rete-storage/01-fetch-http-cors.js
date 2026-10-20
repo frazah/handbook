@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 12.1 — fetch, HTTP, JSON, URL, upload, CORS
 // Fonte: https://javascript.info/network
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - fetch restituisce una Promise<Response> anche per risposte HTTP 404/500.
+// - CORS è un controllo del browser, non un sostituto dei permessi lato server.
+
 (async () => {
   // fetch(url, options) -> Promise<Response> (API disponibile anche in Node 18+).
   // Scegli metodo, body, header Content-Type secondo il formato del server.

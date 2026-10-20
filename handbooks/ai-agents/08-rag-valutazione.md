@@ -7,6 +7,10 @@ Un modello fluente può costruire una risposta credibile usando chunk sbagliati.
 
 ## Piccolo test del retriever
 
+## Prima del codice: cosa riconoscere
+
+Valutare il RAG significa controllare separatamente recupero delle fonti e correttezza della risposta. Una citazione presente non garantisce che la risposta sia supportata.
+
 ```python
 cases = [
     {"query": "quando ricevo il pacco?", "expected_doc": "shipping"},

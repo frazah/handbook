@@ -8,6 +8,10 @@
 - **`SELECT`**: sceglie le colonne da leggere nella query.
 - ***Indice***: struttura che può accelerare una ricerca, con costo di spazio e scritture.
 
+## Prima del codice: cosa riconoscere
+
+Un **indice** è una struttura di ricerca che accelera alcune letture ma richiede spazio e lavoro durante le scritture. `EXPLAIN` mostra il piano previsto: non significa che ogni indice verrà usato.
+
 ```sql
 CREATE INDEX idx_orders_customer_status
 ON orders(customer_id, status);

@@ -18,6 +18,10 @@ Un **agente** decide quali strumenti invocare per raggiungere un obiettivo, all'
 
 - ***Tool calling***: il modello propone un’azione, ma il codice dell’app la valida e la esegue.
 
+## Prima del codice: cosa riconoscere
+
+Un agente non è semplicemente una chat con un prompt lungo: deve poter decidere come procedere entro limiti definiti. Per passi prevedibili preferisci un workflow deterministico.
+
 ```python
 MAX_STEPS = 5
 for step in range(MAX_STEPS):

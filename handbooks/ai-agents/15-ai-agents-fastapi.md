@@ -9,6 +9,10 @@ Lo schema tipico: React → FastAPI → runtime agente → tool/DB.
 
 - ***LLM***: modello linguistico che produce testo o richieste strutturate, non automaticamente un agente.
 
+## Prima del codice: cosa riconoscere
+
+Esporre un agente tramite FastAPI implica gestire input, identità, permessi, timeout e possibili costi per richiesta. Evita che il client scelga arbitrariamente i tool abilitati.
+
 ```python
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
@@ -17,6 +21,7 @@ app = FastAPI()
 
 # Pydantic definisce e valida la forma dei dati.
 class Request(BaseModel):
+    # Field aggiunge vincoli di validazione a un campo del modello.
     question: str = Field(min_length=1, max_length=500)
 
 class Answer(BaseModel):

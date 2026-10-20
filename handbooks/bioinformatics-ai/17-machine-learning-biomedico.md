@@ -16,6 +16,10 @@ Prima di scegliere un algoritmo, definisci l'unità su cui vuoi generalizzare: n
 
 ## Pipeline corretta
 
+## Prima del codice: cosa riconoscere
+
+Nel ML biomedico lo split deve evitare pazienti/campioni collegati fra training e test. Una performance alta in un dataset non garantisce trasferibilità o utilità clinica.
+
 ```text
 Problema → definizione outcome → dataset e consensi → split appropriato
          → baseline semplice → ML → calibrazione + analisi per sottogruppi

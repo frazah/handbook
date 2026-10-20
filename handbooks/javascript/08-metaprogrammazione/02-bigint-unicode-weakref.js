@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 08.2 — BigInt, Unicode, WeakRef (argomenti extra)
 // Fonte: https://javascript.info/bigint
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - BigInt gestisce interi arbitrariamente grandi ma non si mescola direttamente a number.
+// - Le stringhe JS sono sequenze UTF-16: un carattere visivo può occupare più unità.
+
 (() => {
   const value = 999999999999999999999n;
   console.log(value + 1n, value ** 2n);

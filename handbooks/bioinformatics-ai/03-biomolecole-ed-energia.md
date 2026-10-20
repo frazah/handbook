@@ -1,6 +1,10 @@
 <!-- level: Biologia da zero -->
 <!-- summary: Acqua, lipidi, carboidrati, proteine e ATP -->
 # Le biomolecole: di che cosa è fatta la vita
+## Prima del codice: cosa riconoscere
+
+Proteine, lipidi, carboidrati e acidi nucleici svolgono ruoli diversi. Il metabolismo comprende reazioni che trasformano materia ed energia: non è un’unica funzione o un’unica sequenza.
+
 
 Le cellule sono sistemi chimici immersi prevalentemente in acqua.  
 I **legami** e la **forma tridimensionale** delle molecole determinano gran parte del comportamento biologico.

@@ -1,10 +1,16 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 04.2 — Oggetto Function, NFE, globalThis, timer
 // Fonte: https://javascript.info/advanced-functions
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Le funzioni JavaScript sono valori e oggetti: puoi passarle, restituirle e decorarle.
+// - setTimeout esegue più tardi; clearTimeout o clearInterval annulla un timer non ancora attivato.
+
 (() => {
 
   // 1. Le funzioni sono OGGETTI: hanno name, length e proprieta' custom.
-  function multiply(a, b) { return a * b; }
+  function multiply(a, b) {
+    return a * b;
+  }
   console.log(multiply.name, multiply.length); // 'multiply', 2 (parametri formali)
   multiply.description = 'Moltiplica due valori';
   console.log(multiply.description);

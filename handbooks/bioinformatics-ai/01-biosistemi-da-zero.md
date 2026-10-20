@@ -5,6 +5,10 @@
 La **biologia** studia gli esseri viventi e i loro processi: acquisire energia, mantenere un ambiente interno, trasmettere informazione, riprodursi, interagire ed evolvere.  
 Non esiste un singolo livello di analisi che spieghi tutto.
 
+## Prima del codice: cosa riconoscere
+
+Procedi per scale: molecole → cellule → tessuti → organismi → popolazioni → ecosistemi. Ogni livello aggiunge interazioni e variabilità, non è solo «più righe di codice».
+
 ```text
 Atomi → molecole → organelli → cellule → tessuti → organi
       → organismi → popolazioni → comunità → ecosistemi

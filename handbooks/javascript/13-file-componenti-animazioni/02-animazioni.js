@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 13.2 — Animazioni CSS, rAF e Web Animations API
 // Fonte: https://javascript.info/animation
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - requestAnimationFrame sincronizza aggiornamenti visivi con il rendering del browser.
+// - Preferisci CSS per semplici transizioni e rispetta prefers-reduced-motion.
+
 (() => {
   if (typeof document === 'undefined') return;
 

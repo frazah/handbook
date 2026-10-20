@@ -103,3 +103,59 @@ Non è una sequenza clinica reale.
 
 **Regola centrale:** predizione ≠ diagnosi, associazione ≠ causalità, anomalia ≠ evento accertato.  
 I dati dei laboratori dell'handbook sono sintetici, educativi e non destinati a decisioni cliniche o interventi di sicurezza reali.
+
+---
+
+## Tabelle di pronto riferimento: dati e indicatori
+
+### Formati e interpretazione rapida
+
+```text
+# Esempio FASTA: > introduce l'identificatore della sequenza.
+>esempio_1
+ACGTACGT
+```
+
+| Formato | Domanda a cui risponde | Non confonderlo con |
+|---|---|---|
+| FASTA | «qual è questa sequenza?» | misura della qualità |
+| FASTQ | «quali basi sono state lette e con quali qualità?» | diagnosi biologica |
+| BAM/CRAM | «come si allineano queste read a un riferimento?» | genoma completo senza incertezza |
+| VCF | «quali varianti sono state riportate?» | valutazione clinica certa |
+| GFF/GTF | «dove si trovano geni/feature annotate?» | dati di espressione |
+| CSV/TSV | «quali misure tabellari sono associate ai campioni?» | tracciabilità se manca metadata |
+
+### Metriche epidemiologiche: non scambiare i denominatori
+
+| Metrica | Idea di formula | Necessario chiarire |
+|---|---|---|
+| Incidenza cumulativa | nuovi casi / popolazione inizialmente a rischio | periodo e definizione di caso |
+| Prevalenza | casi esistenti / popolazione considerata | istante o intervallo |
+| Sensibilità | veri positivi / (veri positivi + falsi negativi) | riferimento valido |
+| Specificità | veri negativi / (veri negativi + falsi positivi) | riferimento valido |
+| PPV | veri positivi / tutti i test positivi | dipende anche dalla prevalenza |
+
+Queste formule sono introduzioni: analisi epidemiologiche reali richiedono ulteriori definizioni, disegni di studio e validazioni.
+
+### Matrice dei confini fra discipline
+
+| Disciplina | Tipico output | Chi deve validare |
+|---|---|---|
+| Bioinformatica | sequenze, annotazioni, statistiche | ricercatori del dominio |
+| Biostatistica | stime, intervalli, test | statistici/esperti metodo |
+| AI biomedica | predizioni e incertezza | team clinico/scientifico |
+| Epidemiologia | trend e ipotesi sulla popolazione | epidemiologi e autorità |
+| Biosafety | valutazioni di rischi accidentali | personale qualificato |
+| Biosecurity | politiche su accessi e uso improprio | governance competente |
+| Cyberbiosecurity | controlli di cybersecurity per sistemi biologici | team IT e responsabili bio |
+
+### Checklist per un dataset biologico
+
+- Domanda scientifica e popolazione di riferimento ben definite.
+- Provenienza del campione, consenso/base giuridica e autorizzazioni.
+- Metadati completi: tecnologia, batch, data e protocolli pertinenti.
+- QC documentato e versioni dei riferimenti utilizzati.
+- Split senza leakage fra campioni correlati, individui o centri.
+- Incertezza, limiti, replicabilità e interpretazione da parte di esperti.
+
+**Sempre:** sequenza ≠ funzione certa; correlazione ≠ causalità; allerta statistica ≠ evento biologico confermato.

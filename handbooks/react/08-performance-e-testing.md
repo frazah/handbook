@@ -1,37 +1,105 @@
-# Performance, test e a11y
+<!-- level: Approfondimenti -->
+<!-- summary: useMemo, ottimizzazione misurata, test React e accessibilità -->
+# Performance, testing e accessibilità
 
-**Idea.** Ottimizza solo quando misuri un problema reale. `useMemo` evita calcoli costosi ripetuti, `useCallback` stabilizza riferimenti; non servono per ogni variabile o handler.
+**Idea:** ottimizza dopo aver misurato un problema concreto. `useMemo` e `useCallback` non sono necessari in ogni componente.
 
-**Prima di leggere il codice — simboli e termini:**
-
-- **`JSX`**: sintassi simile a HTML dentro JavaScript: descrive gli elementi UI.
-- **`useMemo` / `useCallback`**: strumenti per memorizzare un calcolo o l’identità di una funzione quando serve.
-- **`key`**: identificatore stabile che aiuta React a distinguere gli elementi di una lista.
+## 1. Prima: filtrare senza memorizzazione
 
 ```tsx
-import { useMemo } from 'react';
-type Product = { id: string; name: string; price: number };
-function Catalog({ items, query }: { items: Product[]; query: string }) {
-  // filter mantiene soltanto gli elementi per cui la condizione è vera.
-  const filtered = useMemo(() => items.filter(x =>
-    x.name.toLowerCase().includes(query.toLowerCase())
-  ), [items, query]);
-  return <ul>{filtered.map(p => <li key={p.id}>{p.name}</li>)}</ul>;
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+};
+
+type CatalogProps = {
+  items: Product[];
+  query: string;
+};
+
+function Catalog(props: CatalogProps) {
+  const normalizedQuery = props.query.toLowerCase();
+
+  // filter restituisce un nuovo array. È spesso abbastanza veloce così.
+  const filtered = props.items.filter((product) => {
+    const normalizedName = product.name.toLowerCase();
+    return normalizedName.includes(normalizedQuery);
+  });
+
+  return (
+    <ul>
+      {filtered.map((product) => (
+        <li key={product.id}>{product.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
-## Test orientati all'utente
+`filter` mantiene solo i prodotti per cui la callback restituisce `true`. Non serve un `useEffect` per questo dato derivato.
+
+## 2. Solo se necessario: `useMemo`
 
 ```tsx
-// Vitest + React Testing Library (dipendenze da installare)
+import { useMemo } from 'react';
+
+function CatalogMemo(props: CatalogProps) {
+  // useMemo memorizza il RISULTATO di questa funzione.
+  // Il calcolo si ripete quando cambiano items oppure query.
+  const filtered = useMemo(() => {
+    const normalizedQuery = props.query.toLowerCase();
+
+    return props.items.filter((product) => {
+      return product.name.toLowerCase().includes(normalizedQuery);
+    });
+  }, [props.items, props.query]);
+
+  return (
+    <ul>
+      {filtered.map((product) => (
+        <li key={product.id}>{product.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+`[props.items, props.query]` è la **lista delle dipendenze**. L'ottimizzazione aiuta solo se il ricalcolo ha un costo reale o se stabilizzare il riferimento offre un beneficio misurabile.
+
+## 3. Test che simulano l'esperienza dell'utente
+
+*Esempio in un file separato `Catalog.test.tsx`: richiede Vitest e React Testing Library installati.*
+
+```tsx
 import { render, screen } from '@testing-library/react';
 import { expect, test } from 'vitest';
-test('mostra il prodotto', () => {
-  render(<Catalog items={[{id:'1', name:'Mouse', price:20}]} query="mou" />);
+import { Catalog } from './Catalog';
+
+test('mostra solo il prodotto cercato', () => {
+  render(
+    <Catalog
+      items={[
+        { id: '1', name: 'Mouse', price: 20 },
+        { id: '2', name: 'Tastiera', price: 50 },
+      ]}
+      query="mou"
+    />
+  );
+
+  // Cerchiamo ciò che l'utente vede, non lo stato interno.
   expect(screen.getByText('Mouse')).toBeTruthy();
+  expect(screen.queryByText('Tastiera')).toBeNull();
 });
 ```
 
-**A11y:** HTML semantico, `label` associati agli input, pulsanti veri, testo alternativo per immagini, focus da tastiera; evita `onClick` su `div` come sostituto di `<button>`.
+**Nota:** per usare questo test, esporta `Catalog` con `export function Catalog` dal file `Catalog.tsx`. L'esempio presuppone che il test runner disponga di un ambiente DOM, come `jsdom`.
 
-**Errore comune:** ottimizzare con `useMemo` senza misurare, aumentando complessità e dipendenze.
+## 4. Accessibilità essenziale
+
+- Usa `<button>` per azioni, `<a>` per navigazione, `<label htmlFor>` per campi.
+- Gestisci il focus da tastiera; non usare `<div onClick>` come falso pulsante.
+- Aggiungi `alt` alle immagini informative; usa `alt=""` per immagini decorative.
+- Mostra gli errori in modo percepibile, ad esempio con `role="alert"` quando appropriato.
+
+**Errore comune:** aggiungere `useMemo` e `useCallback` ovunque, rendendo il codice più complicato senza benefici misurabili.

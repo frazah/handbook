@@ -2,7 +2,7 @@
 
 Questa versione è uno **snapshot integrale** dell'Hub, già unito e rigenerato: non servono patch, aggiornamenti ZIP separati o fusioni manuali.
 
-Contiene **9 handbook, 163 schede e 2 Recipes**, con le ultime revisioni didattiche a cheatsheet, esempi, commenti e leggibilità.
+Contiene **9 handbook, 172 schede e 2 Recipes**, con le ultime revisioni didattiche a cheatsheet, esempi, commenti e leggibilità.
 
 ## Se hai fatto confusione con le cartelle
 
@@ -30,8 +30,8 @@ git push
 ## Modifiche future
 
 ```bash
-python -m pip install -r requirements-hub.txt   # solo la prima volta, meglio in un venv
-python AGGIORNA-HUB.py                            # aggiorna il lettore offline
+python3 -m pip install -r requirements-hub.txt   # solo la prima volta, meglio in un venv
+python3 AGGIORNA-HUB.py                            # aggiorna il lettore offline
 ```
 
 Per aggiungere un nuovo manuale copia la sua cartella in `handbooks/`, assicurandoti che contenga `book.json` e i `.md`. Per una recipe usa `recipes/`. Le istruzioni dettagliate sono in `CONTRIBUIRE.md`.

@@ -1,30 +1,59 @@
 # JOIN e relazioni tra tabelle
 
-**Idea.** Le JOIN combinano righe usando condizioni su chiavi. `INNER JOIN` conserva le corrispondenze; `LEFT JOIN` mantiene tutte le righe della tabella sinistra (anche se non ci sono corrispondenze).
+**Obiettivo:** collegare clienti e ordini senza confondere `INNER JOIN`, `LEFT JOIN` e aggregazioni.
 
-**Prima di leggere il codice — simboli e termini:**
+Supponiamo due tabelle: `customers(id, name)` e `orders(id, customer_id, total_cents)`.
+Una riga di `customers` può corrispondere a più righe di `orders`: è una relazione **uno-a-molti (1:N)**.
 
-- **`SELECT`**: sceglie le colonne da leggere nella query.
-- **`JOIN`**: combina righe da più tabelle secondo una condizione di relazione.
-- **`GROUP BY`**: raggruppa righe per calcolare aggregati come `COUNT` e `SUM`.
+## 1. INNER JOIN: mostra solo le corrispondenze
 
 ```sql
--- Ordini con il cliente associato
-SELECT o.id, c.name AS customer, o.total_cents
+-- Alias: c indica customers, o indica orders.
+SELECT
+    o.id,
+    c.name AS customer,
+    o.total_cents
 FROM orders AS o
-JOIN customers AS c ON c.id = o.customer_id;
+JOIN customers AS c
+    -- ON indica quali righe delle due tabelle sono collegate.
+    ON c.id = o.customer_id;
+```
 
--- Anche i clienti senza ordini
-SELECT c.id, c.name, COUNT(o.id) AS order_count
+Se un cliente ha tre ordini, compare in tre righe.
+Se un cliente non ha ordini, **non appare** in questo risultato.
+
+## 2. LEFT JOIN: conserva anche i clienti senza ordini
+
+```sql
+SELECT
+    c.id,
+    c.name,
+    o.id AS order_id
 FROM customers AS c
--- Conserva tutte le righe della tabella a sinistra, anche senza corrispondenze.
-LEFT JOIN orders AS o ON o.customer_id = c.id
--- Crea un gruppo per ciascuna combinazione di valori indicata.
+LEFT JOIN orders AS o
+    ON o.customer_id = c.id;
+```
+
+La tabella **sinistra** è `customers`: tutti i suoi clienti compaiono.
+Se non esiste un ordine associato, `order_id` sarà `NULL`.
+
+## 3. Conta gli ordini per cliente
+
+```sql
+SELECT
+    c.id,
+    c.name,
+    -- COUNT(o.id) ignora NULL: zero per chi non ha ordini.
+    COUNT(o.id) AS order_count
+FROM customers AS c
+LEFT JOIN orders AS o
+    ON o.customer_id = c.id
+-- Una riga riassuntiva per ciascun cliente.
 GROUP BY c.id, c.name;
 ```
 
-**Cardinalità:** una relazione 1:N moltiplica le righe della tabella "uno".  
-Se un cliente ha 3 ordini, la JOIN produce 3 righe per quel cliente.
+`GROUP BY` raccoglie più righe unite in un gruppo e `COUNT` le riassume.
+`COUNT(*)`, invece, conterebbe anche la riga del cliente senza ordini creata dalla LEFT JOIN e non è adatto qui.
 
-**Errore comune:** filtro della tabella destra in `WHERE` dopo una `LEFT JOIN` (`WHERE o.status = 'paid'`) può eliminare i clienti senza ordini.
-Se vuoi conservarli, sposta il filtro nella clausola `ON`.
+**Attenzione — dove mettere il filtro:** una condizione `WHERE o.status = 'paid'` dopo la `LEFT JOIN` elimina i clienti senza ordini corrispondenti.
+Se vuoi mantenere tutti i clienti, metti la condizione di stato nella clausola `ON`, non nel `WHERE`.

@@ -1,10 +1,15 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 14.2 — Gruppi, backreference, lookaround, replace
 // Fonte: https://javascript.info/regexp-groups
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - I gruppi catturanti memorizzano sotto-stringhe; quelli non catturanti raggruppano senza salvarle.
+// - Le lookaround verificano condizioni senza includerle nella parte corrispondente.
+
 (() => {
   const date = '2026-10-19';
   const match = date.match(/(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/);
   console.log(match.groups); // {year:'2026', month:'10', day:'19'}
+  // replace può usare una regex per sostituire corrispondenze.
   console.log(date.replace(/(\d{4})-(\d{2})-(\d{2})/, '$3/$2/$1'));
   // (?:...) gruppo NON catturante; (a|b) alternanza.
   console.log(/^(?:cat|dog)$/.test('dog'));

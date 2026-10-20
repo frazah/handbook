@@ -9,10 +9,16 @@
 - **`DataFrame` / `df`**: tabella in pandas; `df` è solo un nome di variabile convenzionale.
 - **`.loc` / `.iloc`**: accesso pandas rispettivamente per etichette o posizioni.
 
+## Prima del codice: cosa riconoscere
+
+Nelle serie temporali lo split rispetta l’ordine cronologico. Negli esperimenti A/B si confrontano gruppi assegnati con una procedura adeguata, valutando incertezza e fattori di disturbo.
+
 ```python
 import pandas as pd
 # Carica i dati del file CSV in una tabella pandas.
+# read_csv legge un file esterno: colonne e tipi vanno verificati.
 df = pd.read_csv("orders.csv", parse_dates=["date"])
+# .loc[maschera, colonne] seleziona righe e colonne per etichetta.
 paid = df.loc[df["status"] == "paid"].copy()
 paid["revenue"] = paid["quantity"] * paid["price"]
 monthly = paid.set_index("date")["revenue"].resample("MS").sum()

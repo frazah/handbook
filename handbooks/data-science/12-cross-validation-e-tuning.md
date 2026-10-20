@@ -10,12 +10,17 @@ Il test finale serve a stimare le prestazioni su dati nuovi, non a scegliere l'i
 - **`X` / `y`**: `X` indica le variabili predittive; `y` il risultato da prevedere.
 - **`.fit()`**: apprende parametri dai dati di addestramento; non usarlo sul test set.
 
+## Prima del codice: cosa riconoscere
+
+Nella cross-validation il modello viene riaddestrato su partizioni diverse del training. Il test finale resta isolato: usarlo per scegliere parametri falserebbe la valutazione.
+
 ```python
 from sklearn.model_selection import StratifiedKFold, cross_validate, GridSearchCV
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 
+# La pipeline applica le trasformazioni e il modello nello stesso flusso.
 pipe = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 scores = cross_validate(pipe, X_train, y_train, cv=cv,

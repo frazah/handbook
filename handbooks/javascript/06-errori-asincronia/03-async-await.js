@@ -1,9 +1,14 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 06.3 — async/await, errori, parallelismo, abort
 // Fonte: https://javascript.info/async-await
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - async rende la funzione produttrice di una Promise; await ne attende il risultato.
+// - Promise.all serve per operazioni indipendenti in parallelo logico; attenzione ai fallimenti.
+
 (async () => {
   // async f() restituisce SEMPRE una Promise (anche se torna un numero).
   async function getAnswer() { return 42; }
+  // await attende una Promise dentro una funzione async.
   console.log(await getAnswer());
 
   // await sospende QUESTA funzione async, non blocca tutto JavaScript.

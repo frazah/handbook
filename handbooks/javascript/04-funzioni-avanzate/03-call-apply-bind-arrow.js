@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 04.3 — call, apply, bind, decorator, arrow e this
 // Fonte: https://javascript.info/bind
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - call/apply invocano scegliendo this; bind restituisce una nuova funzione con this associato.
+// - Le arrow non hanno il proprio this: usano quello dell’ambiente esterno.
+
 (() => {
   const user = { name: 'Ada' };
   function introduce(greeting, punctuation) {

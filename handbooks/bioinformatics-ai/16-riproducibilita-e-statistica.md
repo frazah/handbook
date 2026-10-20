@@ -15,6 +15,10 @@ Se esegui 10.000 test statistici al 5% senza correggere i confronti, in condizio
 
 ## Regole operative per informatici
 
+## Prima del codice: cosa riconoscere
+
+Una differenza statisticamente significativa non prova importanza biologica o causale. Con molte ipotesi testa il rischio di falsi positivi e correggi i confronti multipli.
+
 ```text
 input immutabile → pipeline versionata → seed quando utile
                   → QC e log → output rigenerabili → report limiti

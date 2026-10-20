@@ -5,6 +5,10 @@
 Una **sequenza biologica** è una successione ordinata di caratteri (basi del DNA/RNA oppure aminoacidi).  
 Gli algoritmi di **allineamento** mettono in corrispondenza posizioni di due o più sequenze, consentendo differenze e lacune (*gap*).
 
+## Prima del codice: cosa riconoscere
+
+**Identità** misura corrispondenza nell’allineamento, **omologia** è un’ipotesi di origine evolutiva comune. Non esiste rigorosamente una «percentuale di omologia».
+
 ```text
 A C G T A C G T
 A C G - A C G T

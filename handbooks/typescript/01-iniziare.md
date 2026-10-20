@@ -20,12 +20,22 @@ Nella configurazione abilita `"strict": true`; se usi i moduli moderni adegua an
 ## Inferenza e annotazioni
 
 ```ts
-const shippingPrice = 6.90;        // TS deduce number
-let coupon: string | null = null;  // tipizzazione esplicita
+// Inferenza: TypeScript deduce che questa costante è un numero.
+const shippingPrice = 6.90;
 
-function total(price: number, quantity: number): number {
-  return price * quantity + shippingPrice;
+// Union: il valore può essere una stringa OPPURE null.
+let coupon: string | null = null;
+
+function total(
+  price: number,
+  quantity: number,
+): number {
+  // price e quantity sono input; : number dopo ) è il tipo di ritorno.
+  const subtotal = price * quantity;
+  return subtotal + shippingPrice;
 }
+
+// Richiamiamo la funzione con due numeri.
 console.log(total(14.50, 2));
 // total("14", 2) → errore in compilazione
 ```

@@ -9,8 +9,11 @@ Esempio: prevedere se un ordine sarà restituito. `category`, `price` e `deliver
 
 ## Preprocessing dentro un pipeline
 
+## Prima del codice: cosa riconoscere
+
+Una **feature** è un’informazione usata dal modello; il **target** è ciò che vuoi prevedere. La data leakage si verifica se una feature contiene informazioni indisponibili quando il modello dovrà predire.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer

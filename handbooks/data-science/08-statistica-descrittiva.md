@@ -4,8 +4,11 @@
 
 ## Media o mediana?
 
+## Prima del codice: cosa riconoscere
+
+La **media** è sensibile ai valori estremi; la **mediana** è più robusta. La deviazione standard misura dispersione, non incertezza sulla stima di una media.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 import numpy as np
 basket = np.array([18, 22, 20, 24, 200])
 print(np.mean(basket))    # 56.8, sensibile all'outlier

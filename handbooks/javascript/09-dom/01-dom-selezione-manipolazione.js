@@ -2,6 +2,10 @@
 // JAVASCRIPT HANDBOOK 09.1 — Browser, DOM, selettori e manipolazione
 // Fonte: https://javascript.info/document
 // Solo browser: includi <script defer src="...file.js"></script>.
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - document rappresenta il DOM; querySelector usa selettori CSS.
+// - textContent scrive testo; innerHTML interpreta markup e non deve ricevere HTML non sicuro.
+
 (() => {
   if (typeof document === 'undefined') return; // Node non ha document
   // window = API finestra, document = DOM HTML, navigator = browser/platform.

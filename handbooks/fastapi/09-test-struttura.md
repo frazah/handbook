@@ -3,6 +3,10 @@
 **Idea.** Verifica status, corpo e permessi, non solo che la funzione Python ritorni un dict.
 TestClient invia richieste ASGI senza avviare il server in una porta reale.
 
+## Prima del codice: cosa riconoscere
+
+`TestClient(app)` permette di inviare richieste HTTP in test senza aprire una porta di rete. Nei test usa servizi/dati isolati e verifica anche errori, permessi e status, non solo il caso felice.
+
 ```python
 # test_main.py — installare: pip install pytest httpx
 from fastapi.testclient import TestClient

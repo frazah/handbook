@@ -7,6 +7,10 @@ Un *virtual environment* isola le dipendenze del progetto e impedisce conflitti 
 
 - **`venv`**: ambiente isolato in cui installare dipendenze per il progetto.
 
+## Prima del codice: cosa riconoscere
+
+`python3` avvia l’interprete. Un **ambiente virtuale** (`.venv`) contiene dipendenze del progetto e non è un ambiente remoto. In macOS, il comando iniziale è generalmente `python3`; all’interno del venv può essere disponibile anche `python`.
+
 ```bash
 # Esegui i comandi dalla cartella del progetto.
 python3 --version

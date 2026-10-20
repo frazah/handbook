@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 06.1 — Error, try/catch/finally, custom errors
 // Fonte: https://javascript.info/error-handling
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - try/catch intercetta errori sincroni; finally è utile per pulire risorse.
+// - Per Promise occorre await/then/catch: un try esterno non intercetta ogni errore asincrono.
+
 (() => {
   function readAge(json) {
     // JSON.parse puo' lanciare SyntaxError.

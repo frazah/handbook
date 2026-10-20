@@ -1,9 +1,14 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 07.1 — Generator, yield, iterator, for await
 // Fonte: https://javascript.info/generators
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - function* dichiara un generatore; yield consegna un valore e sospende.
+// - for await...of consuma un iterabile asincrono; non è uguale al normale for...of.
+
 (async () => {
   // Generator: function* e yield producono una sequenza 'on demand'.
   function* range(from, to) {
+    // yield consegna un valore senza terminare il generatore.
     for (let i = from; i <= to; i++) yield i;
   }
   const iter = range(1, 3);

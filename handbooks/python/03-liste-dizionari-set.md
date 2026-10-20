@@ -6,8 +6,11 @@
 
 - ***Comprehension***: sintassi compatta per costruire liste, dizionari o set da iterabili.
 
+## Prima del codice: cosa riconoscere
+
+`items[start:stop]` è uno *slice*: include `start`, esclude `stop`. Un dizionario associa chiavi a valori; una lista conserva un ordine di elementi; un `set` elimina i duplicati.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 orders = [
     {"id": 1, "total": 40.0, "paid": True},
     {"id": 2, "total": 15.0, "paid": False},

@@ -1,6 +1,10 @@
 <!-- level: Qualità -->
 <!-- summary: Dataset di test, qualità dei tool, tracce, failure rate e regression test -->
 # Evals e tracing: verificare che l'agente funzioni davvero
+## Prima del codice: cosa riconoscere
+
+Le **eval** confrontano casi noti e misure di qualità/sicurezza; il **tracing** registra passaggi, chiamate e tempi. Minimizza i dati personali nei log.
+
 
 Un demo che funziona una volta non è una valutazione.  
 Crea una raccolta di richieste rappresentative con **criteri di successo** e casi avversariali.

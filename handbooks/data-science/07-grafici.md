@@ -9,8 +9,11 @@
 | Com'è distribuita una variabile? | Istogramma o boxplot |
 | Due variabili sono associate? | Scatter plot |
 
+## Prima del codice: cosa riconoscere
+
+La scelta del grafico dipende dalla domanda: linee per evoluzione temporale, barre per categorie, scatter per relazioni fra variabili. Controlla assi, unità, aggregazioni e outlier.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 import matplotlib.pyplot as plt
 
 categories = ["Tech", "Books", "Home"]

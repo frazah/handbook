@@ -9,6 +9,10 @@ Distingui **host**, **client MCP** e **server MCP**.
 
 - ***MCP***: protocollo per esporre strumenti e risorse a client compatibili.
 
+## Prima del codice: cosa riconoscere
+
+MCP definisce un protocollo di collegamento fra un host, client e server. Il protocollo standardizza capacità ma non assegna automaticamente fiducia o autorizzazioni.
+
 ```text
 App / agente (host)
        |

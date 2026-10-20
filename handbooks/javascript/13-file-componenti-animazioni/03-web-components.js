@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 13.3 — Custom Elements, Shadow DOM, template, slot
 // Fonte: https://javascript.info/web-components
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Custom Elements registrano nuovi tag; Shadow DOM isola parte della struttura e degli stili.
+// - I componenti devono gestire lifecycle e accessibilità, non solo il markup.
+
 (() => {
   if (typeof customElements === 'undefined') return;
   // Web components = elementi HTML custom, encapsulation via Shadow DOM.
@@ -20,6 +24,7 @@
     }
   }
   if (!customElements.get('notice-box')) {
+    // customElements.define registra un nuovo tag Web Component.
     customElements.define('notice-box', NoticeBox);
   }
   // HTML: <notice-box><span>Messaggio</span></notice-box>

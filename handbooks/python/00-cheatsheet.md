@@ -78,9 +78,11 @@ class Task:
 
 # with gestisce automaticamente la chiusura del file.
 path = Path('tasks.json')
+# dumps serializza oggetti Python in testo JSON.
 path.write_text(json.dumps([{'title': 'Studiare', 'done': False}]), encoding='utf-8')
 
 try:
+    # loads converte testo JSON in oggetti Python.
     tasks = json.loads(path.read_text(encoding='utf-8'))
 except (OSError, json.JSONDecodeError) as exc:
     print(f'Errore lettura: {exc}')
@@ -100,3 +102,90 @@ except (OSError, json.JSONDecodeError) as exc:
 | Esegue come script | `if __name__ == '__main__':` |
 
 **Tipi Python:** `list[str]`, `dict[str, int]`, `str | None` sono annotazioni: utili per IDE e type checker, ma non validano automaticamente gli input.
+
+---
+
+## Ricettario: sintassi quotidiana
+
+### Iterare, filtrare e trasformare
+
+```python
+orders = [
+    {"id": 1, "paid": True, "amount": 20},
+    {"id": 2, "paid": False, "amount": 15},
+]
+
+# Versione leggibile: crea una lista nuova con gli importi pagati.
+paid_amounts = []
+for order in orders:
+    if order["paid"]:
+        paid_amounts.append(order["amount"])
+
+# Stessa logica nella forma compatta (list comprehension).
+paid_amounts = [
+    order["amount"]
+    for order in orders
+    if order["paid"]
+]
+
+# enumerate: indice + elemento; zip: coppie di elementi.
+for index, order in enumerate(orders, start=1):
+    print(index, order["id"])
+```
+
+### Funzioni, default, rest e keyword
+
+```python
+# Il tipo dopo -> è quello del valore restituito.
+def calculate_total(prices: list[float]) -> float:
+    return round(sum(prices), 2)
+
+# Il parametro dopo * va passato per nome.
+def create_order(title: str, *, priority: bool = False) -> dict:
+    return {"title": title, "priority": priority}
+
+new_order = create_order("Libro", priority=True)
+
+# * raccoglie argomenti posizionali in una tuple.
+def sum_all(*values: float) -> float:
+    return sum(values)
+```
+
+### Guardie, errori e file
+
+```python
+from pathlib import Path
+import json
+
+path = Path("settings.json")
+
+try:
+    # File JSON → testo → dati Python.
+    settings = json.loads(path.read_text(encoding="utf-8"))
+except FileNotFoundError:
+    settings = {"theme": "dark"}
+except json.JSONDecodeError as error:
+    raise ValueError("Configurazione JSON non valida") from error
+
+# Scrivi JSON leggibile, assicurando UTF-8.
+path.write_text(
+    json.dumps(settings, ensure_ascii=False, indent=2),
+    encoding="utf-8",
+)
+```
+
+**Attenzione:** non intercettare indiscriminatamente ogni eccezione con `except Exception: pass`.
+
+### Tipizzazione da riconoscere
+
+| Sintassi | Lettura |
+|---|---|
+| `name: str` | parametro/variabile annotata come stringa |
+| `-> list[int]` | risultato atteso: lista di interi |
+| `str \| None` | valore stringa oppure assente |
+| `dict[str, float]` | mappa da stringhe a numeri |
+| `*args` | molti argomenti posizionali |
+| `**kwargs` | molti argomenti per nome |
+| `@decorator` | applica una funzione decoratrice |
+| `yield` | restituisce un elemento e sospende il generatore |
+| `await` | attende una operazione asincrona in `async def` |

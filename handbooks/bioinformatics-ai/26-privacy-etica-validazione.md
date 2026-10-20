@@ -16,6 +16,10 @@ Rischi tipici: re-identificazione, inferenze involontarie, discriminazione, tras
 
 ## Valutare un modello AI prima di usarlo
 
+## Prima del codice: cosa riconoscere
+
+Dati clinici e genetici possono essere sensibili e difficilmente anonimizzabili. Minimizza accessi e conservazione; separa consenso, base giuridica e valutazione scientifica.
+
 ```text
 performance offline → validazione esterna → analisi di bias
                     → analisi rischio/beneficio → valutazione prospettica

@@ -7,8 +7,13 @@
 - **`@app.get(...)` / `@app.post(...)`**: decoratori che collegano una funzione a una rotta HTTP.
 - **`yield` nelle dipendenze**: mette a disposizione la risorsa e ne permette la pulizia al termine della richiesta.
 
+## Prima del codice: cosa riconoscere
+
+Il decoratore `@asynccontextmanager` costruisce un gestore di contesto asincrono; il codice prima di `yield` è startup, quello dopo è cleanup. `BackgroundTasks` non garantisce l’esecuzione persistente dei job.
+
 ```python
 from contextlib import asynccontextmanager
+# BackgroundTasks esegue lavoro dopo la risposta, ma non è una coda durabile.
 from fastapi import FastAPI, BackgroundTasks
 
 @asynccontextmanager

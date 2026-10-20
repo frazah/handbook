@@ -1,39 +1,110 @@
-# useState e gestione degli eventi
+<!-- level: Fondamenti -->
+<!-- summary: useState, click handler, aggiornamenti funzionali e stato immutabile -->
+# `useState` ed eventi
 
-**Idea.** Lo *state* è memoria locale che provoca un nuovo render.
-Ogni render vede uno snapshot dello stato; per un update basato sul valore precedente usa la funzione `prev => ...`.
+**Idea:** uno **state** è una memoria locale di un componente. Aggiornandolo chiedi a React di renderizzare nuovamente la UI.
 
-**Prima di leggere il codice — simboli e termini:**
-
-- **`JSX`**: sintassi simile a HTML dentro JavaScript: descrive gli elementi UI.
-- **`useState`**: Hook che conserva una variabile di stato fra i render.
+## 1. Stato minimo
 
 ```tsx
 import { useState } from 'react';
 
-function CartCounter() {
-  // Lo stato persiste tra i render: aggiornalo con la funzione setter.
-  const [items, setItems] = useState(0);
+function Counter() {
+  // useState(0) restituisce [valoreAttuale, funzionePerAggiornare].
+  // [count, setCount] è destructuring di un ARRAY.
+  const [count, setCount] = useState(0);
+
+  function handleIncrement() {
+    // Il nuovo valore dipende dal precedente: usiamo un updater.
+    setCount((previousCount) => previousCount + 1);
+  }
+
   return (
     <div>
-      <button onClick={() => setItems(n => Math.max(0, n - 1))}>−</button>
-      <output aria-live="polite">{items}</output>
-      <button onClick={() => setItems(n => n + 1)}>+</button>
+      <output aria-live="polite">{count}</output>
+      <button onClick={handleIncrement}>
+        Aumenta
+      </button>
     </div>
   );
 }
 ```
 
-## Aggiornare oggetti e array senza mutarli
+**Attenzione:** `onClick={handleIncrement}` passa la funzione. `onClick={handleIncrement()}` la *invoca durante il render* e non è ciò che vogliamo.
+
+## 2. Usare i parametri di un evento
 
 ```tsx
-// Lo stato persiste tra i render: aggiornalo con la funzione setter.
-const [tasks, setTasks] = useState([{ id: 1, done: false }]);
-const toggle = (id: number) => setTasks(old =>
-  // map costruisce una nuova collezione trasformando ogni elemento.
-  old.map(task => task.id === id ? { ...task, done: !task.done } : task)
-);
+type BuyButtonProps = {
+  productId: string;
+  onBuy: (id: string) => void;
+};
+
+function BuyButton(props: BuyButtonProps) {
+  function handleClick() {
+    // Questa callback riceve un ID e avverte il componente genitore.
+    props.onBuy(props.productId);
+  }
+
+  return (
+    <button onClick={handleClick}>
+      Acquista
+    </button>
+  );
+}
 ```
 
-**Attenzione:** non fare `tasks.push(...)` oppure `tasks[0].done = true` e poi aspettarti aggiornamenti affidabili.  
-Crea nuove strutture.
+Il tipo `(id: string) => void` **descrive una funzione** che riceve una stringa. `void` indica che il chiamante non usa il suo valore restituito; **non** significa che `onBuy` verrà chiamata automaticamente.
+
+## 3. Aggiornare oggetti senza mutare lo state
+
+```tsx
+import { useState } from 'react';
+
+type Task = {
+  id: number;
+  title: string;
+  done: boolean;
+};
+
+function TaskExample() {
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: 1, title: 'Studiare React', done: false },
+    { id: 2, title: 'Fare la spesa', done: true },
+  ]);
+
+  function toggleTask(id: number) {
+    setTasks((previousTasks) => {
+      // map() restituisce un NUOVO array.
+      return previousTasks.map((task) => {
+        if (task.id !== id) {
+          return task; // La task non interessata rimane identica.
+        }
+
+        // ...task copia le proprietà; done viene sovrascritta.
+        return { ...task, done: !task.done };
+      });
+    });
+  }
+
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <button onClick={() => toggleTask(task.id)}>
+            {task.done ? '✓' : '○'} {task.title}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+Qui `() => toggleTask(task.id)` **crea una funzione da eseguire al click**. Se scrivessi `toggleTask(task.id)` senza l'arrow function, la chiameresti durante il rendering.
+
+**Errore comune:** `tasks[0].done = true` oppure `tasks.push(newTask)` mutano lo stato esistente. Preferisci `map`, `filter`, spread e setter.
+
+## 4. Stato vs variabile locale
+
+Una variabile `let count = 0` dichiarata nel corpo del componente viene ricreata a ogni render; modificarla non provoca un render. `useState` serve proprio a conservare un valore e aggiornare l'interfaccia.

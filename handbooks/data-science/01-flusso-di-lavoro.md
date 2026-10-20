@@ -24,6 +24,10 @@ Un grafico perfetto di una metrica sbagliata è inutile.
 
 ## Forma consigliata del progetto
 
+## Prima del codice: cosa riconoscere
+
+Un’analisi nasce da una domanda verificabile e da una definizione di metrica. Separare raccolta, pulizia, analisi e presentazione permette di trovare errori e riprodurre i risultati.
+
 ```text
 analysis/
 ├── data/raw/            # input originale, immutabile

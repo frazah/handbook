@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 10.2 — Mouse, Pointer, tastiera, drag, scroll
 // Fonte: https://javascript.info/event-details
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Pointer events unificano mouse, penna e touch nei casi compatibili.
+// - Scroll e input frequenti richiedono attenzione a performance e accessibilità.
+
 (() => {
   if (typeof document === 'undefined') return;
 

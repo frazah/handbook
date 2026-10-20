@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 05.2 — Prototype chain, F.prototype, Object.create
 // Fonte: https://javascript.info/prototypes
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - La prototype chain viene consultata quando una proprietà non è presente nell’oggetto stesso.
+// - Object.create(proto) crea un oggetto con proto come prototipo, non ne copia le proprietà.
+
 (() => {
   // Ogni oggetto ha (normalmente) un prototype interno [[Prototype]].
   // Lettura proprieta': se assente sull'oggetto, cerca lungo la catena.

@@ -1,6 +1,10 @@
 <!-- level: Qualità -->
 <!-- summary: Decision tree per API diretta, tool calling, RAG, SDK e multi-agent -->
 # Progettare il livello giusto di automazione
+## Prima del codice: cosa riconoscere
+
+Scegli il pattern meno complesso che risolve il problema: funzione → workflow → RAG → agenti con tool → più agenti. Misura il beneficio prima di aumentare l’autonomia.
+
 
 | Problema | Partenza consigliata |
 |---|---|

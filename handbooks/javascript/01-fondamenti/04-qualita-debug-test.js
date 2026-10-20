@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 01.4 — Codice leggibile, debugging, test
 // Fonte: https://javascript.info/code-quality
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Una funzione pura è testabile: restituisce un risultato prevedibile senza modificare il mondo esterno.
+// - Un’asserzione nei test confronta il risultato reale con il risultato atteso.
+
 (() => {
   // STILE: nomi significativi, una responsabilita' per funzione,
   // const di default, let quando serve, indentazione coerente e ===.
@@ -28,7 +32,9 @@
   // debugger; // sospende SOLO se c'e' un debugger collegato
   // JSDoc di supporto, soprattutto senza TypeScript:
   /** @param {number} n @returns {boolean} */
-  function isEven(n) { return n % 2 === 0; }
+  function isEven(n) {
+    return n % 2 === 0;
+  }
   console.log(isEven(10));
 
   // Linee guida: evita input prompt durante test, effetti collaterali inattesi,

@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 03.1 — Metodi primitivi, numeri, stringhe
 // Fonte: https://javascript.info/data-types
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Le stringhe sono immutabili: i metodi restituiscono nuove stringhe.
+// - I number usano virgola mobile: evita === su risultati decimali non esatti.
+
 (() => {
   // PRIMITIVI: normalmente non sono oggetti; JS fornisce metodi tramite
   // wrapper temporanei (es. 'abc'.toUpperCase()). null/undefined no.

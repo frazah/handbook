@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 10.1 — Eventi, capturing/bubbling, delega, CustomEvent
 // Fonte: https://javascript.info/events
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Gli eventi passano da capture a target a bubble; currentTarget indica chi sta gestendo l’evento.
+// - La delega registra un handler sul contenitore e riconosce il bersaglio con closest.
+
 (() => {
   if (typeof document === 'undefined') return;
 
@@ -17,6 +21,7 @@
     console.log('action:', button.dataset.action);
     button.classList.toggle('selected');
   };
+  // La callback dell’evento verrà eseguita quando l’evento si verifica.
   list.addEventListener('click', onListClick);
   // list.removeEventListener('click', onListClick); // stessa funzione/flags
 

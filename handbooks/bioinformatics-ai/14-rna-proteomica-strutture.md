@@ -1,6 +1,10 @@
 <!-- level: Bioinformatica -->
 <!-- summary: RNA-seq, single-cell, proteine e strutture 3D -->
 # Espressione genica, proteomica e strutture 3D
+## Prima del codice: cosa riconoscere
+
+RNA-seq misura segnali legati all’espressione, proteomica studia proteine/peptidi, strutture 3D descrivono configurazioni molecolari. Sono strati diversi, non surrogati equivalenti.
+
 
 **RNA-seq:** misura, attraverso sequenziamento, frammenti di RNA presenti in un campione e permette di stimare livelli di espressione.  
 Una matrice comune è `campioni × geni` oppure `cellule × geni`.

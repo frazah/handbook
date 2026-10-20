@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 01.2 — Operatori, confronto, condizioni e cicli
 // Fonte: https://javascript.info/first-steps
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - === confronta senza conversioni implicite; == può convertirne gli operandi.
+// - ?? applica un default solo a null/undefined; || usa tutti i valori falsy.
+
 (() => {
 
   // 1. OPERATORI

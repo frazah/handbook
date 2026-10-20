@@ -1,12 +1,17 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 02.2 — Metodi, this, new, optional chaining, Symbol
 // Fonte: https://javascript.info/object-methods
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - this dipende dalla chiamata del metodo; estrarlo dall’oggetto può cambiare il contesto.
+// - new crea un’istanza collegata al prototipo del costruttore.
+
 (() => {
 
   // 1. this nelle funzioni normali dipende dalla CHIAMATA (non da dove
   // e' stata definita). In strict mode: chiamata senza ricevente => undefined.
   const user = {
     name: 'Ada',
+    // this dipende da come viene invocata la funzione, non da dove è dichiarata.
     sayHi() { return `Ciao ${this.name}`; }
   };
   console.log(user.sayHi()); // 'Ciao Ada'

@@ -7,10 +7,16 @@
 - **`SELECT`**: sceglie le colonne da leggere nella query.
 - **`OVER (...)`**: definisce la finestra di righe considerata da una funzione analitica.
 
+## Prima del codice: cosa riconoscere
+
+`OVER (...)` non riduce il numero di righe come `GROUP BY`. `PARTITION BY` forma gruppi logici e `ORDER BY` dentro `OVER` definisce l’ordine usato dal calcolo.
+
 ```sql
 -- Ordini di ogni cliente dal più caro al meno caro
 SELECT id, customer_id, total_cents,
+       -- OVER calcola risultati su una finestra senza eliminare le singole righe.
        ROW_NUMBER() OVER (
+         -- PARTITION BY definisce gruppi logici usati dalla funzione finestra.
          PARTITION BY customer_id
          ORDER BY total_cents DESC, id
        ) AS position
@@ -20,7 +26,9 @@ FROM orders;
 ```sql
 -- Totale cumulativo per cliente
 SELECT id, customer_id, total_cents,
+       -- OVER calcola risultati su una finestra senza eliminare le singole righe.
        SUM(total_cents) OVER (
+         -- PARTITION BY definisce gruppi logici usati dalla funzione finestra.
          PARTITION BY customer_id
          ORDER BY id
          ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW

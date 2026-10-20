@@ -27,21 +27,21 @@ Il programma ricostruisce `APRI-HANDBOOK.html` dai file correnti senza internet.
 
 | Tecnologia | Materiali | Formato |
 |---|---|---|
-| JavaScript | 40 capitoli/schede | .js/.mjs + .md |
-| TypeScript | 10 capitoli/schede | .md con blocchi di codice colorati |
-| React | 10 capitoli/schede | .md con blocchi di codice colorati |
-| Python | 11 capitoli/schede | .md con blocchi di codice colorati |
-| FastAPI | 11 capitoli/schede | .md con blocchi di codice colorati |
-| SQL | 11 capitoli/schede | .md con blocchi di codice colorati |
-| Data Science & Analysis | 17 capitoli/schede | .md + laboratorio pandas |
-| AI Agents | 18 capitoli/schede | .md + laboratorio offline/SDK opzionale |
+| JavaScript | 41 capitoli/schede | .js/.mjs + .md |
+| TypeScript | 11 capitoli/schede | .md con blocchi di codice colorati |
+| React | 11 capitoli/schede | .md con blocchi di codice colorati |
+| Python | 12 capitoli/schede | .md con blocchi di codice colorati |
+| FastAPI | 12 capitoli/schede | .md con blocchi di codice colorati |
+| SQL | 12 capitoli/schede | .md con blocchi di codice colorati |
+| Data Science & Analysis | 18 capitoli/schede | .md + laboratorio pandas |
+| AI Agents | 19 capitoli/schede | .md + laboratorio offline/SDK opzionale |
 | Bioinformatica, AI & Biosecurity | 36 capitoli/schede | .md + due mini laboratori Python |
 
 ## Percorso consigliato
 
 **Frontend:** JavaScript → TypeScript → React. **Backend:** Python → SQL → FastAPI. **Data Science:** Python → SQL → Data Science & Analysis. **AI Agents:** Python → API/FastAPI → AI Agents. **Bioinformatica:** biologia da zero → dati biologici → analisi → prevenzione e biosicurezza. **Full stack:** React + TypeScript con FastAPI + DB SQL.
 
-I contenuti mirano a spiegare **perché, quando e come** usare un concetto, con esempi brevi di ordini, task, form, report e CRUD.
+Le lezioni `00a-come-leggere` anticipano la sintassi nuova e le convenzioni didattiche sono in `CONVENZIONI-DIDATTICHE.md`. I contenuti mirano a spiegare **perché, quando e come** usare un concetto, con esempi brevi di ordini, task, form, report e CRUD.
 
 ## Attenzione sulla esecuzione
 
@@ -63,7 +63,7 @@ I contenuti mirano a spiegare **perché, quando e come** usare un concetto, con 
 - [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) / [MCP](https://modelcontextprotocol.io/introduction)
 - [EMBL-EBI Bioinformatics Training](https://www.ebi.ac.uk/training/)
 
-**Versione integrata:** 20 ottobre 2026. Le spiegazioni sono originali e sintetiche; non sostituiscono la documentazione ufficiale completa.
+**Versione didattica completa:** 20 ottobre 2026 · 172 schede, 9 handbook, 2 Recipes. Le spiegazioni sono originali e sintetiche; non sostituiscono la documentazione ufficiale completa.
 
 ## Aggiornamenti Git senza ZIP
 

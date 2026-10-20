@@ -87,3 +87,70 @@ example = {'order_id': 'O-102', 'action': 'read_status', 'approved': False}
 ```
 
 **Checklist di produzione:** identità, autorizzazione per risorsa, validazione input/output, niente segreti nei prompt, fonti e versioni, logging con dati minimizzati, eval regressivi, gestione prompt injection e strumenti a rischio dietro approvazione.
+
+---
+
+## Recipes dell'agente: versioni con confini chiari
+
+### Il loop, in pseudocodice
+
+```text
+ricevi richiesta utente
+    ↓
+prepara strumenti consentiti e limiti
+    ↓
+chiedi al modello un passo
+    ├─ risposta finale → controlla e mostra
+    └─ richiesta tool → verifica schema → autorizza → esegui → ritorna risultato
+    ↓
+ripeti soltanto entro limiti di tempo, costi e iterazioni
+```
+
+### Un tool di sola lettura con validazione
+
+```python
+ORDERS = {"O-1": "spedito"}
+
+# Funzione ordinaria: NON chiama alcun modello da sola.
+def lookup_order(order_id: str) -> dict:
+    if order_id not in ORDERS:
+        return {"found": False}
+    return {"found": True, "status": ORDERS[order_id]}
+
+# L'allowlist evita che il modello selezioni funzioni arbitrarie.
+TOOLS = {"lookup_order": lookup_order}
+
+def execute_requested_tool(name: str, arguments: dict) -> dict:
+    if name not in TOOLS:
+        raise ValueError("Tool non consentito")
+    if set(arguments) != {"order_id"}:
+        raise ValueError("Schema argomenti inatteso")
+
+    order_id = arguments["order_id"]
+    if not isinstance(order_id, str):
+        raise TypeError("order_id deve essere una stringa")
+
+    # In un sistema reale: verifica anche che l'utente sia proprietario dell'ordine.
+    return TOOLS[name](order_id)
+```
+
+### Decisioni importanti
+
+| Se devi… | Parti da… | Controllo obbligatorio |
+|---|---|---|
+| rispondere a una domanda | LLM diretto | valutare qualità |
+| interrogare dati | RAG + fonti | permessi per documento |
+| invocare una funzione | tool calling | schema + autorizzazione |
+| cambiare dati | workflow con approvazione | identità, audit, idempotenza |
+| usare più specialisti | orchestrazione | limiti costi/turni |
+| collegare servizi esterni | MCP se opportuno | fiducia e scope del server |
+
+### RAG ed eval: cosa misurare
+
+- **Retrieval recall**: fra le fonti necessarie, quante hai recuperato?
+- **Groundedness**: le affermazioni sono supportate dai documenti?
+- **Task success**: l'utente ha ottenuto il risultato desiderato?
+- **Sicurezza**: prompt injection, permessi e informazioni sensibili vengono gestiti correttamente?
+- **Costo/latency**: tempo, token e tool call per richiesta.
+
+**Nota:** la prima ricetta qui è eseguibile senza LLM; il loop rappresentato sopra è concettuale.

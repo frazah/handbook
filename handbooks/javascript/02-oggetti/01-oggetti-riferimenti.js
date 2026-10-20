@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 02.1 — Oggetti, proprieta', riferimenti e copie
 // Fonte: https://javascript.info/object
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Due variabili possono riferirsi allo stesso oggetto: una mutazione è visibile da entrambi i riferimenti.
+// - Le copie con spread / Object.assign sono superficiali e non duplicano oggetti annidati.
+
 (() => {
 
   // 1. Dizionario di proprieta': chiavi stringa o Symbol.
@@ -33,6 +37,7 @@
   const shallow = { ...original };
   shallow.address.city = 'Milano';
   console.log(original.address.city); // 'Milano' — nested reference condivisa
+  // Object.assign copia proprietà superficiali: gli oggetti annidati restano condivisi.
   const merged = Object.assign({}, original, { active: true });
   console.log(merged.active);
 

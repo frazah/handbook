@@ -18,8 +18,11 @@ L'unità spesso è una **popolazione definita**, non il singolo paziente.
 Se in un territorio di **20.000 residenti** ci sono **40 nuove segnalazioni** nel periodo, il tasso grezzo riportato per quel periodo è **20 per 10.000 residenti**.  
 Questo è solo un rapporto descrittivo: non è automaticamente una vera incidenza epidemiologica se il denominatore e la definizione dei casi non sono appropriati.
 
+## Prima del codice: cosa riconoscere
+
+**Incidenza**: nuovi casi nel tempo in una popolazione a rischio; **prevalenza**: casi presenti. Per confrontare gruppi servono definizioni coerenti di tempo, popolazione e misura.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 segnalazioni = 40
 popolazione = 20_000
 segnalazioni_x_10k = segnalazioni / popolazione * 10_000

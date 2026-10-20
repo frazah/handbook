@@ -9,6 +9,10 @@ Con `Query`/`Path` aggiungi vincoli.
 - **`Annotated[T, ...]`**: mantiene il tipo `T` e aggiunge metadati usati da FastAPI.
 - **`HTTPException`**: eccezione che genera una risposta HTTP di errore controllata.
 
+## Prima del codice: cosa riconoscere
+
+`/tasks/{task_id}` contiene un **path parameter**. La query string è la parte dopo `?`; `Annotated[int, Path(gt=0)]` significa «intero con metadati di validazione FastAPI».
+
 ```python
 from typing import Annotated
 from fastapi import FastAPI, HTTPException, Path, Query
@@ -17,10 +21,12 @@ app = FastAPI()
 TASKS = {1: {"id": 1, "title": "Spedire ordine", "done": False}}
 
 @app.get("/tasks/{task_id}")
+# Annotated combina un tipo Python e metadati interpretati dal framework.
 def get_task(task_id: Annotated[int, Path(gt=0)]):
     task = TASKS.get(task_id)
     if task is None:
         # Restituisce al client un errore HTTP esplicito.
+        # Un errore previsto diventa una risposta HTTP con codice esplicito.
         raise HTTPException(status_code=404, detail="Task non trovata")
     return task
 

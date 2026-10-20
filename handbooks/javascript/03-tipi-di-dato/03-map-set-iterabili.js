@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 03.3 — Iterabili, Map, Set, WeakMap/WeakSet
 // Fonte: https://javascript.info/map-set
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Map usa chiavi di qualunque tipo; Set conserva valori unici.
+// - for...of funziona su valori iterabili; for...in enumera chiavi e ha semantica diversa.
+
 (() => {
   // Iterable: espone Symbol.iterator; si usa in for...of / spread.
   for (const letter of 'abc') console.log(letter);

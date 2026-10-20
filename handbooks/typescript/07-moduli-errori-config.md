@@ -12,12 +12,18 @@ Separare i file aiuta a mantenere i tipi di dominio vicini alle funzioni che li 
 
 ```ts
 // "export type" rende disponibile il tipo agli altri file.
-export type Money = { amount: number; currency: 'EUR' | 'USD' };
+export type Money = {
+  amount: number;
+  currency: 'EUR' | 'USD';
+};
 
 // Questa è invece una funzione vera, presente anche a runtime.
 export function withTax(net: Money, rate = 0.22): Money {
+  // Convertiamo in centesimi prima di arrotondare a due decimali.
   const gross = Math.round(net.amount * (1 + rate) * 100) / 100;
-  return { ...net, amount: gross }; // mantiene la valuta originale
+
+  // Copiamo gli altri campi (come currency) e sostituiamo amount.
+  return { ...net, amount: gross };
 }
 ```
 
@@ -27,7 +33,11 @@ export function withTax(net: Money, rate = 0.22): Money {
 // "type" importa solo il contratto; "withTax" è codice eseguibile.
 import { withTax, type Money } from './prices.js';
 
-const net: Money = { amount: 20, currency: 'EUR' };
+const net: Money = {
+  amount: 20,
+  currency: 'EUR',
+};
+
 console.log(withTax(net)); // { amount: 24.4, currency: 'EUR' }
 ```
 

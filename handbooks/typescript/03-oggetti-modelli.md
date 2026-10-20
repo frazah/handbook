@@ -13,12 +13,21 @@ interface User {
   readonly createdAt: Date; // TS blocca riassegnazioni dirette
 }
 
-type Admin = User & { permissions: string[] };
-const admin: Admin = {
-  id: 'u1', name: 'Ada', createdAt: new Date(),
-  permissions: ['refunds:read']
+// Intersection (&): un Admin ha tutte le proprietà di User
+// E IN PIÙ il campo permissions.
+type Admin = User & {
+  permissions: string[];
 };
 
+const admin: Admin = {
+  id: 'u1',
+  name: 'Ada',
+  createdAt: new Date(),
+  permissions: ['refunds:read'],
+};
+
+// ?. evita l'accesso se email è undefined.
+// ?? fornisce un fallback solo per null e undefined.
 const emailLabel = admin.email?.toLowerCase() ?? 'email assente';
 ```
 
@@ -39,11 +48,18 @@ Se scrivessi `ApiResponse<Product>`, lo stesso modello conterrebbe un prodotto.
 // I tipi descrivono il contratto; le istruzioni restano JavaScript a runtime.
 type ApiResponse<T> = {
   data: T;
-  pagination?: { page: number; total: number };
+  pagination?: {
+    page: number;
+    total: number;
+  };
 };
 
 const response: ApiResponse<User[]> = {
-  data: [admin], pagination: { page: 1, total: 1 }
+  data: [admin],
+  pagination: {
+    page: 1,
+    total: 1,
+  },
 };
 ```
 

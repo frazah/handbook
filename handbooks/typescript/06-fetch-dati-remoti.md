@@ -12,20 +12,38 @@ Considera `response.json()` come `unknown` e controlla la struttura.
 type Task = { id: number; title: string; completed: boolean };
 
 function isTask(value: unknown): value is Task {
-  if (typeof value !== 'object' || value === null) return false;
+  // Prima escludiamo null e i valori primitivi.
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  // Dopo il controllo possiamo leggere proprietà dinamiche come unknown.
   const obj = value as Record<string, unknown>;
-  return typeof obj.id === 'number'
-    && typeof obj.title === 'string'
-    && typeof obj.completed === 'boolean';
+
+  // Controlliamo davvero tutti i campi richiesti dal modello Task.
+  return (
+    typeof obj.id === 'number' &&
+    typeof obj.title === 'string' &&
+    typeof obj.completed === 'boolean'
+  );
 }
 
 async function getTask(id: number): Promise<Task> {
   // Attende la risposta HTTP prima di usare i dati.
   const res = await fetch(`/api/tasks/${id}`);
   // Verifica lo stato HTTP: fetch non genera eccezioni per 404 e 500.
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+
+  // Non fidarti ciecamente del JSON: TypeScript non valida la rete.
   const data: unknown = await res.json();
-  if (!isTask(data)) throw new Error('Risposta API non valida');
+
+  if (!isTask(data)) {
+    throw new Error('Risposta API non valida');
+  }
+
+  // Il type guard ha ristretto unknown a Task.
   return data;
 }
 ```

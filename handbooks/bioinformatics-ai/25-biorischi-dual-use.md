@@ -1,6 +1,10 @@
 <!-- level: Biosecurity -->
 <!-- summary: Uso duale, ricerca responsabile, governance e valutazione preventiva -->
 # Dual use e gestione responsabile della ricerca
+## Prima del codice: cosa riconoscere
+
+Il **dual use** significa che una ricerca può avere applicazioni benefiche e rischi di impiego improprio. La valutazione del rischio è contestuale, documentata e soggetta a governance.
+
 
 **Dual use** significa che strumenti, dati o conoscenze pensati per scopi benefici possono anche avere impieghi dannosi.  
 La convergenza fra biologia, AI, automazione e accesso a dati su larga scala impone una valutazione dei rischi **prima** del deployment.

@@ -9,17 +9,24 @@ Ogni scelta dipende dal significato della colonna e dall'impatto sulle metriche.
 
 - **`.loc` / `.iloc`**: accesso pandas rispettivamente per etichette o posizioni.
 
+## Prima del codice: cosa riconoscere
+
+`NaN` indica un valore mancante; non equivale a zero. `dropna` elimina record, `fillna` li sostituisce: entrambi cambiano il dataset e richiedono una scelta motivata.
+
 ```python
 import pandas as pd
 # Carica i dati del file CSV in una tabella pandas.
+# read_csv legge un file esterno: colonne e tipi vanno verificati.
 orders = pd.read_csv("orders.csv")
 print(orders.isna().sum())
 print(orders.duplicated(subset=["order_id"]).sum())
 
 # Rimuovi solo i duplicati realmente accidentali:
 orders = orders.drop_duplicates(subset=["order_id"])
+# Con errors="coerce" i valori non numerici diventano NaN.
 orders["quantity"] = pd.to_numeric(orders["quantity"], errors="coerce")
 invalid = orders["quantity"].isna() | orders["quantity"].le(0)
+# .loc[maschera, colonne] seleziona righe e colonne per etichetta.
 print("Righe da verificare:", orders.loc[invalid, "order_id"].tolist())
 ```
 

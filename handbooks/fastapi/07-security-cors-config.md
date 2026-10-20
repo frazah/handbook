@@ -4,8 +4,11 @@
 Token firmati non significano automaticamente permessi corretti.
 CORS è una regola del browser, **non** un sostituto dell'autenticazione.
 
+## Prima del codice: cosa riconoscere
+
+CORS è una politica applicata dai browser per richieste tra origini diverse: **non** sostituisce autenticazione/autorizzazione. I token e i segreti richiedono gestione sicura e verifiche lato server.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()

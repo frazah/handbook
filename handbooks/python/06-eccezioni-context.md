@@ -8,6 +8,10 @@ Cattura solo errori prevedibili e specifici; usa `finally` per rilascio risorse 
 - **`def`**: dichiara una funzione, cioè un blocco riutilizzabile di operazioni.
 - **`->`**: annotazione di tipo del risultato: Python non la impone a runtime.
 
+## Prima del codice: cosa riconoscere
+
+Il ramo `except` esegue solo se nel blocco `try` viene sollevata un’eccezione compatibile. `finally` serve per la pulizia; `with` delega apertura/chiusura a un *context manager*.
+
 ```python
 import logging
 from pathlib import Path
@@ -18,6 +22,7 @@ def load_settings(path: Path) -> dict:
     try:
         import json
         # Converte un testo JSON in oggetti Python.
+        # loads converte testo JSON in oggetti Python.
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         logging.warning("Configurazione assente: uso default")
@@ -29,7 +34,6 @@ def load_settings(path: Path) -> dict:
 ## Creare eccezioni del dominio
 
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 class OutOfStockError(Exception):
     pass
 

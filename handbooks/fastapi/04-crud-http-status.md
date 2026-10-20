@@ -8,6 +8,10 @@
 - **`BaseModel`**: modello Pydantic che valida dati e definisce uno schema di input/output.
 - **`HTTPException`**: eccezione che genera una risposta HTTP di errore controllata.
 
+## Prima del codice: cosa riconoscere
+
+CRUD = Create, Read, Update, Delete; corrisponde di solito a POST, GET, PATCH/PUT e DELETE. `HTTPException` restituisce uno status intenzionale; non serve per nascondere bug del server.
+
 ```python
 from fastapi import FastAPI, HTTPException, Response, status
 from pydantic import BaseModel
@@ -22,6 +26,7 @@ items: dict[int, ItemIn] = {}
 @app.put('/items/{item_id}', response_model=ItemIn)
 def put_item(item_id: int, payload: ItemIn):
     # Restituisce al client un errore HTTP esplicito.
+    # Un errore previsto diventa una risposta HTTP con codice esplicito.
     if item_id <= 0: raise HTTPException(400, 'ID non valido')
     items[item_id] = payload
     return payload

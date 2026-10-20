@@ -5,6 +5,10 @@
 Il **sequenziamento** fornisce informazioni sull'ordine di basi in frammenti di materiale genetico.  
 Il sequenziatore non consegna necessariamente un genoma «pronto»: i suoi output devono essere interpretati con metodi computazionali.
 
+## Prima del codice: cosa riconoscere
+
+Sequenziamento = tecnica di misurazione; *read* = frammento letto; *reference genome* = sequenza di riferimento; *coverage* = quanta informazione copre certe posizioni. Un riferimento non coincide con ogni individuo.
+
 ```text
 Letture → QC → analisi rispetto a riferimento / ricostruzione
         → annotazioni / varianti → controlli e interpretazione

@@ -1,10 +1,15 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 12.3 — localStorage, sessionStorage, cookie, IndexedDB
 // Fonte: https://javascript.info/data-storage
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - localStorage e sessionStorage conservano stringhe; IndexedDB archivia dati strutturati.
+// - Non conservare credenziali sensibili nel browser confidando nel solo storage.
+
 (() => {
   if (typeof window === 'undefined') return;
   // Web Storage e' sincrono, memorizza solo STRINGHE.
   try {
+    // localStorage conserva stringhe nel browser; non è un vault per segreti.
     localStorage.setItem('handbook:theme', 'dark');
     console.log(localStorage.getItem('handbook:theme'));
     localStorage.removeItem('handbook:theme');

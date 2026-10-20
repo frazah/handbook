@@ -8,6 +8,10 @@
 - **`->`**: annotazione di tipo del risultato: Python non la impone a runtime.
 - **`with`**: gestisce apertura/chiusura sicura di una risorsa tramite un context manager.
 
+## Prima del codice: cosa riconoscere
+
+Un test ha tre parti: prepara i dati, esegui la funzione, confronta risultato e aspettativa. `assert` è comodo nei test; per validare input applicativi usa eccezioni o controlli espliciti.
+
 ```python
 # pricing.py
 def apply_discount(total: float, percent: float) -> float:

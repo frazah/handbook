@@ -1,6 +1,10 @@
 <!-- level: Prevenzione -->
 <!-- summary: Prevenzione primaria, secondaria e terziaria; interdipendenza animale-ambiente-persone -->
 # Prevenzione: prima, durante e dopo
+## Prima del codice: cosa riconoscere
+
+La prevenzione primaria riduce il rischio prima dell’evento, la secondaria favorisce identificazione tempestiva, la terziaria riduce conseguenze. **One Health** integra salute umana, animale e ambiente.
+
 
 Le politiche preventive mirano a ridurre la probabilità o l'impatto di condizioni dannose.  
 La suddivisione classica distingue:

@@ -8,6 +8,10 @@ Una migrazione descrive una modifica ripetibile allo schema.
 - **`SELECT`**: sceglie le colonne da leggere nella query.
 - **`WITH` (CTE)**: assegna un nome a una query intermedia usata dalla query principale.
 
+## Prima del codice: cosa riconoscere
+
+`UNIQUE`, `NOT NULL` e `FOREIGN KEY` sono vincoli del database, non semplici commenti. Una migrazione modifica lo schema in modo versionato; usa **query parametrizzate** per input esterni.
+
 ```sql
 -- La query elabora i dati senza ricorrere a cicli nel codice applicativo.
 CREATE TABLE products (

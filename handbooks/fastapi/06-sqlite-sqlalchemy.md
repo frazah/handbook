@@ -10,6 +10,10 @@ Una sessione database per richiesta aiuta a isolare transazioni e connessioni.
 - **`Depends(...)`**: dichiara una dipendenza costruita o risolta per la richiesta.
 - **`yield` nelle dipendenze**: mette a disposizione la risorsa e ne permette la pulizia al termine della richiesta.
 
+## Prima del codice: cosa riconoscere
+
+`Session` è l’unità di lavoro col database, non una connessione da conservare globalmente. `select(Model)` costruisce una query; `session.commit()` rende persistenti le modifiche nella transazione.
+
 ```python
 # Installare: pip install sqlalchemy
 from sqlalchemy import create_engine, select

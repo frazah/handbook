@@ -1,11 +1,16 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 06.2 — Promise, chaining, combinatori, microtask
 // Fonte: https://javascript.info/async
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Promise è un contenitore di un risultato futuro; then registra la continuazione.
+// - I callback Promise (microtask) vengono elaborati secondo le regole dell’event loop.
+
 (() => {
   // Una Promise rappresenta un risultato FUTURO: pending -> fulfilled/rejected.
   // Un valore e' 'thenable' se espone un metodo then compatibile.
   const valueLater = new Promise(resolve => resolve(10));
   const chain = valueLater
+    // then registra il callback eseguito quando la Promise si risolve.
     .then(n => n * 2)       // produce una NUOVA Promise
     .then(n => { console.log('then:', n); return n + 1; })
     .catch(err => { console.error(err); return 0; })

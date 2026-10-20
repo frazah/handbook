@@ -4,6 +4,10 @@
 
 ## Setup minimo
 
+## Prima del codice: cosa riconoscere
+
+Un notebook conserva celle in un ordine di esecuzione che può differire dall’ordine visualizzato: rilancia dall’inizio per verificare riproducibilità. Usa ambienti virtuali e versiona le dipendenze.
+
 ```bash
 python -m venv .venv
 # macOS/Linux: source .venv/bin/activate

@@ -8,6 +8,10 @@
 - **`->`**: annotazione di tipo del risultato: Python non la impone a runtime.
 - **`@decorator`**: sintassi che applica una funzione/classe decoratrice a una definizione.
 
+## Prima del codice: cosa riconoscere
+
+`yield` non è un `return` normale: sospende la funzione conservandone lo stato. `@wraps` preserva i metadati della funzione decorata; `async` e `await` riguardano l’attesa non bloccante di operazioni I/O.
+
 ```python
 def invoice_ids(records: list[dict]):
     for row in records:
@@ -21,10 +25,10 @@ print(list(invoice_ids([{"id": 1, "paid": True}])))
 ## Decorator semplice
 
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from functools import wraps
 
 def traced(func):
+    # wraps conserva nome e metadati della funzione originale.
     @wraps(func)
     def wrapper(*args, **kwargs):
         print("Chiamata:", func.__name__)
@@ -46,6 +50,7 @@ async def fetch_simulated():
     await asyncio.sleep(0.1)  # esempio di attesa non bloccante
     return {"ok": True}
 
+# asyncio.run avvia il ciclo eventi in uno script; evita cicli già attivi.
 print(asyncio.run(fetch_simulated()))
 ```
 

@@ -7,12 +7,18 @@
 - **`DataFrame` / `df`**: tabella in pandas; `df` è solo un nome di variabile convenzionale.
 - **`groupby`**: raggruppa righe per calcolare conteggi, somme e statistiche.
 
+## Prima del codice: cosa riconoscere
+
+`groupby(...).agg(...)` forma gruppi e calcola indicatori; `merge(..., on=..., how=...)` unisce due tabelle. Prima della JOIN verifica unicità delle chiavi per evitare moltiplicazioni inattese.
+
 ```python
 import pandas as pd
 # Carica i dati del file CSV in una tabella pandas.
+# read_csv legge un file esterno: colonne e tipi vanno verificati.
 paid = pd.read_csv("orders.csv").query("status == 'paid'").copy()
 paid["amount"] = paid["price"] * paid["quantity"]
 # Raggruppa le righe per calcolare aggregazioni per categoria.
+# groupby forma gruppi: la successiva aggregazione li riassume.
 summary = paid.groupby("category", as_index=False).agg(
     revenue=("amount", "sum"),
     orders=("order_id", "nunique"),
@@ -27,6 +33,7 @@ print(summary.sort_values("revenue", ascending=False))
 catalog = pd.DataFrame({"category": ["Books", "Tech", "Home"],
                         "manager": ["Anna", "Luca", "Marta"]})
 # Unisce due tabelle mediante una o più chiavi condivise.
+# merge unisce le tabelle: controlla prima unicità delle chiavi.
 report = summary.merge(catalog, on="category", how="left", validate="m:1")
 ```
 
@@ -35,8 +42,10 @@ report = summary.merge(catalog, on="category", how="left", validate="m:1")
 ## Tabelle pivot e date
 
 ```python
+# Valori non convertibili possono diventare mancanti (NaT).
 paid["date"] = pd.to_datetime(paid["date"])
 # Raggruppa le righe per calcolare aggregazioni per categoria.
+# groupby forma gruppi: la successiva aggregazione li riassume.
 monthly = paid.groupby([pd.Grouper(key="date", freq="MS"), "category"])["amount"].sum().unstack(fill_value=0)
 print(monthly)
 ```

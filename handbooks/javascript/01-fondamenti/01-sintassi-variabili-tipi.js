@@ -4,6 +4,11 @@
 // COME USARLO: node 01-sintassi-variabili-tipi.js (oppure Console del browser)
 // Ogni file e' indipendente: variabili locali e nessun prompt invasivo.
 
+// => introduce una arrow function; qui la usiamo come valore o callback.
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - let può essere riassegnata, const no; const non rende immutabili gli oggetti.
+// - typeof null restituisce "object" per un’anomalia storica, non perché null sia un oggetto.
+
 (() => {
 
   // 1. SINTASSI — istruzioni, blocchi, commenti

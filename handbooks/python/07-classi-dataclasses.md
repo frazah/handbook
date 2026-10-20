@@ -8,8 +8,11 @@
 - **`->`**: annotazione di tipo del risultato: Python non la impone a runtime.
 - **`@decorator`**: sintassi che applica una funzione/classe decoratrice a una definizione.
 
+## Prima del codice: cosa riconoscere
+
+`self` indica l’istanza su cui viene chiamato un metodo. `@dataclass` è un *decoratore* che genera metodi come `__init__` a partire dai campi annotati; non trasforma la classe in un dizionario.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from dataclasses import dataclass, field
 
 @dataclass

@@ -5,8 +5,11 @@
 Nel **clustering** non hai una target nota: cerchi gruppi di osservazioni simili.  
 Esempio: segmentare utenti per frequenza d'acquisto e scontrino medio.
 
+## Prima del codice: cosa riconoscere
+
+Il **clustering** raggruppa esempi senza etichette note; la riduzione dimensionale comprime feature cercando di conservare struttura utile. I gruppi trovati non hanno automaticamente significato causale.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 

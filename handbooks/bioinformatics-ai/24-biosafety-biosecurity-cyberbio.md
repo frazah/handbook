@@ -1,6 +1,10 @@
 <!-- level: Biosecurity -->
 <!-- summary: Biosafety, biosecurity, cyberbiosecurity e biorisk management -->
 # Biosafety, biosecurity e cyberbiosecurity: non sono sinonimi
+## Prima del codice: cosa riconoscere
+
+**Biosafety** tratta incidenti involontari; **biosecurity** accessi/usi impropri; **cyberbiosecurity** l’integrità e la sicurezza della parte digitale. La progettazione dei controlli biologici richiede competenze specialistiche.
+
 
 ## Tre prospettive
 

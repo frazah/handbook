@@ -8,6 +8,10 @@
 - **`JOIN`**: combina righe da più tabelle secondo una condizione di relazione.
 - **`GROUP BY`**: raggruppa righe per calcolare aggregati come `COUNT` e `SUM`.
 
+## Prima del codice: cosa riconoscere
+
+Una **subquery** è una query dentro un’altra query. Una CTE (`WITH nome AS (...)`) assegna un nome temporaneo a un risultato; `EXISTS` controlla se esiste almeno una riga.
+
 ```sql
 -- Clienti che hanno almeno un ordine pagato
 SELECT c.id, c.name
@@ -17,6 +21,7 @@ WHERE EXISTS (
   WHERE o.customer_id = c.id AND o.status = 'paid'
 );
 
+-- WITH assegna un nome a un risultato temporaneo della query.
 WITH totals AS (
   SELECT customer_id, SUM(total_cents) AS spent
   FROM orders WHERE status = 'paid'
@@ -25,6 +30,7 @@ WITH totals AS (
 -- Seleziona le colonne richieste, senza modificare i dati.
 SELECT c.name, totals.spent
 FROM customers AS c
+-- JOIN conserva le corrispondenze definite da ON.
 JOIN totals ON totals.customer_id = c.id
 WHERE totals.spent >= 10000;
 ```

@@ -2,6 +2,10 @@
 // JAVASCRIPT HANDBOOK 05.3 — Classi, extends, super, #private, static,
 // instanceof, mixin
 // Fonte: https://javascript.info/classes
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Una class è sintassi costruita sul sistema di prototipi.
+// - extends definisce ereditarietà; super richiama il costruttore o metodo della classe base.
+
 (() => {
   class Animal {
     static kingdom = 'Animalia';
@@ -12,6 +16,7 @@
     speak() { return `${this.name} fa un verso`; }
     static describe() { return this.kingdom; } // metodo della CLASSE
   }
+  // extends crea un rapporto di ereditarietà tra classi.
   class Dog extends Animal {
     constructor(name, breed) {
       super(name); // obbligatorio prima di this nel constructor derivato

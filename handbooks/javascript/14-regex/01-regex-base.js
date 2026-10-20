@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 14.1 — Regex: pattern, classi, ancore, quantificatori
 // Fonte: https://javascript.info/regular-expressions
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Le espressioni regolari descrivono pattern; test e match hanno risultati diversi.
+// - Le ancore ^ e $ controllano le posizioni; quantificatori ripetono pattern.
+
 (() => {
   // /pattern/flags oppure new RegExp(string, flags).
   const emailLike = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

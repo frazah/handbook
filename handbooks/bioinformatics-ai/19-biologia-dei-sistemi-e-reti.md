@@ -1,6 +1,10 @@
 <!-- level: AI + Biologia -->
 <!-- summary: Grafi, sistemi complessi, modelli meccanicistici e causalità -->
 # Biologia dei sistemi, reti e modelli
+## Prima del codice: cosa riconoscere
+
+Una rete biologica usa **nodi** (entità) e **archi** (relazioni) con incertezza. Un grafo di associazioni non è automaticamente una mappa di effetti causali.
+
 
 Le componenti biologiche interagiscono: per interpretare fenomeni complessi servono **reti**, dinamiche e relazioni tra scale.  
 Una rete biologica può rappresentare interazioni fisiche tra proteine, relazioni ecologiche o contatti osservati fra individui.

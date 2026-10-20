@@ -9,7 +9,7 @@ Apri `APRI-HANDBOOK.html` nel browser (anche offline) o la cartella in VS Code. 
 ## Come si modifica (workflow consigliato)
 
 1. Modifica un `.md` sotto `handbooks/<nome>/` in VS Code, anche con AI Copilot / strumenti simili.
-2. Per aggiornare **il lettore locale**: `python -m pip install -r requirements-hub.txt` (prima volta), poi `python AGGIORNA-HUB.py`.
+2. Per aggiornare **il lettore locale**: `python3 -m pip install -r requirements-hub.txt` (prima volta), poi `python3 AGGIORNA-HUB.py`.
 3. `git add . && git commit -m "Aggiornato handbook" && git push`.
 4. Se abiliti GitHub Pages con origine **GitHub Actions**, il workflow `.github/workflows/pages.yml` ricostruirà il sito automaticamente a ogni push su `main`, anche se non hai rigenerato l'HTML localmente.
 
@@ -18,14 +18,14 @@ Apri `APRI-HANDBOOK.html` nel browser (anche offline) o la cartella in VS Code. 
 ```bash
 python tools/nuovo_handbook.py docker Docker
 # modifica handbooks/docker/book.json e i capitoli .md
-python AGGIORNA-HUB.py
+python3 AGGIORNA-HUB.py
 ```
 
 Oppure **copia solo una nuova cartella** in `handbooks/`: deve contenere `book.json` e i `.md`. Non serve editare a mano `manifest.json` o il codice del sito. Approfondisci in [CONTRIBUIRE.md](CONTRIBUIRE.md).
 
 ## Installare e provare i laboratori
 
-`esempi/` contiene laboratori per le tecnologie principali; l’handbook Bioinformatica include anche `handbooks/bioinformatics-ai/lab/`. Per `data-science`, `python -m pip install -r esempi/data-science/requirements.txt` e poi esegui il suo `analyze_orders.py`. Per `ai-agents`, il laboratorio offline non usa chiavi API; lo SDK reale è opzionale.
+`esempi/` contiene laboratori per le tecnologie principali; l’handbook Bioinformatica include anche `handbooks/bioinformatics-ai/lab/`. Per `data-science`, `python3 -m pip install -r esempi/data-science/requirements.txt` e poi esegui il suo `analyze_orders.py`. Per `ai-agents`, il laboratorio offline non usa chiavi API; lo SDK reale è opzionale.
 
 ## Contenuti e fonti
 
@@ -40,7 +40,7 @@ Una **recipe** è un mini-percorso pratico che unisce più handbook e vive in `r
 ```bash
 python tools/nuova_recipe.py react-sql-dashboard "Dashboard React + SQL"
 # modifica recipes/react-sql-dashboard/recipe.json e README.md
-python AGGIORNA-HUB.py
+python3 AGGIORNA-HUB.py
 ```
 
 **Non serve sostituire lo ZIP:** lavora nel repository locale con VS Code e Git; `git add`, `commit` e `push` aggiornano i sorgenti. Il workflow Pages include anche `recipes/`. La pagina HTML locale resta una build statica: ricostruiscila per vedere le modifiche offline.

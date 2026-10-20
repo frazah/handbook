@@ -14,7 +14,10 @@ Ti serve quando la stessa funzione deve lavorare con prodotti, utenti, numeri o 
 
 ```ts
 // Il parametro price è un numero; la funzione restituisce un numero.
-function withTax(price: number, rate: number = 0.22): number {
+function withTax(
+  price: number,
+  rate: number = 0.22,
+): number {
   return price * (1 + rate);
 }
 
@@ -52,9 +55,17 @@ Se vuoi accedere a `.id`, devi garantire che ogni elemento lo possieda.
 
 ```ts
 // T può avere altri campi, ma deve almeno avere id: string.
-function indexById<T extends { id: string }>(rows: T[]): Map<string, T> {
-  // Map conserva anche il tipo delle altre proprietà di T.
-  return new Map(rows.map(row => [row.id, row]));
+function indexById<T extends { id: string }>(
+  rows: T[],
+): Map<string, T> {
+  // Crea coppie [ID, oggetto] per costruire la Map.
+  const entries = rows.map((row) => {
+    // "as const" mantiene questa coppia una tupla readonly.
+    return [row.id, row] as const;
+  });
+
+  // Le chiavi sono stringhe; i valori conservano il tipo T.
+  return new Map(entries);
 }
 
 const byId = indexById([
@@ -78,12 +89,20 @@ Una *callback* è una funzione passata a un'altra funzione. `(value: T) => boole
 // Validator<T> è un tipo di funzione: riceve T, restituisce boolean.
 type Validator<T> = (value: T) => boolean;
 
-function filterValid<T>(items: T[], isValid: Validator<T>): T[] {
-  // filter mantiene soltanto gli elementi per cui la condizione è vera.
-  return items.filter(isValid); // array nuovo con i soli valori accettati
+function filterValid<T>(
+  items: T[],
+  isValid: Validator<T>,
+): T[] {
+  // filter chiama isValid per ciascun elemento e crea un array nuovo.
+  return items.filter(isValid);
 }
 
-const positive = filterValid([10, -1, 4], n => n > 0);
+// L'implementazione della callback è separata dalla firma del suo tipo.
+function isPositive(value: number): boolean {
+  return value > 0;
+}
+
+const positive = filterValid([10, -1, 4], isPositive);
 console.log(positive); // [10, 4]
 ```
 
@@ -91,7 +110,11 @@ console.log(positive); // [10, 4]
 
 ```ts
 // K può essere solo una chiave presente nel tipo T.
-function readField<T, K extends keyof T>(obj: T, key: K): T[K] {
+function readField<T, K extends keyof T>(
+  obj: T,
+  key: K,
+): T[K] {
+  // Il tipo del risultato dipende da K: la chiave scelta.
   return obj[key];
 }
 

@@ -1,6 +1,10 @@
 <!-- level: Orchestrazione -->
 <!-- summary: Prompt injection, access control, segreti, sandbox e log -->
 # Sicurezza degli agenti: il modello non è un firewall
+## Prima del codice: cosa riconoscere
+
+Un prompt è input **non affidabile** quando proviene da documenti, pagine web o tool. Impedisci che testo recuperato venga interpretato come istruzione privilegiata.
+
 
 ## Prompt injection
 

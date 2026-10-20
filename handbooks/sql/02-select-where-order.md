@@ -6,6 +6,10 @@
 
 - **`SELECT`**: sceglie le colonne da leggere nella query.
 
+## Prima del codice: cosa riconoscere
+
+`WHERE` filtra **righe** e `ORDER BY` ordina il risultato. `LIMIT` limita il numero di righe restituite; senza `ORDER BY` non hai un ordine garantito.
+
 ```sql
 -- Seleziona le colonne richieste, senza modificare i dati.
 SELECT id, name, email

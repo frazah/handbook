@@ -1,6 +1,10 @@
 <!-- level: Bioinformatica -->
 <!-- summary: Dal problema biologico alle analisi computazionali: omics spiegate -->
 # Bioinformatica: cosa fa davvero un informatico
+## Prima del codice: cosa riconoscere
+
+Una pipeline bioinformatica combina controlli qualità, algoritmi e interpretazione. Le misure «omics» sono spesso ad alta dimensionalità e rumorose, non fotografie perfette della biologia.
+
 
 **Bioinformatica** = sviluppo e uso di algoritmi, software, database e metodi statistici per organizzare e analizzare dati biologici.  
 **Computational biology** è un termine sovrapposto, spesso più orientato a modelli e ipotesi sui sistemi biologici.

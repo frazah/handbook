@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 11.2 — Window, iframe, postMessage, sicurezza
 // Fonte: https://javascript.info/cross-window-communication
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - postMessage è usato per comunicazioni tra finestre/iframe di origini diverse.
+// - Verifica sempre event.origin e il destinatario: * non è adatto a dati sensibili.
+
 (() => {
   if (typeof window === 'undefined') return;
   // window.open(url, '_blank', 'noopener,noreferrer') puo' essere bloccato

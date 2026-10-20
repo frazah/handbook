@@ -18,6 +18,10 @@ Scopo: osservare pattern in un dataset, **non** prendere decisioni sanitarie.
 
 ## Struttura del mini progetto
 
+## Prima del codice: cosa riconoscere
+
+Un progetto interdisciplinare efficace definisce domanda, stakeholder, dataset, rischi, baseline, metriche, validazione e limiti prima di scegliere modelli complessi.
+
 ```text
 project/
 ├── data/             # solo dati pubblicabili o sintetici

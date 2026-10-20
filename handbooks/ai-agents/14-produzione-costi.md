@@ -20,8 +20,11 @@ Un agente che cicla senza controllo può consumare chiamate inutili.
 
 - ***Tool calling***: il modello propone un’azione, ma il codice dell’app la valida e la esegue.
 
+## Prima del codice: cosa riconoscere
+
+Un agente in produzione richiede timeout, budget, retry limitati e fallback. Se un tool produce effetti reali, preferisci idempotenza e controlli anti-duplicazione.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 from dataclasses import dataclass
 
 @dataclass

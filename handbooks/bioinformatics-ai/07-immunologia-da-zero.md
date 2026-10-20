@@ -1,6 +1,10 @@
 <!-- level: Biologia da zero -->
 <!-- summary: Difese innate e adattative, antigeni, anticorpi, vaccini -->
 # Sistema immunitario: l'ABC
+## Prima del codice: cosa riconoscere
+
+L’immunità innata reagisce con meccanismi relativamente generali; quella adattativa può essere specifica e sviluppare memoria. Un singolo biomarcatore non descrive tutto il sistema immunitario.
+
 
 Il **sistema immunitario** rileva e affronta minacce biologiche mantenendo al tempo stesso un equilibrio con i tessuti dell'organismo.
 

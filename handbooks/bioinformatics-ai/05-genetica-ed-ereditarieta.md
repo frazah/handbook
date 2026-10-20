@@ -1,6 +1,10 @@
 <!-- level: Biologia da zero -->
 <!-- summary: Varianti, genotipo, fenotipo, mitosi, meiosi ed epigenetica -->
 # Genetica: differenze e ereditarietà
+## Prima del codice: cosa riconoscere
+
+Un **allele** è una variante in una posizione genetica; **genotipo** riguarda le varianti possedute, **fenotipo** caratteristiche osservate. Una variante non è automaticamente patogena.
+
 
 Il **genotipo** descrive una o più caratteristiche genetiche di un individuo; il **fenotipo** è un tratto osservabile (fisico, fisiologico o comportamentale) che dipende da geni **e** ambiente.
 

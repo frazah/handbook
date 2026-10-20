@@ -5,6 +5,10 @@
 Per l'OMS, la **sorveglianza in sanità pubblica** è raccolta, analisi e interpretazione continue e sistematiche di dati sanitari per supportare decisioni.  
 Uno strumento software **non sostituisce** un servizio di sanità pubblica.
 
+## Prima del codice: cosa riconoscere
+
+La sorveglianza usa segnali aggregati con controlli e verifica umana: una anomalia statistica non è una dichiarazione di emergenza o un evento accertato.
+
 ```text
 fonti → controlli qualità → indicatori/serie temporali
       → confronto con baseline → segnali da verificare

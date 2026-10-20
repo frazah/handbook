@@ -9,6 +9,10 @@ Definisci **ruolo, compito, dati disponibili, limiti e forma dell'output**.
 
 - ***Tool calling***: il modello propone un’azione, ma il codice dell’app la valida e la esegue.
 
+## Prima del codice: cosa riconoscere
+
+Distingui **istruzioni affidabili** (applicazione) da **contenuto da analizzare** (testo utente, documenti, risultati dei tool): il secondo non può modificare i permessi dell’agente.
+
 ```text
 Ruolo: assistente per lo stato degli ordini.
 Obiettivo: spiegare i dati restituiti dai tool.

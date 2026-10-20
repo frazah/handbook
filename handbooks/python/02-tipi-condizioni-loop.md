@@ -2,8 +2,11 @@
 
 **Idea.** Python è tipizzato dinamicamente, ma i valori hanno comunque tipi; l'annotazione `: int` documenta e aiuta il type checker, **non forza** conversioni runtime.
 
+## Prima del codice: cosa riconoscere
+
+`==` confronta i valori, mentre `is` confronta l’identità degli oggetti: usa `is None` per verificare l’assenza di un valore. `range(n)` produce gli interi da `0` a `n - 1` e non crea per forza una lista.
+
 ```python
-# Questo esempio mostra come trasformare i dati in un risultato utilizzabile.
 customer = "Luca"
 quantity: int = 3
 price = 14.90

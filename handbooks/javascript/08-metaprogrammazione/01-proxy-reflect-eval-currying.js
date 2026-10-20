@@ -1,9 +1,14 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 08.1 — Proxy, Reflect, currying, eval e reference
 // Fonte: https://javascript.info/proxy
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - Proxy intercetta operazioni su un target tramite trap; Reflect offre comportamenti standard.
+// - eval esegue stringhe come codice: evita input non affidabili.
+
 (() => {
   // PROXY: intercetta operazioni (get/set/has/ownKeys...).
   const target = { age: 28 };
+  // Proxy intercetta alcune operazioni su un oggetto tramite un handler.
   const validated = new Proxy(target, {
     set(object, key, value, receiver) {
       if (key === 'age' && (!Number.isInteger(value) || value < 0)) {

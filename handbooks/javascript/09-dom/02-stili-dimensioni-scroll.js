@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 09.2 — Stili, classi, box model, coordinate, scroll
 // Fonte: https://javascript.info/styles-and-classes
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - classList gestisce classi CSS senza riscrivere l’intero attributo class.
+// - getBoundingClientRect restituisce posizioni rispetto alla viewport, non alla pagina.
+
 (() => {
   if (typeof document === 'undefined') return;
 

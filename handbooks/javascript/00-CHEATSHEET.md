@@ -173,3 +173,102 @@ document.querySelector('#list')?.addEventListener('click', event => {
 ```
 
 **Ricorda:** `await` richiede un contesto compatibile; `Promise.all` è utile per richieste concorrenti indipendenti; `localStorage` conserva stringhe e non è un deposito per segreti.
+
+
+---
+
+## Pattern multilinea da ritrovare al volo
+
+### Array: `map`, `filter`, `find`, `reduce`
+
+```js
+const orders = [
+  { id: 'O-1', paid: true, total: 20 },
+  { id: 'O-2', paid: false, total: 15 },
+];
+
+// filter: prendi solo gli ordini pagati.
+const paidOrders = orders.filter((order) => {
+  return order.paid;
+});
+
+// map: trasforma ogni elemento in un valore nuovo.
+const paidIds = paidOrders.map((order) => {
+  return order.id;
+});
+
+// find: restituisce il primo elemento corrispondente o undefined.
+const first = orders.find((order) => {
+  return order.id === 'O-2';
+});
+
+// reduce: accumula un singolo risultato partendo da 0.
+const revenue = paidOrders.reduce((sum, order) => {
+  return sum + order.total;
+}, 0);
+```
+
+### Oggetti, destructuring, optional chaining
+
+```js
+const user = { name: 'Ada', profile: { city: 'Roma' } };
+
+// Estrae una proprietà (non rinomina l'oggetto originale).
+const { name } = user;
+
+// Se profile non esistesse, ?. restituirebbe undefined.
+const city = user.profile?.city;
+
+// ?? dà un default SOLO per null e undefined.
+const displayCity = city ?? 'Non indicata';
+
+// Spread: copia superficiale, poi sovrascrive la città.
+const updated = {
+  ...user,
+  profile: {
+    ...user.profile,
+    city: 'Milano',
+  },
+};
+```
+
+### Promise, errori, rete
+
+```js
+async function getProduct(id) {
+  try {
+    const response = await fetch(`/api/products/${encodeURIComponent(id)}`);
+
+    // fetch non rifiuta la Promise per un normale errore HTTP 404/500.
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Caricamento fallito:', error);
+    throw error;
+  }
+}
+```
+
+Il frammento richiede un endpoint reale; `fetch` non garantisce che il JSON ricevuto rispetti uno schema applicativo.
+
+### Sintassi che è facile confondere
+
+| Forma | Significa |
+|---|---|
+| `function f() {}` | dichiara una funzione |
+| `const f = (x) => x * 2` | crea una arrow function con ritorno implicito |
+| `fn(callback)` | passa una funzione come valore |
+| `const { id } = obj` | destruttura una proprietà |
+| `const [first] = items` | destruttura un array |
+| `fn(...items)` | espande valori come argomenti (*spread*) |
+| `function fn(...items)` | raccoglie argomenti (*rest*) |
+| `obj?.field` | accesso sicuro se `obj` è null/undefined |
+| `a ?? b` | fallback solo per `null`/`undefined` |
+| `a || b` | fallback per ogni valore falsy |
+| `await work()` | aspetta una Promise in contesto async |
+| `return { id }` | restituisce un oggetto, sintassi abbreviata |
+| `JSON.stringify(x)` | oggetto JavaScript → testo JSON |
+| `JSON.parse(text)` | testo JSON → valore JavaScript |

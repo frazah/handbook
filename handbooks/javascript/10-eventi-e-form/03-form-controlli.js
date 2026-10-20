@@ -1,6 +1,10 @@
 'use strict';
 // JAVASCRIPT HANDBOOK 10.3 — Form, input/change, focus/blur, FormData
 // Fonte: https://javascript.info/forms-controls
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - input/change si attivano in momenti diversi; preventDefault evita il submit tradizionale.
+// - FormData raccoglie campi del form, ma non sostituisce la validazione lato server.
+
 (() => {
   if (typeof document === 'undefined') return;
 

@@ -1,59 +1,147 @@
 <!-- level: Progetto -->
-<!-- summary: Tipizzare React con .tsx, props, eventi e una migrazione progressiva -->
-# TypeScript con React e migrazione da JavaScript
+<!-- summary: File TSX, tipi di props e callback, eventi React e migrazione progressiva -->
+# TypeScript in React: props, callback e migrazione
 
-I file **`.tsx`** contengono JSX (tag simili all'HTML) insieme a TypeScript.
+**Prima di iniziare:** leggi `00a-come-leggere-la-sintassi.md` e il capitolo React `00a-come-leggere-tsx.md`.
 
-Per iniziare, tipizza **props, eventi e risposte delle API** e lascia che TypeScript inferisca i tipi ovvi.
+Un file **`.tsx`** contiene TypeScript e JSX (tag simili all'HTML).
 
-## 1. Props di un componente
+## 1. Prima la prop più semplice
 
 ```tsx
-// Il contratto specifica quali props accetta il bottone.
-type ButtonProps = {
-  label: string;
-  loading?: boolean;  // "?" = prop opzionale
-  onClick: () => void; // callback senza valore di ritorno significativo
+// Contratto dati del componente: la prop è obbligatoria.
+type GreetingProps = {
+  name: string;
 };
 
-export function ActionButton({ label, loading = false, onClick }: ButtonProps) {
-  return <button onClick={onClick} disabled={loading}>{label}</button>;
+function Greeting(props: GreetingProps) {
+  return (
+    <h2>Ciao, {props.name}!</h2>
+  );
+}
+
+function App() {
+  return <Greeting name="Ada" />;
 }
 ```
 
-`loading = false` fornisce il default se la prop manca; non modifica l'oggetto delle props ricevuto dal genitore.
+`props` è **l'oggetto ricevuto**; `GreetingProps` è **il tipo usato dal compilatore**. Non sono due oggetti diversi.
 
-## 2. Stato ed eventi di un input
+## 2. Aggiungiamo una callback, un concetto per volta
 
-Questo esempio è **indipendente** dal bottone sopra e può stare in un altro file `.tsx`.
+Una callback è una funzione **passata come dato** al componente. Il tipo descrive quale funzione è accettata.
+
+```ts
+// TIPO di una funzione: riceve un ID stringa.
+// void significa che chi la chiama non usa il valore restituito.
+type BuyCallback = (productId: string) => void;
+
+// IMPLEMENTAZIONE di una funzione con quella firma.
+function buyProduct(productId: string): void {
+  console.log('Acquisto del prodotto:', productId);
+}
+
+const onBuy: BuyCallback = buyProduct;
+```
+
+I due `=>` non sono identici a livello concettuale: nel **tipo** `=> void` specifica il risultato; in una **arrow function** `=> { ... }` introduce il corpo eseguibile.
+
+Ora passiamo la callback al componente:
 
 ```tsx
-import { useState, type ChangeEvent } from 'react';
+type BuyButtonProps = {
+  productId: string;
+  disabled?: boolean; // La prop può mancare.
+  onBuy: (productId: string) => void; // Prop contenente una funzione.
+};
 
-function EmailField() {
-  // La stringa iniziale permette di inferire il tipo dello stato.
-  const [email, setEmail] = useState('');
+function BuyButton(props: BuyButtonProps) {
+  function handleClick() {
+    // Chiamata al click, NON durante il render.
+    props.onBuy(props.productId);
+  }
 
-  // L'evento proviene da un elemento <input> del DOM.
-  const change = (event: ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.currentTarget.value);
-  };
-
-  return <input type="email" value={email} onChange={change} />;
+  return (
+    <button
+      type="button"
+      disabled={props.disabled ?? false}
+      onClick={handleClick}
+    >
+      Compra
+    </button>
+  );
 }
 ```
 
-`ChangeEvent<HTMLInputElement>` è un **generic**: fra le parentesi angolari `<...>` specifichi il tipo dell'elemento da cui arriva l'evento.
+`disabled ?? false` usa `false` soltanto se `disabled` è `null` o `undefined`; `onClick={handleClick}` passa il riferimento alla funzione.
 
-`ChangeEvent` è un *tipo React*, non la classe `Event` del DOM nativo.
+**Da evitare negli esempi introduttivi:**
 
-`import type` (o `type` dentro l'import) importa solo informazioni per il type checker, non una funzione utilizzabile a runtime.
+```tsx
+// Sintassi valida ma TROPPO compatta per imparare:
+// function BuyButton({ onBuy }: { onBuy: (id: string) => void }) { ... }
+```
 
-## 3. Migrare gradualmente un progetto JS
+## 3. Input controllato ed evento tipizzato
 
-1. Abilita il controllo dei tipi sul progetto e verifica i dati ai confini delle API.
-2. Converti i moduli senza JSX in `.ts`.
-3. Converti i componenti React in `.tsx` e tipizza prima props e callback.
-4. Riduci gradualmente gli `any` superflui, verifica `tsc --noEmit` e mantieni test funzionali.
+*Questo è un componente indipendente dai precedenti.*
 
-**Attenzione:** non usare `as` per nascondere ogni errore; molto spesso segnala che il modello dei dati va corretto o che manca una validazione runtime.
+```tsx
+import { useState } from 'react';
+import type { ChangeEvent } from 'react';
+
+function EmailField() {
+  // TS deduce che "email" è stringa dal valore iniziale ''.
+  const [email, setEmail] = useState('');
+
+  // ChangeEvent<HTMLInputElement> descrive l'evento di un input.
+  function handleEmailChange(event: ChangeEvent<HTMLInputElement>) {
+    // currentTarget: elemento a cui è associato l'handler.
+    // value: stringa scritta nell'input.
+    setEmail(event.currentTarget.value);
+  }
+
+  return (
+    <label>
+      Email
+      <input
+        type="email"
+        value={email}
+        onChange={handleEmailChange}
+      />
+    </label>
+  );
+}
+```
+
+**Che cos'è `<HTMLInputElement>`?** È un **argomento di tipo** passato al generic `ChangeEvent<T>`. Specifica che l'evento è relativo a un elemento input. Non è un tag JSX.
+
+## 4. Destructuring: passo facoltativo, non obbligatorio
+
+```tsx
+type BadgeProps = {
+  text: string;
+};
+
+// Prima: leggibile anche senza conoscere destructuring.
+function BadgeA(props: BadgeProps) {
+  return <span>{props.text}</span>;
+}
+
+// Dopo: usiamo destructuring per estrarre "text".
+function BadgeB({ text }: BadgeProps) {
+  return <span>{text}</span>;
+}
+```
+
+`{ text }` è JavaScript che estrae la proprietà; `: BadgeProps` è un'annotazione TypeScript dell'**intero parametro**.
+
+## 5. Migrazione graduale da JavaScript
+
+1. Abilita `strict` e usa la configurazione suggerita dal framework React (ad esempio Vite).
+2. Converti prima funzioni e modelli senza JSX da `.js` a `.ts`.
+3. Converti i componenti da `.jsx` a `.tsx`; inizia dai **tipi di props**.
+4. Tipizza callback, eventi e risposte API; valida davvero i dati esterni.
+5. Riduci gli `any` e fai `npx tsc --noEmit` insieme ai test.
+
+**Attenzione:** `as User` e `!` possono nascondere problemi al type checker; non validano né rendono sicuri dati runtime.

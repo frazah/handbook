@@ -1,6 +1,10 @@
 <!-- level: Bioinformatica -->
 <!-- summary: NCBI, GEO, SRA, Ensembl, UniProt, PDB e licenze -->
 # Dove trovare dati biologici e come valutarli
+## Prima del codice: cosa riconoscere
+
+Per usare un database biologico controlla provenienza, versione, tipo di dato, copertura, licenza e metadati. «Trovato online» non significa scientificamente validato.
+
 
 | Fonte | Cerca soprattutto | Da controllare |
 | --- | --- | --- |

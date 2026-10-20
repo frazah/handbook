@@ -3,6 +3,10 @@
 // ESEGUIRE: node 02-moduli-ESM.mjs
 // Nel browser: <script type="module" src=".../02-moduli-ESM.mjs"></script>
 // I moduli hanno scope proprio, strict implicito e import 'live bindings'.
+// GUIDA ALLA LETTURA — prima di eseguire gli esempi:
+// - export rende disponibili valori da un modulo; import li legge in un altro.
+// - I moduli ES hanno scope proprio e strict mode implicito.
+
 import { sum, version as apiVersion } from './utils.mjs';
 import formatUser from './utils.mjs'; // export default, nome locale libero
 

@@ -14,6 +14,10 @@
 
 ## Mini-FASTA inventato
 
+## Prima del codice: cosa riconoscere
+
+FASTA contiene sequenze con identificatori; FASTQ aggiunge misure di qualità delle basi. BAM/CRAM, VCF e GFF/GTF codificano informazioni diverse e non sono intercambiabili.
+
 ```fasta
 >pianta-demo-01
 ACGTACGTAA

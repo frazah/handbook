@@ -4,6 +4,10 @@
 
 Un dato biologico non nasce «già pulito» come in un tutorial SQL: nasce da una domanda sperimentale, **campionamento**, uno strumento e una pipeline di elaborazione.
 
+## Prima del codice: cosa riconoscere
+
+Un dataset biologico deriva sempre da un processo di campionamento e misurazione. Senza metadati (metodo, luogo, data, batch) anche analisi corrette possono essere interpretate male.
+
 ```text
 Domanda → disegno dello studio → campioni → strumento
         → file grezzi → quality control → dataset analitico

@@ -4,6 +4,10 @@
 
 Un agente può *proporre* un'azione, ma un'azione su soldi, file, email, dati sensibili o sistemi esterni deve essere governata dal backend.
 
+## Prima del codice: cosa riconoscere
+
+**Human-in-the-loop** richiede approvazione prima di azioni critiche. Un messaggio «sei sicuro?» scritto dal modello non equivale a un controllo di autorizzazione verificato dal server.
+
 ```python
 from dataclasses import dataclass
 

@@ -5,6 +5,10 @@
 La **history** è la lista dei messaggi precedenti; la **memory** può includere preferenze e risultati persistenti.  
 Sono entrambe diverse dalla fonte autorevole (per esempio il DB ordini).
 
+## Prima del codice: cosa riconoscere
+
+**Sessione** e **memoria** non sono sinonimi: la sessione è il contesto di una conversazione, la memoria può essere mantenuta oltre. Imposta scadenza, permessi e minimizzazione dei dati.
+
 ```python
 # Il database applicativo resta fonte di verità:
 session = {

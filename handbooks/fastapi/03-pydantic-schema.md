@@ -9,6 +9,10 @@
 - **`BaseModel`**: modello Pydantic che valida dati e definisce uno schema di input/output.
 - **`response_model`**: schema con cui FastAPI valida/serializza la risposta.
 
+## Prima del codice: cosa riconoscere
+
+Un modello Pydantic (`BaseModel`) descrive i dati, li valida in ingresso e li converte in oggetti Python. `model_dump()` crea un dizionario; un modello di risposta separato evita di esporre accidentalmente campi sensibili.
+
 ```python
 from fastapi import FastAPI, status
 from pydantic import BaseModel, Field
@@ -16,6 +20,7 @@ app = FastAPI()
 
 # Pydantic definisce e valida la forma dei dati.
 class TaskCreate(BaseModel):
+    # Field aggiunge vincoli di validazione a un campo del modello.
     title: str = Field(min_length=2, max_length=120)
     priority: int = Field(default=1, ge=1, le=5)
 

@@ -1,6 +1,10 @@
 <!-- level: Biologia da zero -->
 <!-- summary: Cellula, nucleo, batteri, archei, virus e funghi -->
 # Cellule, microorganismi e virus
+## Prima del codice: cosa riconoscere
+
+Batteri e funghi sono organismi cellulari; i virus hanno struttura e replicazione differenti e dipendono dalle cellule ospiti. Non confondere organismi, malattie e campioni.
+
 
 ## Cosa c'è dentro una cellula?
 
