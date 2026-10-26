@@ -1,4 +1,4 @@
-# Dev Cheatsheets
+# Handbook & Cheatsheets
 
 **11 tecnologie, 11 schede Markdown e 2 Recipes.** Appunti da aprire mentre programmi o prepari colloqui: sintassi fondamentale, concetti distintivi, codice vicino a casi reali e note sui meccanismi interni. Niente piattaforma, generatore, server o indice con centinaia di capitoli.
 
