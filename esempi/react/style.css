@@ -1,8 +1,0 @@
-body { font: 16px/1.6 system-ui; margin: 0; background: #101520; color: #e8edf5; }
-main { max-width: 620px; margin: 48px auto; padding: 20px; }
-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-input,button { padding: 9px; border-radius: 7px; }
-button { cursor: pointer; }
-nav { display: flex; gap: 6px; margin: 24px 0; }
-button[aria-pressed="true"] { outline: 2px solid #61dafb; }
-li { margin-block: 10px; }
