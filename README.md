@@ -1,14 +1,15 @@
 # Handbook & Cheatsheets
 
-**11 tecnologie, 11 schede Markdown e 2 Recipes.** Appunti da aprire mentre programmi o prepari colloqui: sintassi fondamentale, concetti distintivi, codice vicino a casi reali e note sui meccanismi interni. Niente piattaforma, generatore, server o indice con centinaia di capitoli.
+**11 tecnologie, 11 schede Markdown e 2 Recipes.**  
+Appunti da aprire mentre programmi o prepari colloqui: sintassi fondamentale, concetti distintivi, codice vicino a casi reali e note sui meccanismi interni. Niente piattaforma, generatore, server o indice con centinaia di capitoli.
 
 ## Regole editoriali
 
-- **Essenziale, ma completo:** includere le caratteristiche che servono davvero nei progetti e nei colloqui, senza trasformare ogni scheda in un manuale.
-- **Codice realistico:** preferire casi applicativi plausibili; indicare quando uno snippet è illustrativo o richiede un progetto, dati o servizi esterni.
-- **Leggibilità prima della brevità:** formattare su più righe il codice complesso e commentare soltanto sintassi nuova o scelte non ovvie.
-- **Spiegazioni al momento giusto:** introdurre i termini prima di usarli; chiarire subito limiti ed errori comuni, accanto all'esempio.
-- **Niente ripetizioni:** usare pochi titoli distintivi e rimandare a documentazione autorevole per approfondimenti particolarmente tecnici.
+- **Essenziale:** includere argomenti che servono davvero nei progetti e nei colloqui, senza trasformare ogni scheda in un manuale.
+- **Codice realistico:** preferire casi applicativi plausibili; indicare quando uno snippet è illustrativo o richiede risorse esterne
+- **Spiegazioni al momento giusto:** introdurre termini e sintassi prima di usarli; chiarire limiti ed errori comuni
+- **Leggibilità prima della brevità:** formattare su più righe il codice complesso e commentare
+- **Niente ripetizioni:** usare pochi titoli distintivi e rimandare a documentazione autorevole per approfondimenti particolarmente tecnici
 
 ## Scegli una tecnologia
 
@@ -21,17 +22,6 @@
 | [Elixir](Languages/Elixir.md) | | |
 
 **Da aprire per un progetto:** [React + FastAPI — Task manager](Recipes/React%20%2B%20FastAPI.md) · [pandas + SQLite — report vendite](Recipes/pandas%20%2B%20SQL.md).
-
-## Novità di questa revisione
-
-- **Vue 3:** SFC, `script setup`, `ref`, `computed`, `watch`, `v-model`, props, emits, eventi, API, Vue Router e Pinia.
-- **SQL:** ottimizzazione query con uno stesso schema ordini, `EXPLAIN QUERY PLAN`, indici compositi, filtri per range e keyset pagination; differenze pratiche SQLite/PostgreSQL.
-- **JavaScript / TypeScript:** event loop, error handling, prototipi, `Map`/`Set`, discriminated unions ed esaustività.
-- **Python / Elixir:** risorse, test, async e concorrenza; control flow, pin operator, typespec, messaggi e OTP.
-- **React / FastAPI:** hook non introdotti prima, ciclo di rendering, router, protezione API interna e CORS.
-- **Data Science / AI Agents / Bioinformatica:** NumPy, cross-validation, tool calling con API reale (opzionale), controlli di sicurezza, valutazione agenti e basi per pipeline riproducibili.
-
-Le **due Recipes** restano pratiche e separate dalle schede. Ogni scheda ha pochi macro-argomenti; le spiegazioni approfondite sono inserite soltanto dove servono.
 
 ## Come usarle
 
