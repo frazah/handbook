@@ -1,213 +1,313 @@
-# Python — Cheatsheet
+# Python
 
-> **Quando serve:** scripting, backend, automazione, analisi dati e AI. Punta su leggibilità, ambienti isolati e tipi quando aiutano a capire i contratti.
+> Linguaggio per scripting, backend, dati e AI. Leggibile, "batteries included", tipizzazione dinamica con type hint opzionali.
+> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [FastAPI](../Web%20%26%20Backend/FastAPI.md) · [Data Science](../Data%20%26%20AI/Data%20Science.md)
 
-Python usa **indentazione** per delimitare i blocchi. Liste/dizionari sono mutabili; tuple/stringhe sono immutabili. I type hint aiutano editor e type checker ma **non vengono applicati automaticamente a runtime**.
+## Modello mentale
+
+- **Tutto è un oggetto** e le variabili sono **nomi che puntano a oggetti**, non scatole. `b = a` non copia nulla: entrambi i nomi puntano allo stesso oggetto.
+- **Mutabili** (`list`, `dict`, `set`, oggetti custom) vs **immutabili** (`int`, `str`, `tuple`, `frozenset`). Modificare un oggetto mutabile si vede da tutti i nomi che lo referenziano.
+- Gli argomenti sono passati **per riferimento all'oggetto**: una funzione può mutare una lista ricevuta, ma riassegnare il parametro non tocca il chiamante.
+- Lo scope si risolve con la regola **LEGB**: Local → Enclosing → Global → Built-in.
+- I **type hint non sono controllati a runtime**: servono a editor e type checker (mypy, pyright).
+- **CPython** gestisce la memoria con reference counting più un garbage collector per i cicli. Il **GIL** permette a un solo thread alla volta di eseguire bytecode Python (le build free-threaded da 3.13 lo rimuovono, in via sperimentale).
+- Filosofia **EAFP** ("chiedi perdono, non permesso"): prova l'operazione e gestisci l'eccezione, invece di controllare tutto prima.
 
 ## Sintassi al volo
 
 | Ti serve | Sintassi |
 |---|---|
-| Condizioni | `if x > 0: ... elif x == 0: ... else: ...` |
-| Ciclo | `for item in items:` |
 | Indice + valore | `for i, item in enumerate(items):` |
-| Comprensione | `[n * 2 for n in nums if n > 0]` |
-| Dizionario | `user.get('name', 'Ospite')` |
-| Eccezione | `try: ... except ValueError: ...` |
-| Risorsa | `with open(path) as f:` |
-| Argomenti variabili | `*args` (posizionali), `**kwargs` (keyword) |
-| Unione tipi | `str | None` (Python moderno) |
-| Import | `from pathlib import Path` |
+| Due liste in parallelo | `for sku, qty in zip(skus, quantities):` |
+| Comprehension | `[o.total for o in orders if o.paid]` · `{o.id: o for o in orders}` |
+| Default sul dict | `d.get("k", 0)` · `d.setdefault("k", [])` |
+| Unpacking | `first, *rest = items` · `a, b = b, a` |
+| f-string | `f"{total_cents / 100:.2f} €"` · `f"{value=}"` (debug) |
+| Ternario | `label = "paid" if paid else "pending"` |
+| Walrus | `if (n := len(items)) > 10:` |
+| Slicing | `a[::-1]` (inversa) · `a[-3:]` (ultimi 3) |
+| Tipi | `list[int]`, `dict[str, int]`, `str \| None` |
+| Pattern matching (3.10+) | `match event: case {"type": "paid", "id": oid}: ...` |
+
+## Riferimenti e mutabilità
 
 ```python
-orders = [
-    {'id': 1, 'amount': 30, 'paid': True},
-    {'id': 2, 'amount': 15, 'paid': False},
-]
+cart = ["MUG-2"]
+alias = cart          # stesso oggetto, nessuna copia
+alias.append("PEN-3")
+assert cart == ["MUG-2", "PEN-3"]
 
-# Comprehension: nuova lista composta solo da ordini pagati.
-paid_amounts = [order['amount'] for order in orders if order['paid']]
-revenue = sum(paid_amounts)
-
-# Usa .get per un campo facoltativo proveniente da dati esterni.
-customer = {'id': 7, 'name': 'Ada'}
-customer_name = customer.get('name', 'Ospite')
+grid = [[0] * 3] * 2  # ERRORE classico: due riferimenti alla stessa riga
+grid[0][0] = 1
+assert grid == [[1, 0, 0], [1, 0, 0]]
+grid = [[0] * 3 for _ in range(2)]  # corretto: righe indipendenti
 ```
 
-## Concetti applicati
+- `==` confronta il **valore**, `is` l'**identità**. Usa `is` solo con `None`: `if x is None`.
+- Copie: `list(a)` e `a.copy()` sono **superficiali**; `copy.deepcopy(a)` copia anche gli oggetti annidati.
+- Falsy: `None`, `0`, `""`, `[]`, `{}`, `set()`. Attenzione: `if not total:` è vero anche quando `total == 0`.
 
-### Funzioni, parametri e return
+## Funzioni
 
 ```python
-from decimal import Decimal, ROUND_HALF_UP
+def apply_discount(total_cents: int, *, percent: int = 10) -> int:
+    """`*` rende `percent` keyword-only: apply_discount(5000, percent=20)."""
+    return total_cents * (100 - percent) // 100
 
-# Calcolo in un sistema di fatturazione: Decimal evita i tipici
-# errori binari dei float con importi monetari.
-def gross_price(net: Decimal, vat_rate: Decimal) -> Decimal:
-    amount = net * (Decimal('1') + vat_rate)
-    return amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+def add_tag(tag: str, tags: list[str] | None = None) -> list[str]:
+    # Mai `tags=[]`: il default è valutato UNA volta e condiviso tra le chiamate.
+    tags = [] if tags is None else tags
+    tags.append(tag)
+    return tags
 
-print(gross_price(Decimal('19.90'), Decimal('0.22')))
-
-# Un parametro di default mutabile verrebbe condiviso tra chiamate.
-# `None` permette invece di costruire una lista nuova ogni volta.
-def append_tag(tag: str, tags: list[str] | None = None) -> list[str]:
-    result = [] if tags is None else tags.copy()
-    result.append(tag)
-    return result
+assert apply_discount(5000, percent=20) == 4000
 ```
 
-### Iteratori, generatori e decoratori
+- `*args` raccoglie gli argomenti posizionali in una tupla, `**kwargs` quelli nominati in un dict.
+- Le funzioni sono oggetti: si passano come argomento (`sorted(orders, key=total)`) e si restituiscono.
+
+### Closure e scope
 
 ```python
-# Elaborazione lazy: leggi il CSV riga per riga, senza creare una
-# lista gigante in memoria. Usa orders.csv della Recipe pandas + SQL.
-import csv
+def make_counter():
+    count = 0
+    def increment() -> int:
+        nonlocal count  # senza, `count += 1` creerebbe una variabile locale -> UnboundLocalError
+        count += 1
+        return count
+    return increment
+
+next_id = make_counter()
+assert (next_id(), next_id()) == (1, 2)
+```
+
+## Iteratori e generatori
+
+Un **iterable** sa produrre un iteratore (`iter(x)`); un **iteratore** restituisce un elemento alla volta (`next(it)`) e si esaurisce. Un **generatore** è una funzione con `yield`: calcola i valori *pigramente*, uno alla volta, usando memoria costante.
+
+```python
 from collections.abc import Iterator
-from pathlib import Path
 
-def paid_orders(path: Path) -> Iterator[dict[str, str]]:
-    with path.open(newline='', encoding='utf-8') as file:
-        for order in csv.DictReader(file):
-            if order['status'] == 'paid':
-                yield order  # Il ciclo riprende da qui alla prossima iterazione.
+def paid_totals(rows: list[dict]) -> Iterator[int]:
+    for row in rows:
+        if row["status"] == "paid":
+            yield row["total_cents"]  # sospende qui fino al prossimo next()
 
-for order in paid_orders(Path('orders.csv')):
-    print(order['order_id'], order['amount'])
+rows = [{"status": "paid", "total_cents": 2599}, {"status": "pending", "total_cents": 990}]
+assert sum(paid_totals(rows)) == 2599
+assert sum(r["total_cents"] for r in rows) == 3589  # generator expression: niente lista intermedia
+```
 
-from functools import wraps
+## Decoratori
 
-# Un decoratore avvolge una funzione (es. per registrare chiamate).
-# Non registrare password o dati sensibili nei log reali.
-def log_calls(fn):
-    @wraps(fn)
+Un decoratore è una funzione che riceve una funzione e ne restituisce un'altra che la avvolge. `@deco` sopra `def f` equivale a `f = deco(f)`.
+
+```python
+import functools, time
+
+def timed(fn):
+    @functools.wraps(fn)  # conserva __name__ e docstring dell'originale
     def wrapper(*args, **kwargs):
-        print(f'Calling {fn.__name__}')
-        return fn(*args, **kwargs)
+        start = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            print(f"{fn.__name__}: {time.perf_counter() - start:.3f}s")
     return wrapper
+
+@timed
+def build_report(n: int) -> int:
+    return sum(range(n))
+
+build_report(1_000)  # stampa "build_report: 0.000s"
 ```
 
-### Classi e dataclass
+## Context manager
+
+`with` garantisce la pulizia (chiudere file, connessioni, lock) anche in caso di eccezione: chiama `__enter__` all'inizio e `__exit__` alla fine.
 
 ```python
-from dataclasses import dataclass
+import sqlite3
+from contextlib import closing
 
-@dataclass
-class Product:
-    id: int
-    name: str
-    price: float
-
-product = Product(id=1, name='Libro', price=12.0)
+with closing(sqlite3.connect(":memory:")) as conn:   # chiude la connessione all'uscita
+    with conn:                                       # transazione: commit o rollback automatico
+        conn.execute("CREATE TABLE orders (id INTEGER PRIMARY KEY, total_cents INTEGER)")
+        conn.execute("INSERT INTO orders (total_cents) VALUES (?)", (2599,))
+    assert conn.execute("SELECT SUM(total_cents) FROM orders").fetchone() == (2599,)
 ```
 
----
+Per scriverne uno al volo: `@contextlib.contextmanager` con un `yield` dentro un `try/finally`.
+
+## Classi e dataclass
 
 ```python
-from pathlib import Path
-import csv
-import json
+from dataclasses import dataclass, field
 
-# Pathlib evita di costruire path con concatenazioni fragili.
-path = Path('orders.json')
-path.write_text(json.dumps(orders, indent=2), encoding='utf-8')
-loaded = json.loads(path.read_text(encoding='utf-8'))
-
-with Path('orders.csv').open('w', newline='', encoding='utf-8') as file:
-    writer = csv.DictWriter(file, fieldnames=['id', 'amount', 'paid'])
-    writer.writeheader()
-    writer.writerows(orders)
-```
-
-Setup rapido, da terminale:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate      # macOS/Linux
-python -m pip install pytest
-python -m pytest
-```
-
-**Attenzione:** `is` confronta l'identità, `==` il valore; usa `is None` per `None`. `async def` non rende automaticamente parallelo il codice CPU-bound.
-
-### Eccezioni, moduli e resource management
-
-```python
-import json
-from pathlib import Path
-
-class InvalidOrderError(ValueError):
-    """L'ordine non contiene i campi necessari al report."""
-
-
-def load_order(path: Path) -> dict:
-    try:
-        # `with` chiude il file anche se il parsing solleva un'eccezione.
-        with path.open(encoding='utf-8') as handle:
-            order = json.load(handle)
-    except (OSError, json.JSONDecodeError) as exc:
-        raise InvalidOrderError(f'Cannot read order: {path}') from exc
-
-    if 'total_cents' not in order:
-        raise InvalidOrderError('Missing total_cents')
-    return order
-```
-
-`raise ... from exc` conserva la causa originale. Un package distribuito tramite `pyproject.toml` raccoglie moduli importabili: separa logica riutilizzabile, entrypoint e test, anziché mettere tutto in un notebook o in un unico script.
-
-### Classi e test di business logic
-
-```python
-from dataclasses import dataclass
-
-@dataclass(frozen=True)
+@dataclass(frozen=True)  # immutabile e hashable: utilizzabile come chiave di un dict
 class OrderItem:
     sku: str
-    price_cents: int
-    quantity: int
+    unit_price_cents: int
+    quantity: int = 1
 
-    def subtotal_cents(self) -> int:
-        if self.quantity <= 0 or self.price_cents < 0:
-            raise ValueError('Invalid item')
-        return self.price_cents * self.quantity
+@dataclass
+class Order:
+    id: int
+    items: list[OrderItem] = field(default_factory=list)  # mai `= []`
 
+    @property
+    def total_cents(self) -> int:  # calcolato, si legge come un attributo
+        return sum(i.unit_price_cents * i.quantity for i in self.items)
 
-def test_order_item_subtotal():
-    # pytest scopre funzioni test_* nel file test_orders.py.
-    item = OrderItem(sku='BOOK-1', price_cents=1299, quantity=2)
-    assert item.subtotal_cents() == 2598
+order = Order(101, [OrderItem("MUG-2", 1299, 2)])
+assert order.total_cents == 2598
 ```
 
-`@dataclass(frozen=True)` evita riassegnazioni normali agli attributi ma non rende profondamente immutabile ogni oggetto annidato. `@property`, ereditarietà e protocolli sono utili se hai davvero un contratto da modellare, non per ogni dizionario.
+- **Dunder method** (metodi "magici") collegano la classe alla sintassi: `__repr__`, `__eq__`, `__hash__`, `__len__`, `__iter__`, `__lt__` (per `sorted`). `@dataclass` genera `__init__`, `__repr__` e `__eq__`.
+- `@classmethod` riceve la classe (costruttori alternativi: `Order.from_dict(...)`); `@staticmethod` non riceve nulla.
+- Ereditarietà multipla: l'ordine di risoluzione è l'**MRO** (`Cls.__mro__`), e `super()` segue l'MRO.
+- Preferisci la composizione all'ereditarietà; per contratti senza ereditarietà usa `typing.Protocol` (duck typing verificato dal type checker).
 
-### Async, thread e processi: che cosa cambia
+## Eccezioni
+
+```python
+class OutOfStockError(Exception):
+    """Errore di dominio: il chiamante può gestirlo in modo specifico."""
+
+def reserve(stock: dict[str, int], sku: str, qty: int) -> None:
+    try:
+        available = stock[sku]
+    except KeyError as exc:
+        raise ValueError(f"SKU sconosciuto: {sku}") from exc  # `from` conserva la causa
+    if available < qty:
+        raise OutOfStockError(f"{sku}: disponibili {available}")
+    stock[sku] = available - qty
+```
+
+- `try / except / else` (eseguito se non ci sono eccezioni) `/ finally` (sempre).
+- Cattura eccezioni **specifiche**: un `except Exception:` generico nasconde i bug.
+
+## Concorrenza: asyncio, thread, processi
+
+| | Quando | Nota |
+|---|---|---|
+| `asyncio` | tanto I/O concorrente (HTTP, DB) | un solo thread; i task cedono il controllo a ogni `await` |
+| `threading` / `ThreadPoolExecutor` | I/O con librerie bloccanti | il GIL blocca il parallelismo CPU, non l'I/O |
+| `multiprocessing` / `ProcessPoolExecutor` | lavoro CPU-bound | processi separati, ognuno con il proprio GIL; dati serializzati |
 
 ```python
 import asyncio
 
-async def load_many_products(client, ids: list[int]) -> list[dict]:
-    # `client` è un httpx.AsyncClient fornito dal chiamante.
-    async def load_one(product_id: int) -> dict:
-        response = await client.get(f'/products/{product_id}')
-        response.raise_for_status()
-        return response.json()
+async def fetch_stock(sku: str) -> int:
+    await asyncio.sleep(0.1)  # simula una chiamata di rete
+    return len(sku)
 
-    # I/O concorrente, non elaborazione CPU in parallelo.
-    return await asyncio.gather(*(load_one(pid) for pid in ids))
+async def main() -> list[int]:
+    # gather esegue le coroutine in concorrenza: ~0.1s totali, non 0.3s
+    return await asyncio.gather(*(fetch_stock(s) for s in ["MUG", "PEN", "BAG-4"]))
+
+assert asyncio.run(main()) == [3, 3, 5]
 ```
 
-**Memoria e concorrenza in breve:** `yield` sospende il generatore conservando solo il suo stato, invece di materializzare subito tutti gli elementi. `asyncio` alterna task mentre attendono I/O; i thread condividono la memoria del processo; i processi separati hanno spazi di memoria distinti. Nelle build CPython tradizionali il **GIL** limita l'esecuzione parallela di bytecode Python nei thread (sono disponibili anche build free-threaded): per CPU-bound valuta processi o librerie native. Approfondisci su [asyncio](https://docs.python.org/3/library/asyncio.html) e [threading / GIL](https://docs.python.org/3/library/threading.html).
+Una chiamata bloccante (`time.sleep`, `requests.get`) dentro una `async def` blocca **tutto** l'event loop.
+
+## Progetti e test
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate   # ambiente isolato per progetto
+python -m pip install pytest
+python -m pytest -q
+```
+
+Dipendenze e metadati vanno in `pyproject.toml`. Con pytest i test sono funzioni `test_*` con semplici `assert`:
+
+```python
+# illustrativo: file test_pricing.py, eseguito da pytest
+import pytest
+from pricing import apply_discount
+
+@pytest.mark.parametrize("total, percent, expected", [(5000, 10, 4500), (999, 0, 999)])
+def test_apply_discount(total, percent, expected):
+    assert apply_discount(total, percent=percent) == expected
+
+@pytest.fixture
+def stock() -> dict[str, int]:  # ogni test riceve un dict nuovo
+    return {"MUG-2": 1}
+```
+
+## Per gli esercizi di coding
+
+| Strumento | Uso tipico |
+|---|---|
+| `Counter(xs)` | frequenze; `.most_common(k)`; `c1 == c2` per gli anagrammi |
+| `defaultdict(list)` | raggruppare senza controllare se la chiave esiste |
+| `deque` | coda BFS: `append`, `popleft` in `O(1)` |
+| `heapq` | min-heap: `heappush`, `heappop`, `nlargest`; max-heap con `-x` |
+| `bisect_left(a, x)` | posizione di inserimento in una lista ordinata, `O(log n)` |
+| `sorted(xs, key=..., reverse=True)` | ordinamento **stabile**; chiavi multiple con tuple |
+| `itertools` | `accumulate` (prefix sum), `combinations`, `permutations`, `product`, `pairwise`, `groupby` |
+| `functools.cache` | memoization per la DP top-down |
+| `math.inf`, `float("inf")` | valore iniziale per i minimi |
+
+```python
+import heapq
+from bisect import bisect_left
+from collections import Counter, defaultdict
+from itertools import accumulate
+
+orders = [("ada", 2599), ("lin", 1200), ("ada", 990)]
+
+by_customer = defaultdict(list)
+for name, cents in orders:
+    by_customer[name].append(cents)                # raggruppa
+assert by_customer["ada"] == [2599, 990]
+
+ranked = sorted(orders, key=lambda o: (-o[1], o[0]))  # totale decrescente, poi nome
+assert ranked[0] == ("ada", 2599)
+
+assert list(accumulate([1, 2, 3])) == [1, 3, 6]     # prefix sum
+assert bisect_left([10, 20, 30], 25) == 2
+assert Counter("listen") == Counter("silent")       # anagrammi
+
+heap = []
+for cents in (2599, 1200, 990):
+    heapq.heappush(heap, -cents)                    # max-heap con valori negati
+assert -heap[0] == 2599
+```
+
+**Trappole frequenti:**
+- La ricorsione profonda supera il limite (~1000): `sys.setrecursionlimit(10**6)` oppure riscrivi in modo iterativo.
+- Costruire stringhe con `+=` in un ciclo: usa `"".join(parts)`.
+- `list.pop(0)` e `x in list` costano `O(n)`: usa `deque` e `set`.
+- Gli interi hanno precisione arbitraria (niente overflow); la divisione intera è `//`, e `-7 // 2 == -4` (arrotonda verso -∞).
 
 ## Domande da colloquio
 
-**Lista vs tupla?** Lista mutabile; tupla immutabile e utilizzabile anche per raggruppare valori strutturati.
+**Base**
+- **Lista vs tupla?** La lista è mutabile; la tupla è immutabile, quindi hashable se lo sono i suoi elementi (usabile come chiave) e adatta a record a dimensione fissa.
+- **`==` vs `is`?** `==` confronta i valori tramite `__eq__`, `is` l'identità dell'oggetto. Si usa `is` per `None`.
+- **Perché i default mutabili sono un problema?** Sono valutati una sola volta, alla definizione della funzione, e quindi condivisi tra le chiamate. Si usa `None` come sentinella.
+- **Cosa sono `*args` e `**kwargs`?** Raccolgono gli argomenti posizionali (tupla) e nominati (dict) extra; servono anche a inoltrare argomenti nei decoratori.
+- **Python è interpretato o compilato?** CPython compila il sorgente in bytecode (i file `.pyc`) e lo esegue su una macchina virtuale: è entrambe le cose, e il bytecode non è codice nativo.
+- **A cosa servono `__init__` e `self`?** `__init__` inizializza un'istanza già creata (la crea `__new__`); `self` è il riferimento esplicito all'istanza, passato automaticamente quando chiami un metodo.
 
-**`*args` e `**kwargs`?** Raccolgono rispettivamente argomenti posizionali e nominati.
+**Intermedio**
+- **Generatore vs lista?** Il generatore produce valori su richiesta con memoria `O(1)` e può essere infinito; la lista materializza tutto ma è riutilizzabile e indicizzabile.
+- **Come funziona un decoratore?** È una funzione di ordine superiore: `@d` su `f` equivale a `f = d(f)`. `functools.wraps` conserva i metadati della funzione originale.
+- **Shallow vs deep copy?** La copia superficiale crea un nuovo contenitore con gli stessi oggetti interni; la `deepcopy` duplica ricorsivamente anche questi.
+- **Cosa fa `with`?** Chiama `__enter__` e garantisce `__exit__` anche in caso di eccezione: è il modo idiomatico di gestire le risorse.
+- **Cos'è l'MRO?** L'ordine in cui Python cerca metodi e attributi nelle gerarchie con ereditarietà multipla (linearizzazione C3); `super()` lo segue.
+- **`@staticmethod` vs `@classmethod`?** Il classmethod riceve la classe (`cls`) ed è adatto a costruttori alternativi che funzionano anche con le sottoclassi; lo staticmethod non riceve nulla ed è una funzione raggruppata nella classe.
+- **Come implementi una cache LRU?** Con `functools.lru_cache(maxsize=…)` se basta memoizzare una funzione; a mano con un `OrderedDict`: `move_to_end` a ogni accesso e `popitem(last=False)` quando superi la capacità, tutto in `O(1)`.
 
-**Iterable vs iterator?** Un iterable fornisce iteratori; un iterator produce gli elementi progressivamente con `next()`.
+**Avanzato**
+- **Cos'è il GIL e che impatto ha?** Un lock che permette a un solo thread di eseguire bytecode Python. Il lavoro CPU-bound non scala con i thread (si usano processi o librerie native); l'I/O sì, perché il GIL viene rilasciato durante l'attesa.
+- **asyncio vs thread?** asyncio usa un solo thread con multitasking cooperativo: è leggero e scala a migliaia di connessioni, ma richiede librerie async e non tollera chiamate bloccanti. I thread funzionano con codice bloccante ma costano di più.
+- **Come gestisce la memoria CPython?** Con il reference counting (un oggetto viene liberato quando i riferimenti arrivano a zero) più un GC generazionale che raccoglie i cicli di riferimenti.
+- **Perché i type hint non bastano per validare input esterni?** Non vengono controllati a runtime: per i dati in ingresso serve una validazione esplicita (es. Pydantic in [FastAPI](../Web%20%26%20Backend/FastAPI.md)).
 
-**Generator?** Iteratore costruito con `yield`, utile per elaborazioni lazy.
+## Approfondisci
 
-**Shallow vs deep copy?** Copia superficiale mantiene riferimenti interni; deep copy prova a copiare ricorsivamente.
-
-**Approfondisci quando serve:** [Python — funzioni](https://docs.python.org/3/tutorial/controlflow.html#defining-functions), [data model](https://docs.python.org/3/reference/datamodel.html) e [itertools/generatori](https://docs.python.org/3/library/itertools.html). Per costi e memoria di iteratori vs liste, inizia dal fatto che `yield` produce elementi su richiesta.
+- [Python Tutorial](https://docs.python.org/3/tutorial/) · [Data model](https://docs.python.org/3/reference/datamodel.html)
+- [`collections`](https://docs.python.org/3/library/collections.html) · [`itertools`](https://docs.python.org/3/library/itertools.html) · [`asyncio`](https://docs.python.org/3/library/asyncio.html)
+- [pytest](https://docs.pytest.org/) · [Packaging (pyproject.toml)](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/)

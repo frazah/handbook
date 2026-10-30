@@ -1,156 +1,182 @@
-# Bioinformatics, AI & Biosecurity — Cheatsheet
+# Bioinformatica
 
-> **Per informatici senza studi biologici:** una mappa per capire concetti e formati principali, collegarli ad analisi dati/AI e distinguere prevenzione, biosafety e biosecurity. Non è una guida diagnostica o di laboratorio.
+> Biologia, formati e algoritmi essenziali per un informatico senza studi biologici che si prepara a un ruolo in bioinformatica o AI for biology. Solo concetti e analisi di dati: nessuna procedura di laboratorio.
+> Collegate: [Python](../Languages/Python.md) · [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md#programmazione-dinamica) · [Data Science](Data%20Science.md)
 
-## Overview: biologia da zero
+## Modello mentale
 
-| Termine | In parole semplici | Analogia informatica (non letterale) |
+- Il **DNA** è una sequenza su un alfabeto di 4 basi (`A`, `C`, `G`, `T`), a doppio filamento: `A` si appaia con `T`, `C` con `G`. Un filamento si legge nella direzione 5'→3'.
+- **Dogma centrale (semplificato):** DNA → (trascrizione) → RNA → (traduzione) → proteina. Ogni tripletta di basi (**codone**) codifica un amminoacido. Esistono molte eccezioni e regolazioni.
+- Un **genoma** è l'intero DNA di un organismo; un **gene** è una regione che produce un prodotto funzionale; una **variante** è una differenza rispetto a un genoma di riferimento (non necessariamente dannosa).
+- I sequenziatori non leggono un genoma intero: producono milioni di **read** (frammenti corti con errori) che vanno **allineati** a un riferimento o **assemblati**.
+- Gran parte del lavoro è **ingegneria dei dati**: file enormi, formati standard, pipeline riproducibili, controllo qualità.
+- I dati biologici sono rumorosi e pieni di confondenti (lotto di laboratorio, strumento, paziente): la metodologia conta più del modello.
+
+## Sintassi al volo
+
+### Glossario per informatici
+
+| Termine | In parole semplici |
+|---|---|
+| Base / nucleotide | carattere dell'alfabeto `ACGT` (`U` al posto di `T` nell'RNA) |
+| Complemento inverso | il filamento opposto letto nella sua direzione: `ATGC` → `GCAT` |
+| Read | frammento sequenziato (50–300 basi per short read, migliaia per long read) |
+| Copertura (coverage) | quante read coprono in media ogni posizione |
+| Allineamento | posizionare una read sul riferimento, tollerando differenze |
+| SNP / indel | variante di una base / inserzione o delezione |
+| Espressione genica | quanto un gene è "attivo" (quantità di RNA prodotto) |
+| Proteina | catena di amminoacidi (alfabeto di 20 lettere) che si ripiega in una struttura 3D |
+
+### Formati
+
+| Formato | Contenuto | Nota |
 |---|---|---|
-| **Cellula** | unità funzionale della vita | sistema operativo complesso |
-| **DNA** | molecola che conserva informazione genetica | archivio persistente |
-| **Gene** | regione di DNA associata a prodotti funzionali | modulo |
-| **RNA** | molecole con ruoli nella produzione/regolazione | messaggi/intermedi |
-| **Proteina** | molecola che svolge funzioni biologiche | componente operativo |
-| **Genoma** | insieme del materiale genetico | intero dataset |
-| **Variante** | differenza di sequenza rispetto a riferimento | differenza, non automaticamente errore |
-| **Espressione genica** | attività/abbondanza dei prodotti genici | telemetria contestuale |
-| **Patogeno** | organismo/agente che può causare malattia | nessuna analogia semplice |
+| **FASTA** | `>id descrizione` + sequenza | sequenze di riferimento |
+| **FASTQ** | 4 righe per read: `@id`, sequenza, `+`, qualità | output del sequenziatore |
+| **SAM / BAM** | read allineate (BAM = binario compresso e indicizzato) | output dell'allineatore |
+| **VCF** | varianti: cromosoma, posizione, riferimento, alternativa, qualità | 1-based |
+| **GFF / GTF** | annotazioni: geni, esoni, coordinate | 1-based, estremi inclusi |
+| **BED** | intervalli genomici | **0-based**, fine esclusa (come gli slice Python) |
 
-**DNA → RNA → proteina** è una semplificazione utile del flusso di informazione genetica, non una regola senza eccezioni. Una proteina è una catena di amminoacidi; la sua struttura influenza il comportamento. *Genotipo* riguarda informazioni genetiche, *fenotipo* caratteristiche osservabili, influenzate anche dall'ambiente.
+Le coordinate 0-based vs 1-based sono la fonte di bug *off-by-one* più comune: BED `chr1 0 100` e GFF `chr1 1 100` indicano le stesse 100 basi.
 
-## Formati e sintassi essenziali
+La qualità FASTQ è in **scala Phred**: `Q = -10·log10(p_errore)`, codificata come carattere ASCII `chr(Q + 33)`. Q30 = 1 errore su 1000.
 
-| Formato / dato | Cosa contiene | Usato per |
-|---|---|---|
-| **FASTA** | identificatore `>` + sequenza | sequenze DNA/RNA/proteine |
-| **FASTQ** | letture di sequenziamento + qualità | sequenziamento grezzo |
-| **VCF** | varianti rispetto a un riferimento | analisi genomica |
-| **GFF/GTF** | annotazioni su coordinate del genoma | geni e trascritti |
-| **CSV/TSV** | tabelle di misure/metadati | dati sperimentali |
-| **PDB/mmCIF** | struttura molecolare tridimensionale | analisi proteine |
+## Leggere FASTA e FASTQ
 
-```text
->sequence_1
-ATGCGTAA
->sequence_2
-ATACGTAA
-```
-
-Le stringhe biologiche sono **dati**, non parole arbitrarie: il riferimento, l'orientamento, la qualità delle misure e i metadati determinano come interpretarle.
-
-## Concetti applicati
-
-### Sequenze e analisi (esempio innocuo)
+In produzione si usano librerie come **Biopython** o **pysam**; scritti a mano mostrano il formato.
 
 ```python
-# Esempio di QC su un vero formato FASTA, usando Biopython.
-# Installazione: python3 -m pip install biopython
-from Bio import SeqIO
+from collections.abc import Iterator
 
-# Il file può provenire da un laboratorio o repository, con metadati verificati.
-# Il codice presuppone il file `samples.fasta` presente nella stessa cartella.
-for record in SeqIO.parse('samples.fasta', 'fasta'):
-    sequence = str(record.seq).upper()
+def parse_fasta(text: str) -> Iterator[tuple[str, str]]:
+    header, chunks = None, []
+    for line in text.splitlines():
+        if line.startswith(">"):
+            if header is not None:
+                yield header, "".join(chunks)
+            header, chunks = line[1:].split()[0], []  # id = primo campo dopo ">"
+        elif line.strip():
+            chunks.append(line.strip().upper())        # le sequenze vanno a capo su più righe
+    if header is not None:
+        yield header, "".join(chunks)
 
-    # Non trattare basi ambigue (N) come A/C/G/T nel denominatore.
-    standard_bases = sum(sequence.count(base) for base in 'ACGT')
-    if standard_bases == 0:
-        print(record.id, 'Nessuna base canonica disponibile')
-        continue
-
-    gc_count = sequence.count('G') + sequence.count('C')
-    gc_fraction = gc_count / standard_bases
-    print(record.id, f'GC (basi canoniche): {gc_fraction:.1%}')
+fasta = ">sample_A sintetico\nACGTACGTNA\nCGT\n>sample_B\nCCGTAAGT\n"
+assert dict(parse_fasta(fasta)) == {"sample_A": "ACGTACGTNACGT", "sample_B": "CCGTAAGT"}
 ```
-
-Per provarlo con dati artificiali innocui, crea `samples.fasta`:
-
-```fasta
->sample_A
-ACGTACGTNACGT
->sample_B
-CCGTAAGT
-```
-
-**Attenzione:** l'esempio misura solo una statistica composizionale: non certifica la qualità delle letture e non valida diagnosi, gene o funzione. Per FASTQ controlla anche le qualità base-per-base; per pipeline vere usa procedure con provenienza e versioni documentate.
-
-Confrontare sequenze richiede spesso **allineamento**, gestione di inserzioni/delezioni e conoscenza della qualità/costruzione del dataset. Somiglianza di sequenza non prova da sola equivalenza funzionale.
-
-### Omics e AI
-
-- **Genomica:** informazione DNA/genoma e varianti.
-- **Trascrittomica:** RNA/espressione genica, spesso alta dimensionalità.
-- **Proteomica:** proteine, abbondanze e modificazioni.
-- **Metabolomica:** molecole/metaboliti e processi metabolici.
-- **Systems biology:** reti e interazioni fra componenti biologiche, non solo singoli geni.
-- **AI:** classificazione di campioni, analisi di immagini, modelli di sequenze o struttura; servono dataset e validazioni appropriate.
-
-Rischi tipici del ML biomedico: *data leakage* (campioni dello stesso paziente in train/test), batch effects (laboratori/protocolli), dataset sbilanciati, confondenti, generalizzazione fra popolazioni e interpretazioni causali scorrette.
-
-### Epidemiologia e prevenzione
-
-- **Incidenza:** nuovi casi in un periodo/popolazione definita.
-- **Prevalenza:** casi presenti in un dato momento/periodo.
-- **Sensibilità:** quota di positivi veri identificati da un test.
-- **Specificità:** quota di negativi veri correttamente identificati.
-- **Sorveglianza:** raccolta e analisi sistematiche per orientare decisioni di salute pubblica.
-- **One Health:** salute umana, animale e ambientale sono collegate.
-
-La presenza di un'anomalia statistica **non dimostra un focolaio**. Segnali di allerta richiedono qualità dei dati, contestualizzazione, conferme e supervisione esperta.
-
-### Biosafety / Biosecurity / Cyberbiosecurity
-
-- **Biosafety:** prevenire esposizioni/rilasci **accidentali**.
-- **Biosecurity:** prevenire accessi, sottrazioni o usi **non autorizzati/intenzionali**.
-- **Cyberbiosecurity:** proteggere dati, strumenti, reti, software e processi che collegano biologia e sistemi digitali.
-- **Dual use:** conoscenze/strumenti con applicazioni benefiche ma anche potenzialmente dannose; richiedono valutazione proporzionata dei rischi.
-
----
-
-Un progetto informatico sensato in questo dominio dovrebbe documentare:
-
-1. **Domanda biologica:** quale fenomeno vuoi studiare e cosa NON puoi inferire?
-2. **Provenienza del dato:** campioni, consenso/privacy, raccolta, qualità, metadati.
-3. **Pipeline:** preprocessing, controlli, versioni e risultati riproducibili.
-4. **Analisi/AI:** baseline, train/test senza leakage, valutazione per gruppi e confondenti.
-5. **Interpretazione:** collaborazione con esperti di dominio, limiti e verifiche indipendenti.
-
-Approfondimenti utili: EMBL-EBI Training (bioinformatica), NCBI (database), OMS/WHO (One Health e biorisk), documentazione pandas/scikit-learn per gli aspetti computazionali.
-
-### Pipeline bioinformatiche e interpretazione
-
-La parte informatica più frequente è una **pipeline riproducibile**: input grezzo con identificativi e metadati → controllo qualità → normalizzazione/allineamento → tabella di risultati → analisi → report e limiti. Non esiste un «test universale»: cosa si fa dipende da organismo, sequenziamento, domanda e protocolli.
-
-**FASTQ vs FASTA:** FASTQ conserva anche i caratteri di qualità (*Phred*, con codifica da conoscere); FASTA registra soprattutto una sequenza. Nelle analisi di varianti un file VCF contiene coordinate riferite a una specifica versione del genoma di riferimento: senza *reference build* le posizioni possono essere interpretate male. BED descrive intervalli genomici e spesso usa coordinate zero-based, half-open; altri formati possono usare convenzioni diverse. [UCSC: coordinate counting](https://genome.ucsc.edu/FAQ/FAQtracks.html).
 
 ```python
-# Verifica innocua di consistenza per una pipeline di sequenze sintetiche.
-from Bio import SeqIO
-from collections import Counter
+def mean_phred(quality: str) -> float:
+    return sum(ord(c) - 33 for c in quality) / len(quality)
 
-counts = Counter()
-for record in SeqIO.parse('samples.fasta', 'fasta'):
-    seq = str(record.seq).upper()
-    # Conteggiamo basi ambigue invece di ignorarle silenziosamente.
-    counts['sequences'] += 1
-    counts['ambiguous_bases'] += sum(base not in 'ACGT' for base in seq)
-print(counts)
+read = ["@read_1", "ACGTTGCA", "+", "IIIIII#!"]  # 'I' = Q40, '#' = Q2, '!' = Q0
+assert round(mean_phred(read[3]), 2) == 30.25
+# QC tipico: scartare o accorciare (trimming) le read con qualità bassa in coda.
 ```
 
-**Omics/ML:** prima di costruire il modello, verifica unità di analisi (campioni, pazienti, visite), confondenti e *batch effect*; suddividi train/test **per individuo** se più misure provengono dalla stessa persona. Feature importance e correlazione non dimostrano meccanismi causali. Per sistemi di sorveglianza biologica proteggi accessi, tracciabilità e dati sensibili; valida le segnalazioni con esperti di dominio.
+## Algoritmi sulle sequenze
 
-**Approfondimenti mirati:** [EMBL-EBI: sequenze e analisi](https://www.ebi.ac.uk/training/), [VCF specification](https://samtools.github.io/hts-specs/VCFv4.3.pdf), [WHO: One Health](https://www.who.int/health-topics/one-health).
+```python
+COMPLEMENT = str.maketrans("ACGT", "TGCA")
+
+def reverse_complement(seq: str) -> str:
+    return seq.translate(COMPLEMENT)[::-1]
+
+def gc_content(seq: str) -> float:
+    canonical = sum(seq.count(b) for b in "ACGT")  # esclude le basi ambigue (N)
+    return (seq.count("G") + seq.count("C")) / canonical if canonical else 0.0
+
+def kmer_counts(seq: str, k: int) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for i in range(len(seq) - k + 1):  # finestra scorrevole di lunghezza k
+        kmer = seq[i:i + k]
+        counts[kmer] = counts.get(kmer, 0) + 1
+    return counts
+
+def hamming(a: str, b: str) -> int:
+    if len(a) != len(b):
+        raise ValueError("Hamming richiede sequenze della stessa lunghezza")
+    return sum(x != y for x, y in zip(a, b))
+
+assert reverse_complement("ATGC") == "GCAT"
+assert gc_content("GGCCATNN") == 4 / 6
+assert kmer_counts("ATATA", 2) == {"AT": 2, "TA": 2}
+assert hamming("ACGT", "ACCT") == 1
+```
+
+I **k-mer** sono alla base di molti strumenti: indicizzazione per l'allineamento, assemblaggio (grafi di de Bruijn), confronto rapido tra genomi, feature per modelli ML.
+
+### Allineamento globale (Needleman-Wunsch)
+
+È programmazione dinamica su due stringhe, come l'edit distance: `dp[i][j]` = miglior punteggio allineando i primi `i` caratteri di `a` e i primi `j` di `b`.
+
+```python
+def global_alignment_score(a: str, b: str, match=1, mismatch=-1, gap=-2) -> int:
+    dp = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]
+    for i in range(1, len(a) + 1):
+        dp[i][0] = i * gap          # a[:i] allineato contro soli gap
+    for j in range(1, len(b) + 1):
+        dp[0][j] = j * gap
+    for i in range(1, len(a) + 1):
+        for j in range(1, len(b) + 1):
+            diag = dp[i - 1][j - 1] + (match if a[i - 1] == b[j - 1] else mismatch)
+            dp[i][j] = max(diag, dp[i - 1][j] + gap, dp[i][j - 1] + gap)
+    return dp[-1][-1]
+
+assert global_alignment_score("GATTACA", "GATCA") == 1  # 5 match, 2 gap
+```
+
+- Costo `O(n·m)` in tempo e memoria: impraticabile per allineare milioni di read su un genoma di miliardi di basi.
+- **Smith-Waterman** è la variante *locale* (miglior sotto-regione; i punteggi negativi si azzerano).
+- **BLAST** e gli allineatori di read (BWA, minimap2) usano euristiche **seed-and-extend**: trovano corrispondenze esatte corte (seed, tramite indici di k-mer o FM-index) e solo attorno a quelle estendono con la DP. Rinunciano all'ottimo garantito in cambio di velocità.
+
+## Pipeline di sequenziamento
+
+Una tipica analisi di varianti (*variant calling*):
+
+1. **QC** delle read grezze (FastQC) e trimming di adattatori e code a bassa qualità.
+2. **Allineamento** al genoma di riferimento (BWA-MEM, minimap2) → BAM ordinato e indicizzato.
+3. Rimozione dei **duplicati** di PCR, statistiche di copertura.
+4. **Variant calling** (GATK, bcftools, DeepVariant) → VCF.
+5. **Filtro e annotazione** delle varianti (effetto sui geni, frequenza nella popolazione).
+
+**Riproducibilità:** workflow manager (**Snakemake**, **Nextflow**) che descrivono i passi come un DAG, con versioni fissate degli strumenti (conda, container) e la versione del genoma di riferimento registrata (GRCh37 e GRCh38 hanno coordinate diverse).
+
+## Omics e machine learning
+
+- **Matrice di espressione:** righe = campioni, colonne = geni (decine di migliaia). Tipicamente **p ≫ n** (molte più feature che campioni): alto rischio di overfitting, servono regolarizzazione e riduzione dimensionale (PCA).
+- **Normalizzazione:** i conteggi dipendono dalla profondità di sequenziamento; si normalizza prima di confrontare campioni (CPM/TPM, metodi di DESeq2).
+- **Batch effect:** differenze tecniche (giorno, laboratorio, strumento) che possono superare quelle biologiche. Se i casi sono tutti in un lotto e i controlli in un altro, il modello impara il lotto.
+- **Leakage:** split per **paziente**, non per campione: campioni dello stesso paziente in train e test gonfiano le metriche. Lo stesso vale per proteine molto simili tra train e test.
+- **Struttura delle proteine:** AlphaFold predice la struttura 3D dalla sequenza di amminoacidi; i **protein language model** (es. ESM) imparano rappresentazioni dalle sequenze come gli LLM dal testo, e si usano come feature per predire funzione o stabilità.
+- **Banche dati pubbliche:** NCBI (GenBank, SRA), Ensembl (genomi annotati), UniProt (proteine), PDB (strutture).
+
+## Biosafety, biosecurity e responsabilità
+
+- **Biosafety:** proteggere persone e ambiente dall'esposizione accidentale ad agenti biologici (contenimento, livelli di sicurezza dei laboratori).
+- **Biosecurity:** prevenire l'uso improprio intenzionale di materiali, dati e conoscenze biologiche.
+- **Dual use:** strumenti e conoscenze utili alla medicina possono essere abusati. Per questo la sintesi di DNA prevede lo **screening delle sequenze** ordinate, e i modelli di AI per la biologia vengono valutati per capacità rischiose prima del rilascio.
+- **Privacy genomica:** il DNA identifica una persona e i suoi parenti e non si può "cambiare" come una password. Richiede consenso informato, accesso controllato, minimizzazione dei dati e conformità normativa (GDPR: dati sanitari e genetici sono categorie particolari).
 
 ## Domande da colloquio
 
-**Bioinformatica vs biologia computazionale?** Molta sovrapposizione: spesso bioinformatica si concentra su gestione/analisi dei dati biologici; biologia computazionale anche su modellazione dei sistemi.
+**Base**
+- **FASTA vs FASTQ?** FASTA contiene solo identificatori e sequenze; FASTQ aggiunge per ogni base un punteggio di qualità Phred, ed è l'output tipico del sequenziamento.
+- **Cos'è il complemento inverso e perché serve?** È la sequenza del filamento opposto letta nella sua direzione 5'→3'. Una read può provenire da entrambi i filamenti, quindi gli allineatori cercano entrambe le orientazioni.
+- **0-based o 1-based?** BED (e Python) usano 0-based con fine esclusa; VCF, GFF e SAM usano 1-based con estremi inclusi. Confonderli sposta tutto di una posizione.
 
-**Sequenziamento vs allineamento?** Il sequenziamento misura/ricostruisce sequenze; l'allineamento confronta sequenze con un riferimento o fra loro.
+**Intermedio**
+- **Perché non si usa Needleman-Wunsch per allineare le read?** Costa `O(n·m)`: con milioni di read e un genoma di miliardi di basi è impraticabile. Si usano indici (k-mer, FM-index) e seed-and-extend, applicando la DP solo su piccole regioni.
+- **Cos'è la copertura e perché conta?** Il numero medio di read per posizione. Con copertura bassa non si distingue una variante vera da un errore di sequenziamento.
+- **Cos'è un batch effect?** Una variazione tecnica sistematica tra lotti. Si previene con un disegno sperimentale bilanciato e si corregge con metodi specifici; altrimenti i modelli imparano il lotto invece della biologia.
 
-**Perché il batch effect è pericoloso?** Il modello può imparare differenze di protocollo/laboratorio al posto del segnale biologico.
+**Avanzato**
+- **Come eviti il leakage in un modello su dati di pazienti?** Split per paziente (e per centro, se serve generalizzare), normalizzazione e selezione delle feature dentro la cross-validation, verifica su una coorte esterna.
+- **Come rendi riproducibile una pipeline?** Workflow manager con DAG esplicito, versioni fissate di strumenti e riferimenti, container, parametri e checksum registrati, dati grezzi immutabili.
+- **Perché i dati genomici richiedono tutele particolari?** Sono identificativi in modo permanente, rivelano informazioni anche sui familiari e possono essere re-identificati incrociando banche dati pubbliche.
 
-**Incidenza vs prevalenza?** Nuovi casi in un intervallo vs casi esistenti in un istante/periodo.
+## Approfondisci
 
-**Biosafety vs biosecurity?** Accidenti/esposizioni contro accessi e usi malevoli/non autorizzati.
-
-**Approfondisci quando serve:** [EMBL-EBI Training](https://www.ebi.ac.uk/training/), [Biopython SeqIO](https://biopython.org/wiki/SeqIO), [NCBI sequence resources](https://www.ncbi.nlm.nih.gov/guide/sequence-analysis/). Per bias e validità del ML vedi anche [Data Science](Data%20Science.md).
+- [Rosalind](https://rosalind.info/problems/list-view/) — esercizi di bioinformatica in stile coding
+- [Biopython Tutorial](https://biopython.org/docs/latest/Tutorial/) · [SAM/BAM e VCF specs](https://samtools.github.io/hts-specs/)
+- [Snakemake](https://snakemake.readthedocs.io/) · [nf-core (pipeline Nextflow)](https://nf-co.re/)

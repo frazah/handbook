@@ -1,318 +1,275 @@
-# Elixir — Cheatsheet
+# Elixir
 
-> **Quando serve:** servizi backend concorrenti, job asincroni, sistemi resilienti e applicazioni Phoenix. Elixir gira sulla VM **BEAM** (Erlang/OTP), non sulla JVM. Comincia con `iex` per provare i frammenti oppure salva il modulo in `orders.exs` ed esegui `elixir orders.exs`.
+> Linguaggio funzionale sulla **BEAM**, la VM di Erlang: concorrenza a milioni di processi leggeri, tolleranza ai guasti, sistemi sempre attivi (chat, realtime, IoT, backend con Phoenix).
+> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md)
 
-## Sintassi essenziale
+## Modello mentale
 
-| Vuoi fare | Sintassi | Significato |
-|---|---|---|
-| Assegnare un nome | `status = :paid` | il nome può essere *ribindato*, il valore non viene mutato |
-| Atom | `:paid`, `:error` | valore simbolico, spesso stato/esito |
-| Stringa | `"Ciao #{name}"` | interpolazione con `#{}` |
-| Lista / tupla | `[1, 2]` / `{:ok, result}` | lista sequenziale / struttura a dimensione fissa |
-| Mappa | `%{id: 7, status: :paid}` | chiavi e valori |
-| Accesso mappa | `order.status`, `order[:status]` | il primo lancia se manca la chiave atomica; il secondo restituisce `nil` |
-| Aggiornamento mappa | `%{order | status: :shipped}` | crea un valore nuovo; chiave già esistente obbligatoria |
-| Pattern matching | `{:ok, order} = result` | estrae i valori e verifica la forma |
-| Case | `case result do ... end` | ramificazione per pattern |
-| Condizioni | `if`, `unless`, `cond` | rami booleani e più condizioni |
-| Workflow fallibile | `with ... <- ... do ... else ... end` | concatena pattern `{:ok, ...}` |
-| Gestire eccezioni | `try do ... rescue ... end` | eccezioni inattese, non sostituisce le tuple `{:error, ...}` |
-| Funzione anonima | `fn order -> order.total_cents end` | funzione usata da `Enum` |
-| Pipe | `orders |> Enum.filter(...)` | passa l'output come primo argomento della chiamata seguente |
-| Modulo / funzione | `defmodule Orders do ... end` | funzioni pubbliche con `def`, private con `defp` |
-| Guard | `when is_integer(qty) and qty > 0` | condizione limitata nella firma di una funzione |
-| Eseguire test | `mix test` | test ExUnit di un progetto Mix |
+- **Immutabilità:** i dati non cambiano mai. "Modificare" una mappa restituisce una nuova mappa (condividendo internamente la struttura invariata).
+- **`=` è pattern matching**, non assegnazione: verifica che il lato destro abbia la forma del sinistro e lega le variabili. Una variabile può essere *rilegata*, ma il valore precedente non cambia.
+- **Processi BEAM**, non thread del sistema operativo: costano pochi KB, sono isolati (nessuna memoria condivisa), comunicano **solo con messaggi** e hanno ciascuno il proprio garbage collector.
+- Lo **scheduler** della BEAM è preemptive (a riduzioni) con uno scheduler per core: un processo lento non blocca gli altri, quindi la latenza resta prevedibile.
+- **"Let it crash":** invece di difendersi da ogni errore, un processo può morire; un **supervisor** lo riavvia in uno stato pulito.
+- **OTP** è la libreria standard di astrazioni affidabili: GenServer, Supervisor, Application.
+- Gli errori attesi sono **valori** (`{:ok, x}` / `{:error, reason}`); le eccezioni restano per i casi davvero eccezionali.
 
-**Leggi una firma:** `Orders.total_paid_cents/1` significa modulo `Orders`, funzione `total_paid_cents`, **1 argomento**. `=` serve anche al *pattern matching*: non è solo assegnazione. `nil` indica l'assenza di un valore; `false` e `nil` sono gli unici valori falsy.
+## Sintassi al volo
 
-## Ordini: dati immutabili, Enum e pattern matching
-
-```elixir
-# Salva come orders.exs. Importi interi in centesimi:
-# evitiamo errori di arrotondamento con i float.
-defmodule Orders do
-  def paid_revenue(orders) do
-    orders
-    # La callback mantiene solo gli ordini effettivamente pagati.
-    |> Enum.filter(fn order -> order.status == :paid end)
-    # La seconda callback ricava un importo intero per ogni ordine.
-    |> Enum.map(fn order -> order.total_cents end)
-    # Somma gli importi selezionati; non modifica `orders`.
-    |> Enum.sum()
-  end
-
-  def ship(order) do
-    case order.status do
-      :paid ->
-        # La sintassi di update crea una nuova mappa.
-        {:ok, %{order | status: :shipped}}
-
-      :shipped ->
-        {:error, :already_shipped}
-
-      _ ->
-        {:error, :payment_required}
-    end
-  end
-end
-
-orders = [
-  %{id: 101, status: :paid, total_cents: 2599},
-  %{id: 102, status: :pending, total_cents: 990},
-  %{id: 103, status: :paid, total_cents: 1200}
-]
-
-IO.inspect(Orders.paid_revenue(orders), label: "Ricavi pagati in centesimi")
-IO.inspect(Orders.ship(hd(orders)), label: "Spedizione")
-```
-
-Il risultato della spedizione è una **tupla tagged** (`{:ok, valore}` oppure `{:error, motivo}`): il chiamante può gestire esplicitamente entrambi i casi. `hd/1` prende il primo elemento; in codice applicativo su liste eventualmente vuote verifica prima l'input.
-
-**Quando usare `Enum`/`Stream`:** `Enum` elabora la collezione subito e spesso crea liste intermedie. `Stream` consente trasformazioni *lazy* utili con input grandi o pipeline di più filtri. Non partire con ricorsione manuale se un'operazione di `Enum` esprime già bene il caso.
-
-## Ricorsione e memoria: perché tail recursion?
-
-Considera una lista di ordini da totalizzare. Elixir usa spesso la **ricorsione** al posto dei cicli con variabili mutate: il pattern `[order | rest]` separa il primo elemento dal resto della lista. Confrontiamo due modi per ottenere la stessa somma.
-
-```elixir
-defmodule Revenue do
-  # Versione 1: la somma avviene DOPO la chiamata ricorsiva.
-  def total([]), do: 0
-
-  def total([order | rest]) do
-    order.total_cents + total(rest)
-  end
-
-  # Versione 2: passiamo il totale parziale come accumulatore.
-  def total_tail(orders), do: loop(orders, 0)
-
-  defp loop([], accumulated), do: accumulated
-
-  defp loop([order | rest], accumulated) do
-    # Questa chiamata è l'ultima operazione della funzione.
-    loop(rest, accumulated + order.total_cents)
-  end
-end
-
-# Le due funzioni sommano tutti gli ordini ricevuti.
-# Per conteggiare solo i pagati, filtrali prima:
-paid_orders = Enum.filter(orders, fn order -> order.status == :paid end)
-
-IO.inspect(Revenue.total(paid_orders))
-IO.inspect(Revenue.total_tail(paid_orders))
-```
-
-**Immagina lo stack come una pila di promemoria.** Quando una funzione chiama sé stessa ma deve ancora effettuare un'operazione *dopo* il ritorno, il runtime deve ricordare dove riprendere. Nella prima versione ogni livello conserva un'addizione in sospeso; nella seconda il risultato parziale viene passato subito alla chiamata seguente.
-
-**Traccia passo per passo.** Consideriamo soltanto i due ordini pagati dell'esempio, con importi di **2.599** e **1.200** centesimi. Nella traccia mostriamo solo gli importi per leggibilità: le funzioni sopra ricevono realmente mappe `order`.
-
-```text
-Ricorsione normale — il calcolo resta in sospeso:
-
-total([2599, 1200]) = 2599 + total([1200])   ← attende il risultato
-total([1200])       = 1200 + total([])       ← attende il risultato
-total([])           = 0
-
-Ritorno: 1200 + 0 = 1200
-         2599 + 1200 = 3799
-
-Tail recursion — il parziale viaggia nell'accumulatore:
-
-loop([2599, 1200], 0)
-loop([1200], 2599)
-loop([], 3799)
-→ 3799
-```
-
-Nella versione normale ogni chiamata deve conservare un'addizione in sospeso: per una lista di *n* elementi, lo spazio necessario per le chiamate cresce generalmente con *n*. Nella **tail recursion** la chiamata ricorsiva è l'ultima operazione: non resta lavoro da eseguire al ritorno. La **BEAM** applica la *tail-call optimization* (TCO), riutilizzando lo spazio delle chiamate invece di accumulare nuovi livelli di stack. **Non significa che l'algoritmo usi sempre memoria totale costante**: i dati elaborati possono comunque occupare spazio.
-
-| Concetto | A cosa serve |
+| Ti serve | Sintassi |
 |---|---|
-| **Stack** | Conserva le informazioni necessarie per riprendere una chiamata e i valori locali che servono ancora. |
-| **Heap** | Contiene strutture dati come liste, tuple e mappe, che possono occupare memoria anche con tail recursion. |
-| **Accumulatore** | È un normale valore passato tra chiamate, non un'area di memoria speciale. |
-| **Garbage collector** | Recupera memoria di dati non più raggiungibili; nella BEAM la gestione è principalmente per processo. |
+| Atomo | `:paid`, `:ok` (costanti col nome come valore) |
+| Tupla / lista | `{:ok, order}` · `[1, 2, 3]` (lista concatenata: `[head \| tail]`) |
+| Mappa | `%{"sku" => "MUG-2"}` · `%{sku: "MUG-2"}` e accesso con `order.sku` |
+| Aggiornare una mappa | `%{order \| status: :paid}` (la chiave deve esistere) |
+| Keyword list | `[limit: 20, sort: :desc]` (opzioni delle funzioni) |
+| Stringa vs charlist | `"ciao"` (binario UTF-8) · `~c"ciao"` (lista di codepoint) |
+| Interpolazione | `"Totale: #{total}"` |
+| Funzione anonima | `fn x -> x * 2 end` · `&(&1 * 2)` · chiamata con `f.(3)` |
+| Cattura di una funzione | `&String.upcase/1` (nome/arità) |
+| Pipe | `orders \|> Enum.filter(&paid?/1) \|> Enum.map(& &1.total)` |
+| Struct | `%Order{id: 1, status: :pending}` |
+| Sigil | `~w(paid shipped)a` → `[:paid, :shipped]` |
 
-Sulla **BEAM ogni processo ha una propria area di memoria gestita**, che comprende stack e heap, oltre alla mailbox dei messaggi. La VM può condividere internamente alcune risorse, quindi questa tabella è un **modello concettuale per capire le chiamate**, non una descrizione precisa dei registri o di ogni dettaglio dell'allocazione. Una lista di risultati molto grande e una mailbox che cresce possono consumare molta memoria anche con uno stack stabile.
+## Pattern matching e funzioni
 
-**Quando è utile e quando no?** Se costruisci una lista enorme o accumuli messaggi in una mailbox, la memoria totale può comunque crescere. Inoltre, fare `acc ++ [item]` ripetutamente copia parti della lista ed è spesso costoso: quando costruisci una lista ricorsivamente, in genere conviene `[item | acc]` e poi `Enum.reverse/1`. Nella maggior parte del codice applicativo scegli prima `Enum.map/2`, `Enum.reduce/3` o `Stream`: usa ricorsione manuale quando rende più chiaro l'algoritmo, e misura prima di ottimizzare.
-
-Per approfondire il modello della VM: [Elixir — Recursion](https://elixir.hexdocs.pm/recursion.html), [Erlang — Tail recursion](https://www.erlang.org/doc/system/ref_man_functions.html) e [Erlang — Processes and memory](https://www.erlang.org/doc/system/eff_guide_processes.html).
-
-## Un caso concreto di concorrenza: elaborare notifiche
+Il pattern matching sostituisce gran parte degli `if`: ogni **clausola** di una funzione gestisce una forma dell'input, e la prima che corrisponde vince. Le **guard** (`when`) aggiungono condizioni.
 
 ```elixir
-# Ogni job è indipendente e può eseguire I/O (es. chiamata HTTP).
-# Qui usiamo un task di sola formattazione, sostituibile con un adapter reale.
-notifications = [
-  %{order_id: 101, email: "ada@example.test"},
-  %{order_id: 103, email: "lin@example.test"}
+defmodule Shop.Pricing do
+  @vat_rate 22  # attributo di modulo: costante a compile time
+
+  def describe({:ok, %{status: :paid, total_cents: cents}}), do: "Pagato: #{cents} centesimi"
+  def describe({:ok, %{status: status}}), do: "Stato: #{status}"
+  def describe({:error, reason}), do: "Errore: #{inspect(reason)}"
+
+  def gross(cents) when is_integer(cents) and cents >= 0 do
+    div(cents * (100 + @vat_rate), 100)
+  end
+end
+
+Shop.Pricing.describe({:ok, %{status: :paid, total_cents: 2599}})  # -> "Pagato: 2599 centesimi"
+```
+
+```elixir
+order_id = 101
+{:ok, ^order_id} = {:ok, 101}   # ^ (pin): confronta con il valore attuale invece di rilegare
+[first | rest] = [:a, :b, :c]   # first = :a, rest = [:b, :c]
+%{sku: sku} = %{sku: "MUG-2", qty: 2}  # le mappe matchano per sottoinsieme di chiavi
+```
+
+## Controllo di flusso
+
+| Costrutto | Quando |
+|---|---|
+| `case value do pattern -> ... end` | scegliere in base alla forma di un valore |
+| `cond do condizione -> ... end` | catena di condizioni booleane |
+| `if` / `unless` | una sola condizione |
+| `with` | concatenare passi che possono fallire (*happy path*) |
+
+```elixir
+# `with` prosegue finché ogni passo restituisce la forma attesa;
+# al primo fallimento restituisce quel valore (es. {:error, :out_of_stock}).
+def checkout(cart_id, payment) do
+  with {:ok, cart} <- Carts.fetch(cart_id),
+       :ok <- Inventory.reserve(cart.items),
+       {:ok, charge} <- Payments.charge(payment, cart.total_cents) do
+    {:ok, Orders.create(cart, charge)}
+  end
+end
+```
+
+Le funzioni con il **bang** (`File.read!/1`) lanciano un'eccezione invece di restituire `{:error, _}`: usale quando un errore è davvero inatteso.
+
+## Collezioni: Enum e Stream
+
+`Enum` è **eager** (calcola subito e crea liste intermedie); `Stream` è **lazy** (compone le trasformazioni ed elabora un elemento alla volta, utile per file grandi o sequenze infinite).
+
+```elixir
+orders = [
+  %{id: 101, status: :paid, total_cents: 2598},
+  %{id: 102, status: :pending, total_cents: 250},
+  %{id: 103, status: :paid, total_cents: 4500}
 ]
 
-results =
-  notifications
-  |> Task.async_stream(
-    fn item ->
-      # In produzione, il servizio email sta dietro un adapter con timeout/retry.
-      {:prepared, item.order_id, item.email}
-    end,
-    max_concurrency: 4,
-    timeout: 5_000,
-    ordered: false
-  )
-  |> Enum.to_list()
+orders
+|> Enum.filter(&(&1.status == :paid))
+|> Enum.map(& &1.total_cents)
+|> Enum.sum()
+# -> 7098
 
-IO.inspect(results)
+# Lazy: legge il CSV riga per riga senza caricarlo tutto in memoria.
+"orders.csv"
+|> File.stream!()
+|> Stream.drop(1)
+|> Stream.map(&String.trim/1)
+|> Enum.take(10)
 ```
 
-`Task.async_stream/3` avvia attività concorrenti e restituisce risultati come `{:ok, value}` o `{:exit, reason}`: **devi gestire i fallimenti**. Per processi di lunga durata o con stato condiviso per messaggi, studia `GenServer` e *Supervisor* (OTP); i processi BEAM non equivalgono a thread OS e comunicano principalmente tramite messaggi.
+## Ricorsione
 
-## Control flow, collezioni e modelli dati
-
-In Elixir `if`, `case`, `cond` e `with` sono **espressioni**: producono un valore. `if` è comodo con un booleano; `case` sceglie in base al pattern; `cond` valuta più condizioni; `with` concatena operazioni che possono restituire `{:ok, valore}` o `{:error, motivo}`.
+Non ci sono cicli `for` imperativi: si usa la ricorsione (o `Enum`). Con la **tail call optimization**, una chiamata ricorsiva in ultima posizione non fa crescere lo stack: per questo si usa un **accumulatore**.
 
 ```elixir
-order = %{id: 101, status: :paid, total_cents: 2599}
+defmodule Shop.Stats do
+  def paid_total(orders), do: paid_total(orders, 0)
 
-# `^` impedisce il re-binding: confronta col valore già assegnato.
-expected_id = 101
-%{id: ^expected_id, status: status} = order
-
-shipping_label =
-  cond do
-    status == :paid -> "Ready to ship"
-    status == :cancelled -> "Do not ship"
-    true -> "Needs review"
-  end
-
-# Le keyword list sono liste di coppie, spesso opzioni di funzione.
-opts = [timeout: 5_000, retry: false]
-IO.inspect(Keyword.get(opts, :timeout))
-
-# `&` cattura una funzione: forma breve di una callback.
-order_ids = Enum.map([order], & &1.id)
-IO.inspect(order_ids)
-
-# for = comprehension; filtra e trasforma in un solo passaggio.
-paid_ids = for item <- [order], item.status == :paid, do: item.id
-IO.inspect(paid_ids)
-```
-
-**`with` in un vero workflow:** separa validazione e recupero; il ramo `else` gestisce l'errore lasciando intatti gli `{:error, motivo}`.
-
-```elixir
-defmodule Checkout do
-  def confirm(order, orders) do
-    with :ok <- validate_order(order),
-         {:ok, paid_order} <- find_paid_order(order.id, orders) do
-      {:ok, %{paid_order | status: :confirmed}}
-    else
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
-  defp validate_order(%{id: id}) when is_integer(id) and id > 0, do: :ok
-  defp validate_order(_), do: {:error, :invalid_order}
-
-  defp find_paid_order(id, orders) do
-    case Enum.find(orders, fn item -> item.id == id and item.status == :paid end) do
-      nil -> {:error, :not_paid}
-      paid -> {:ok, paid}
-    end
-  end
+  defp paid_total([], acc), do: acc
+  defp paid_total([%{status: :paid, total_cents: c} | rest], acc), do: paid_total(rest, acc + c)
+  defp paid_total([_ | rest], acc), do: paid_total(rest, acc)  # salta gli altri stati
 end
 ```
 
-`struct` è una mappa con campi dichiarati, utile a rappresentare contratti interni. `MapSet` evita duplicati. `Enum.reduce` produce un accumulatore; `Stream` evita di materializzare ogni trasformazione intermedia. Le `@spec` descrivono contratti per strumenti statici come Dialyzer, **non** validano argomenti a runtime.
+## Struct, protocolli e behaviour
+
+- Una **struct** è una mappa con campi fissi e un nome: chiavi sbagliate danno errore a compile time.
+- Un **protocollo** è polimorfismo sul *tipo di dato* (come `String.Chars` per `to_string/1`).
+- Un **behaviour** è un contratto di callback che un modulo promette di implementare (come `GenServer`).
 
 ```elixir
-defmodule Catalog.Product do
-  @enforce_keys [:sku, :price_cents]
-  defstruct [:sku, :price_cents, available: true]
-
-  @type t :: %__MODULE__{
-    sku: String.t(),
-    price_cents: non_neg_integer(),
-    available: boolean()
-  }
-
-  @spec inventory_value(t(), non_neg_integer()) :: non_neg_integer()
-  def inventory_value(product, quantity), do: product.price_cents * quantity
+defmodule Shop.Order do
+  @enforce_keys [:id, :customer_id]
+  defstruct [:id, :customer_id, status: :pending, items: []]
 end
+
+defimpl String.Chars, for: Shop.Order do
+  def to_string(order), do: "Ordine ##{order.id} (#{order.status})"
+end
+
+"#{%Shop.Order{id: 101, customer_id: 1}}"  # -> "Ordine #101 (pending)"
 ```
 
-## Processi BEAM e OTP: l'essenziale
-
-Ogni processo BEAM ha un proprio stato e una **mailbox**; i messaggi vengono copiati o condivisi dal runtime secondo il dato e l'implementazione, ma non mutano lo stato dell'altro processo. `send/2` invia un messaggio senza aspettare; `receive` estrae un messaggio che corrisponde a un pattern. I processi sono **leggeri**, ma non gratuiti: troppi processi, mailbox non svuotate o task senza limiti possono consumare memoria.
+## Processi e messaggi
 
 ```elixir
 parent = self()
 
 pid = spawn(fn ->
   receive do
-    {:calculate_shipping, cents} ->
-      send(parent, {:shipping_quote, cents + 499})
-  after
-    1_000 -> send(parent, {:error, :timeout})
+    {:price, sku} -> send(parent, {:price_of, sku, 1299})  # risponde al mittente
   end
 end)
 
-send(pid, {:calculate_shipping, 2000})
+send(pid, {:price, "MUG-2"})
 
 receive do
-  {:shipping_quote, price} -> IO.inspect(price, label: "Quote")
-  {:error, reason} -> IO.inspect(reason, label: "Error")
+  {:price_of, sku, cents} -> IO.puts("#{sku}: #{cents}")
 after
-  1_500 -> IO.puts("Service unavailable")
+  1_000 -> IO.puts("timeout")  # mai attendere all'infinito
 end
 ```
 
-Per **stato duraturo** usa `GenServer` con `init/1`, `handle_call/3` (richiesta/risposta) e `handle_cast/2` (messaggio asincrono); per evitare processi orfani avviali sotto una **Supervisor**. Supervision non significa che ogni operazione venga ritentata in sicurezza: serve idempotenza per pagamenti, email e scritture esterne. Phoenix ed Ecto sono stack diffusi rispettivamente per web e persistenza, non parte della sintassi di base.
+- Ogni processo ha una **mailbox**; `receive` estrae il primo messaggio che corrisponde a un pattern.
+- **Link** (`spawn_link`): se uno dei due muore, muore anche l'altro. È il meccanismo su cui si basano i supervisor.
+- **Monitor** (`Process.monitor`): ricevi un messaggio `:DOWN` quando il processo osservato muore, senza morire anche tu.
+
+## OTP: GenServer e Supervisor
+
+Un **GenServer** è un processo con stato e un'API: il client chiama funzioni normali, che mandano messaggi al processo.
 
 ```elixir
-# In un progetto Mix: questo modulo è un processo supervisionato.
-defmodule InventoryCache do
+defmodule Shop.Inventory do
   use GenServer
 
-  # Stato: mappa sku => quantità disponibile, aggiornato serialmente.
-  def start_link(initial_stock) do
-    GenServer.start_link(__MODULE__, initial_stock, name: __MODULE__)
-  end
+  # API client: è eseguita nel processo del chiamante.
+  def start_link(stock), do: GenServer.start_link(__MODULE__, stock, name: __MODULE__)
+  def reserve(sku, qty), do: GenServer.call(__MODULE__, {:reserve, sku, qty})
 
-  def reserve(sku, quantity) when is_integer(quantity) and quantity > 0 do
-    GenServer.call(__MODULE__, {:reserve, sku, quantity})
-  end
+  # Callback: eseguite nel processo del server, un messaggio alla volta (niente race condition).
+  @impl true
+  def init(stock), do: {:ok, stock}
 
   @impl true
-  def init(initial_stock), do: {:ok, initial_stock}
-
-  @impl true
-  def handle_call({:reserve, sku, quantity}, _from, stock) do
-    available = Map.get(stock, sku, 0)
-
-    if available >= quantity do
-      updated = Map.put(stock, sku, available - quantity)
-      {:reply, :ok, updated}
-    else
-      {:reply, {:error, :insufficient_stock}, stock}
+  def handle_call({:reserve, sku, qty}, _from, stock) do
+    case Map.get(stock, sku, 0) do
+      available when available >= qty -> {:reply, :ok, Map.put(stock, sku, available - qty)}
+      _ -> {:reply, {:error, :out_of_stock}, stock}
     end
   end
 end
-
-# In Application/Supervisor: children = [{InventoryCache, %{"BOOK-1" => 5}}]
-# Poi InventoryCache.reserve("BOOK-1", 2) -> :ok
 ```
 
-Questo è uno **stato in memoria su un solo processo**, adatto a prototipi o cache locali: per scorte reali su più istanze servono database, transazioni e persistenza. In produzione aggiungi timeout, limiti, test ExUnit e supervision tree coerente con il dominio. Per approfondire OTP, vedi [GenServer](https://hexdocs.pm/elixir/GenServer.html) e [Supervisor](https://hexdocs.pm/elixir/Supervisor.html).
+- `call` è **sincrono** (aspetta la risposta, timeout di default 5 s); `cast` è **asincrono** (nessuna risposta, nessuna backpressure).
+- Il GenServer elabora un messaggio alla volta: è un modo semplice di serializzare l'accesso a uno stato, ma può diventare un collo di bottiglia.
 
-## Pronto per progetti e colloqui
+```elixir
+# In lib/shop/application.ex
+children = [
+  {Shop.Inventory, %{"MUG-2" => 10}},
+  {Task.Supervisor, name: Shop.TaskSupervisor}
+]
+Supervisor.start_link(children, strategy: :one_for_one)
+```
 
-- **Installazione e workflow:** `elixir --version`, `iex`, `mix new shop`, `mix test`, `mix format`.
-- **`Enum` vs `Stream`?** Operazioni immediate vs pipeline lazy; misura prestazioni e memoria prima di ottimizzare.
-- **Immutabilità?** Modificare una mappa/liste produce nuovi valori, utile per prevedibilità e concorrenza. Il runtime può condividere memoria internamente.
-- **Pattern matching?** Verifica la forma di un valore ed estrae dati: utilissimo per `{:ok, x}` / `{:error, why}`.
-- **`GenServer` e Supervisor?** Processo con callbacks e stato gestito tramite messaggi; supervisor monitora e riavvia processi secondo una strategia.
-- **Tail vs non-tail recursion?** Se la chiamata ricorsiva è l'ultima operazione, la BEAM può evitare la crescita dello stack a ogni livello.
+| Strategia | Se un figlio muore… |
+|---|---|
+| `:one_for_one` | riavvia solo quel figlio |
+| `:one_for_all` | riavvia tutti i figli |
+| `:rest_for_one` | riavvia quel figlio e quelli avviati dopo di lui |
 
-**Approfondisci quando serve:** [Elixir: guida introduttiva](https://elixir.hexdocs.pm/introduction.html), [Enum e Stream](https://elixir.hexdocs.pm/enumerable-and-streams.html), [GenServer](https://hexdocs.pm/elixir/GenServer.html), [Mix/OTP](https://elixir.hexdocs.pm/introduction-to-mix.html). Questi riferimenti sono migliori di aggiungere altri dieci capitoli di teoria alla cheatsheet.
+Altri strumenti: **Task** (`Task.async/await`, `Task.async_stream` per lavoro parallelo con concorrenza limitata), **Agent** (stato semplice), **ETS** (tabelle in memoria condivise e molto veloci), **Registry** (nomi dinamici dei processi).
+
+## Progetti e test
+
+```bash
+mix new shop --sup      # progetto con albero di supervisione
+mix deps.get && mix test
+iex -S mix              # shell interattiva con il progetto caricato
+```
+
+```elixir
+defmodule Shop.PricingTest do
+  use ExUnit.Case, async: true   # i test async girano in parallelo
+  doctest Shop.Pricing           # esegue gli esempi `iex>` presenti nella documentazione
+
+  test "applica l'IVA" do
+    assert Shop.Pricing.gross(1000) == 1220
+  end
+end
+```
+
+**Phoenix** è il framework web di riferimento; **LiveView** costruisce UI interattive renderizzate dal server, con aggiornamenti via WebSocket e poco JavaScript.
+
+## Per gli esercizi di coding
+
+| Ti serve | Funzione |
+|---|---|
+| Frequenze | `Enum.frequencies(list)` · `Enum.frequencies_by(list, &f/1)` |
+| Raggruppare | `Enum.group_by(orders, & &1.customer_id)` |
+| Accumulare | `Enum.reduce(list, acc, fn x, acc -> ... end)` |
+| Aggiornare una mappa | `Map.update(map, key, default, &(&1 + 1))` |
+| Ordinare | `Enum.sort_by(orders, & &1.total_cents, :desc)` |
+| Finestre e coppie | `Enum.chunk_every(list, 3, 1, :discard)` · `Enum.zip(a, b)` |
+| Coda FIFO | `:queue.new()`, `:queue.in/2`, `:queue.out/1` |
+| Indice | `Enum.with_index(list)` |
+| Uscita anticipata | `Enum.reduce_while(list, acc, fn x, acc -> {:cont, acc} \| {:halt, acc} end)` |
+
+- Le liste sono **concatenate**: `[x | list]` costa `O(1)`, `list ++ [x]` e `Enum.at(list, i)` costano `O(n)`. Costruisci la lista al contrario e chiama `Enum.reverse/1` alla fine.
+- Per accessi casuali usa una mappa con indici come chiavi oppure una tupla (`elem/2` è `O(1)`).
+
+## Domande da colloquio
+
+**Base**
+- **Cosa significa che `=` è un match?** Verifica che il lato destro corrisponda al pattern di sinistra e lega le variabili; se non corrisponde solleva `MatchError`.
+- **Lista vs tupla?** La lista è concatenata (prepend `O(1)`, accesso `O(n)`), adatta a collezioni di dimensione variabile; la tupla è contigua (accesso `O(1)`), adatta a gruppi fissi come `{:ok, value}`.
+- **A cosa serve la pipe?** Passa il risultato a sinistra come primo argomento della funzione a destra, rendendo leggibili le trasformazioni in sequenza.
+
+**Intermedio**
+- **Enum vs Stream?** Enum calcola subito e crea liste intermedie; Stream compone le operazioni in modo pigro e le esegue elemento per elemento solo alla fine.
+- **Perché `{:ok, _}` / `{:error, _}` invece delle eccezioni?** Gli errori attesi diventano dati gestibili con pattern matching e `with`; le eccezioni restano per i bug e i casi imprevisti.
+- **`call` vs `cast`?** `call` è sincrono e restituisce una risposta (offre backpressure); `cast` è fire-and-forget e rischia di riempire la mailbox se il server è lento.
+- **Link vs monitor?** Il link è bidirezionale e propaga la morte (base della supervisione); il monitor è unidirezionale e notifica soltanto.
+- **Come si accede al database?** Con **Ecto**: schema per mappare le tabelle, **changeset** per validare e tracciare le modifiche prima di scriverle, `Repo` per eseguire le query, query componibili con una sintassi simile a SQL.
+- **Come è strutturata un'app Phoenix?** Endpoint → router → controller o LiveView, con la logica di dominio nei **context** (moduli come `Shop.Orders`), separati dal livello web.
+
+**Avanzato**
+- **Cosa significa "let it crash"?** Non scrivere codice difensivo per ogni errore imprevisto: lascia che il processo muoia e che il supervisor lo riavvii in uno stato noto. L'isolamento dei processi impedisce che il guasto si propaghi.
+- **Perché la BEAM ha latenze prevedibili?** Lo scheduling è preemptive per riduzioni e il GC lavora per singolo processo, senza pause globali "stop the world".
+- **Quando un GenServer è un collo di bottiglia?** Quando molti client lo chiamano: serializza tutto. Le soluzioni sono ETS per le letture concorrenti, il partizionamento in più processi o un pool.
+- **Come funziona la TCO?** Se la chiamata ricorsiva è l'ultima operazione, il frame corrente viene riutilizzato: la ricorsione con accumulatore usa memoria costante.
+- **Quali sono i limiti di prestazioni da tenere a mente?** Creare processi costa poco, ma i messaggi vengono copiati tra processi (i binari grandi no: sono condivisi tramite riferimento); il calcolo numerico intensivo è lento rispetto al codice nativo (si delega a NIF o Nx).
+
+## Approfondisci
+
+- [Elixir — Getting Started](https://hexdocs.pm/elixir/introduction.html)
+- [GenServer](https://hexdocs.pm/elixir/GenServer.html) · [Supervisor](https://hexdocs.pm/elixir/Supervisor.html) · [Enum](https://hexdocs.pm/elixir/Enum.html)
+- [Phoenix](https://hexdocs.pm/phoenix/overview.html)

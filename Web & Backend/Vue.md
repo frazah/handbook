@@ -1,199 +1,267 @@
-# Vue 3 + TypeScript — Cheatsheet
+# Vue 3 + TypeScript
 
-> **Quando serve:** interfacce reattive, componenti riutilizzabili e applicazioni web con template HTML. Questa scheda usa Vue 3, **Composition API** e `<script setup lang="ts">` (la sintassi consigliata nei Single-File Components). Prerequisiti: JavaScript e basi TypeScript.
+> Framework progressivo per interfacce: template HTML dichiarativi, **reattività automatica** e Single File Component (`.vue`) con template, logica e stile insieme.
+> Prerequisiti: [JavaScript](../Languages/JavaScript.md) · [TypeScript](../Languages/TypeScript.md) · Collegate: [React](React.md) (confronto in fondo) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md)
 
-In Vue un file `.vue` (*Single-File Component*, SFC) può contenere **logica**, **template HTML** e **stili**. La UI viene aggiornata quando cambiano i dati reattivi. In Vue 3 esiste anche la Options API (`data`, `methods`, `computed`): è valida, ma qui usiamo Composition API per progetti moderni con TypeScript.
+## Modello mentale
 
-## Sintassi che usi ogni giorno
+- **Reattività con Proxy:** `ref` e `reactive` avvolgono i dati in un Proxy. Quando un componente o un `computed` *legge* un valore, Vue registra la dipendenza; quando lo *scrivi*, Vue sa esattamente chi aggiornare.
+- Al contrario di React, non si ri-esegue tutto il componente: si aggiornano **solo gli effetti che dipendono dal dato cambiato**. Niente array di dipendenze, niente `useMemo`.
+- Lo stato si **muta direttamente** (`cart.items.push(x)`): è il Proxy a intercettare la modifica.
+- Gli aggiornamenti del DOM sono **asincroni e raggruppati** nel tick successivo: per leggere il DOM aggiornato usa `await nextTick()`.
+- Il template viene compilato in una render function ottimizzata (le parti statiche vengono individuate in compilazione).
+- Comunicazione: le **props** scendono, gli **eventi** (`emit`) salgono; per lo stato condiviso si usano composable, `provide/inject` o **Pinia**.
 
-| Concetto | Sintassi | Significato |
-|---|---|---|
-| Stato reattivo | `const count = ref(0)` | in JS leggi/scrivi `count.value`; nel template basta `count` |
-| Oggetto reattivo | `reactive({ name: '' })` | proxy reattivo; attenzione a destrutturare proprietà primitive |
-| Valore derivato | `computed(() => ...)` | ricalcola quando cambiano le dipendenze |
-| Interpolazione | `{{ product.name }}` | inserisce testo nel template |
-| Attributo dinamico | `:disabled="loading"` | abbrevia `v-bind:disabled` |
-| Evento | `@click="add"` | abbrevia `v-on:click` |
-| Input controllato | `v-model="query"` | sincronizza input e stato |
-| Condizioni | `v-if`, `v-else-if`, `v-else` | monta/smonta rami della UI |
-| Visibilità | `v-show="visible"` | nasconde tramite CSS, non smonta il componente |
-| Lista | `v-for="item in items" :key="item.id"` | chiave **stabile**, non indice se la lista cambia |
-| Props | `defineProps<Props>()` | contratto dei dati ricevuti dal genitore |
-| Eventi al genitore | `defineEmits<...>()` | segnala azioni senza modificare direttamente le props |
-| Riferimento elemento | `ref<HTMLInputElement \| null>(null)` | accesso controllato al nodo DOM |
+## Sintassi al volo
 
-**Come leggere `<script setup>`:** quello che dichiari nel blocco è disponibile nel template senza `return` esplicito. `defineProps` e `defineEmits` sono **macro del compilatore**: non importarle. `ref` e `computed`, invece, si importano da `vue`. Le props seguono un flusso genitore → figlio: non mutarle per «rimandare» dati indietro.
+| Ti serve | Sintassi |
+|---|---|
+| Interpolazione | `{{ product.name }}` |
+| Attributo dinamico | `:href="url"` (= `v-bind:href`) · `:class="{ active: isActive }"` |
+| Evento | `@click="addToCart(product.id)"` (= `v-on:click`) · `@submit.prevent="save"` |
+| Condizionale | `v-if` / `v-else-if` / `v-else` (crea e distrugge) · `v-show` (nasconde con CSS) |
+| Lista | `<li v-for="item in items" :key="item.id">` |
+| Two-way binding | `v-model="email"` · `v-model.number="qty"` · `v-model.trim` |
+| Slot | `<slot />` · `<slot name="footer" />` · `<template #footer>` |
+| Ref al DOM | `<input ref="search">` + `const search = useTemplateRef("search")` (3.5+) |
 
-## Catalogo: props, eventi, form e stato derivato
+Mai `v-if` e `v-for` sullo stesso elemento: filtra prima con un `computed`.
 
-File `ProductSearch.vue`: immagina di integrarlo in una pagina e-commerce che deve filtrare il catalogo e inviare un evento quando l'utente aggiunge un prodotto al carrello.
+## Single File Component con `<script setup>`
 
 ```vue
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 
-type Product = {
-  id: string;
-  name: string;
-  priceCents: number;
-  inStock: boolean;
-};
+type Product = { id: number; name: string; priceCents: number };
 
-type Props = {
-  products: Product[];
-};
+const props = defineProps<{ product: Product }>();
+const emit = defineEmits<{ add: [productId: number, quantity: number] }>();
 
-// Le props arrivano dal genitore; le leggiamo senza modificarle.
-const props = defineProps<Props>();
-
-// Il figlio emette un evento tipizzato verso il genitore.
-const emit = defineEmits<{
-  add: [productId: string];
-}>();
-
-// `ref` rende reattiva la ricerca; `.value` si usa nello script.
-const query = ref('');
-const inStockOnly = ref(false);
-
-// `computed` è un valore DERIVATO, non uno state da duplicare.
-const filteredProducts = computed(() => {
-  const normalizedQuery = query.value.trim().toLowerCase();
-
-  return props.products.filter((product) => {
-    const matchesName = product.name.toLowerCase().includes(normalizedQuery);
-    const matchesStock = !inStockOnly.value || product.inStock;
-    return matchesName && matchesStock;
-  });
-});
-
-function handleAdd(productId: string) {
-  emit('add', productId);
-}
+const quantity = ref(1);  // nel template si usa senza .value
+const subtotal = computed(() => (props.product.priceCents * quantity.value) / 100);
 </script>
 
 <template>
-  <section>
-    <label>
-      Cerca prodotti
-      <input v-model="query" type="search" />
-    </label>
-
-    <label>
-      <input v-model="inStockOnly" type="checkbox" />
-      Solo disponibili
-    </label>
-
-    <p v-if="filteredProducts.length === 0">Nessun risultato.</p>
-
-    <ul v-else>
-      <li v-for="product in filteredProducts" :key="product.id">
-        <strong>{{ product.name }}</strong>
-        <span>{{ (product.priceCents / 100).toFixed(2) }} €</span>
-        <button
-          type="button"
-          :disabled="!product.inStock"
-          @click="handleAdd(product.id)"
-        >
-          Aggiungi
-        </button>
-      </li>
-    </ul>
-  </section>
+  <article class="card">
+    <h3>{{ product.name }}</h3>
+    <input v-model.number="quantity" type="number" min="1" />
+    <button @click="emit('add', product.id, quantity)">
+      Aggiungi ({{ subtotal.toFixed(2) }} €)
+    </button>
+  </article>
 </template>
+
+<style scoped>
+.card { border: 1px solid #ddd; } /* scoped: vale solo per questo componente */
+</style>
 ```
 
-**Nel componente genitore** passa una lista reale di prodotti e registra l'handler con `@add`:
+Le props sono **in sola lettura**: per modificarle, emetti un evento e lascia decidere il genitore. Con `withDefaults(defineProps<...>(), { ... })` dai valori di default.
 
-```vue
-<!-- App.vue / pagina catalogo: frammento di template -->
-<ProductSearch :products="products" @add="addProductToCart" />
-```
+## `ref` vs `reactive`
 
-Qui `products` e `addProductToCart` sono definiti dal genitore (API, store o stato locale). Il frammento **non è un secondo componente autonomo**. I prezzi in centesimi riducono problemi di precisione; in una app internazionale formatta in modo locale con `Intl.NumberFormat` e gestisci valute e arrotondamenti secondo il dominio.
+| | `ref(x)` | `reactive(obj)` |
+|---|---|---|
+| Accetta | qualsiasi valore | solo oggetti, array, Map, Set |
+| Accesso nello script | `x.value` | `obj.campo` |
+| Riassegnazione completa | `x.value = nuovo` ✅ | `obj = nuovo` ❌ (perde la reattività) |
+| Destructuring | — | ❌ perde la reattività (usa `toRefs`) |
 
-## Computed, watch e lifecycle: quando usarli
-
-- **`computed`** per risultati derivati, come `filteredProducts` o un totale: Vue ne memorizza il valore finché le dipendenze reattive non cambiano.
-- **`watch`** per *effetti collaterali* quando varia uno stato preciso: una chiamata HTTP al cambiare dell'ID, sincronizzare un sistema esterno ecc.
-- **`watchEffect`** segue automaticamente le dipendenze lette durante l'esecuzione sincrona, meno esplicito di `watch`.
-- **`onMounted` / `onUnmounted`** per risorse che esistono solo nel browser (listener, interfacce DOM); pulisci sempre eventi e timer.
-
-Esempio: recupero dati che cambia al cambiare dell'ID prodotto. Inserisci questo codice dentro `<script setup lang="ts">` di un componente che riceve `productId`.
+Regola pratica: **usa `ref` ovunque**; `reactive` per oggetti di stato raggruppati che non riassegni.
 
 ```ts
-import { ref, watch } from 'vue';
+import { reactive, toRefs } from "vue";
 
-type ProductDetails = { id: string; name: string; description: string };
-
-type DetailsProps = { productId: string };
-const props = defineProps<DetailsProps>();
-
-const product = ref<ProductDetails | null>(null);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-watch(
-  () => props.productId, // La sorgente osservata è la prop, non il suo snapshot.
-  async (id, _oldId, onCleanup) => {
-    const controller = new AbortController();
-    // Se l'ID cambia prima della risposta, annulla la richiesta obsoleta.
-    onCleanup(() => controller.abort());
-
-    loading.value = true;
-    error.value = null;
-    product.value = null;
-
-    try {
-      const response = await fetch(`/api/products/${encodeURIComponent(id)}`, {
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      // Il cast NON valida il JSON: usa uno schema runtime per API non fidate.
-      const data: ProductDetails = await response.json();
-      if (!controller.signal.aborted) product.value = data;
-    } catch (caught) {
-      if (!controller.signal.aborted) error.value = String(caught);
-    } finally {
-      if (!controller.signal.aborted) loading.value = false;
-    }
-  },
-  { immediate: true }, // Carica una volta subito, poi a ogni cambio ID.
-);
+const filters = reactive({ status: "paid", page: 1 });
+const { status } = filters;           // ❌ semplice stringa: non è più reattiva
+const { page } = toRefs(filters);     // ✅ ref collegato a filters.page
 ```
 
-**Attenzione:** se `productId` passa rapidamente tra valori, serve cleanup per evitare risultati vecchi. L'API di cleanup attraverso il terzo argomento della callback di `watch` funziona senza dipendere da `onWatcherCleanup` introdotto più recentemente. [Vue: watchers](https://vuejs.org/guide/essentials/watchers.html).
+## `computed`, `watch`, `watchEffect`
 
-## Architettura e casi frequenti
+| | Quando |
+|---|---|
+| `computed` | valore **derivato** da altri dati: è in cache e si ricalcola solo se cambiano le dipendenze |
+| `watch(source, cb)` | **effetto collaterale** su un dato preciso, con accesso a valore nuovo e vecchio |
+| `watchEffect(cb)` | effetto che traccia automaticamente tutto ciò che legge |
 
-| Esigenza | Scelta tipica | Da non confondere |
+```ts
+import { ref, watch } from "vue";
+
+const status = ref("paid");
+const orders = ref<{ id: number; totalCents: number }[]>([]);
+
+// Ricarica gli ordini quando cambia il filtro; onCleanup annulla la richiesta precedente.
+watch(status, async (newStatus, _old, onCleanup) => {
+  const controller = new AbortController();
+  onCleanup(() => controller.abort());
+  const res = await fetch(`/api/orders?status=${newStatus}`, { signal: controller.signal });
+  orders.value = await res.json();
+}, { immediate: true }); // esegue anche al primo caricamento
+```
+
+Errore comune: usare `watch` per calcolare un valore derivato. Se puoi esprimerlo come `computed`, usa `computed`.
+
+## v-model sui componenti
+
+`defineModel` (Vue 3.4+) crea una prop collegata in due direzioni con il genitore, senza scrivere a mano la coppia prop + evento `update:modelValue`.
+
+```vue
+<!-- QuantityInput.vue -->
+<script setup lang="ts">
+const quantity = defineModel<number>({ default: 1 });
+</script>
+
+<template>
+  <button @click="quantity = Math.max(1, quantity - 1)">−</button>
+  {{ quantity }}
+  <button @click="quantity++">+</button>
+</template>
+
+<!-- Nel genitore: <QuantityInput v-model="item.quantity" /> -->
+```
+
+## Slot
+
+Gli slot permettono al genitore di passare **markup** al figlio. Gli *scoped slot* espongono dati del figlio al contenuto del genitore.
+
+```vue
+<!-- DataTable.vue: il figlio gestisce la lista, il genitore decide come mostrare ogni riga -->
+<template>
+  <ul>
+    <li v-for="row in rows" :key="row.id">
+      <slot name="row" :row="row" />
+    </li>
+  </ul>
+</template>
+
+<!-- Uso: <DataTable :rows="orders"><template #row="{ row }">#{{ row.id }}</template></DataTable> -->
+```
+
+## Lifecycle
+
+| Hook | Quando |
+|---|---|
+| `onMounted` | il componente è nel DOM (accesso a elementi, librerie esterne) |
+| `onUpdated` | dopo un aggiornamento del DOM (raramente necessario) |
+| `onUnmounted` | rimozione: pulisci timer, listener, sottoscrizioni |
+
+Il codice dentro `<script setup>` stesso viene eseguito **una sola volta**, alla creazione del componente.
+
+## Composable
+
+Una funzione `useQualcosa()` che incapsula **stato reattivo + logica** riutilizzabile. È l'equivalente dei custom hook di React e sostituisce i mixin di Vue 2 (che avevano collisioni di nomi e origine dei dati poco chiara).
+
+```ts
+import { ref, onMounted, onUnmounted } from "vue";
+
+export function useOnlineStatus() {
+  const online = ref(navigator.onLine);
+  const update = () => (online.value = navigator.onLine);
+  onMounted(() => { addEventListener("online", update); addEventListener("offline", update); });
+  onUnmounted(() => { removeEventListener("online", update); removeEventListener("offline", update); });
+  return { online };  // ogni componente che lo chiama ha il proprio stato
+}
+```
+
+## provide / inject
+
+Passa un valore a tutti i discendenti senza prop drilling. Usa una `InjectionKey` tipizzata.
+
+```ts
+import { inject, provide, ref, type InjectionKey, type Ref } from "vue";
+
+export const CurrencyKey: InjectionKey<Ref<string>> = Symbol("currency");
+// Nell'antenato:    provide(CurrencyKey, ref("EUR"))
+// Nel discendente:  const currency = inject(CurrencyKey, ref("EUR"))  // secondo argomento: default
+```
+
+## Pinia (stato globale)
+
+Lo store ufficiale: stato, getter (`computed`) e action, con supporto completo a TypeScript e DevTools.
+
+```ts
+import { defineStore } from "pinia";
+import { computed, ref } from "vue";
+
+export const useCartStore = defineStore("cart", () => {
+  const items = ref<{ productId: number; quantity: number; priceCents: number }[]>([]);
+  const totalCents = computed(() => items.value.reduce((s, i) => s + i.priceCents * i.quantity, 0));
+
+  function add(productId: number, priceCents: number) {
+    const existing = items.value.find((i) => i.productId === productId);
+    if (existing) existing.quantity++;  // mutazione diretta: la reattività la intercetta
+    else items.value.push({ productId, quantity: 1, priceCents });
+  }
+  return { items, totalCents, add };
+});
+// In un componente: const cart = useCartStore(); const { items } = storeToRefs(cart);
+```
+
+## Vue Router
+
+```ts
+import { createRouter, createWebHistory } from "vue-router";
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: "/products", component: () => import("./ProductList.vue") }, // lazy loading
+    { path: "/orders/:id", component: () => import("./OrderDetail.vue"), meta: { requiresAuth: true } },
+  ],
+});
+
+router.beforeEach((to) => {  // navigation guard
+  if (to.meta.requiresAuth && !localStorage.getItem("token")) return "/login";
+});
+// Nel componente: const route = useRoute(); route.params.id
+```
+
+## Performance
+
+- `computed` invece di metodi nel template (i metodi si rieseguono a ogni render).
+- `shallowRef` / `shallowReactive` per grandi strutture che sostituisci per intero (niente Proxy profondo).
+- `v-once` (renderizza una volta), `v-memo` (salta aggiornamenti di sottoalberi), `KeepAlive` (mantiene in memoria componenti nascosti).
+- Lazy loading di route e componenti pesanti (`defineAsyncComponent`).
+
+## Vue vs React
+
+| | Vue | React |
 |---|---|---|
-| Passare dati al figlio | props | non modificare una prop direttamente |
-| Comunicare azioni al genitore | `emit` | non usarlo per dati globali persistenti |
-| Valore calcolato | `computed` | non duplicarlo in `ref` + `watch` senza motivo |
-| Stato locale | `ref`, `reactive` | `ref` necessita `.value` nello script |
-| Stato condiviso tra molte pagine | Pinia | evita un mega-store per ogni piccolo form |
-| Navigazione SPA | Vue Router | URL e parametri route non sono normali props, se non configurate |
-| Logica riutilizzabile | composable `useProducts()` | è una funzione con state/hooks Vue, non un componente |
-| Contenuto fornito dal genitore | `<slot />` | diverso da una prop stringa |
-| Test UI | Vue Test Utils + Vitest | preferisci test di comportamento |
-
-**`provide` / `inject`** è utile quando dati/configurazioni devono attraversare molti livelli: usa chiavi tipizzate con `InjectionKey`, ma non sostituire indiscriminatamente uno store globale. **Direttive** (`v-if`, `v-model`, `v-for`) operano nel template, mentre la logica di business rimane preferibilmente in funzioni/composables. **Options API** e Composition API possono convivere nella codebase; evita di mescolare stili nello stesso componente senza un motivo.
-
-**Rendering in breve:** Vue traccia le dipendenze reattive; quando cambiano, programma l'aggiornamento e applica al DOM le modifiche necessarie. `nextTick()` aspetta il completamento del successivo aggiornamento DOM. Attenzione a `ref` vs `reactive` e alla perdita di reattività destrutturando oggetti: [Reactivity fundamentals](https://vuejs.org/guide/essentials/reactivity-fundamentals.html).
+| Template | HTML + direttive | JSX |
+| Reattività | Proxy, tracciamento automatico delle dipendenze | stato immutabile, ri-esecuzione del componente |
+| Aggiornare lo stato | mutazione diretta | nuovo oggetto + setter |
+| Valori derivati | `computed` (cache automatica) | calcolo nel render, `useMemo` |
+| Effetti | `watch` / `watchEffect` (dipendenze automatiche) | `useEffect` (dipendenze esplicite) |
+| Stato globale | Pinia (ufficiale) | Context, Redux, Zustand… |
+| Stile | `<style scoped>` integrato | CSS Modules, CSS-in-JS, Tailwind |
 
 ## Domande da colloquio
 
-**Vue vs React?** Vue usa template e sistema di reattività con `ref`/`computed`; React usa JSX, state e render dei componenti. Entrambi supportano composizione e stato condiviso.
+**Base**
+- **`v-if` vs `v-show`?** `v-if` crea e distrugge gli elementi (costo al toggle, nessun costo se falso); `v-show` li lascia nel DOM e cambia `display` (costo iniziale, toggle economico).
+- **Perché serve `:key` in `v-for`?** Per far riconoscere a Vue ogni elemento tra un aggiornamento e l'altro, evitando di riusare stato e DOM sull'elemento sbagliato.
+- **Come comunicano padre e figlio?** Props verso il basso, `emit` verso l'alto; `v-model` è una scorciatoia per prop + evento `update:modelValue`.
 
-**`ref` vs `reactive`?** `ref` incapsula qualunque tipo in `.value`; `reactive` rende reattivo un oggetto tramite proxy. Nei template Vue svolge alcune operazioni di unwrap automatico.
+**Intermedio**
+- **`ref` vs `reactive`?** `ref` funziona con qualsiasi valore e si legge con `.value`; `reactive` solo con oggetti, e perde la reattività se fai destructuring o lo riassegni.
+- **`computed` vs `watch`?** `computed` produce un valore derivato e lo mette in cache; `watch` esegue effetti collaterali (fetch, log, storage) quando un dato cambia.
+- **Come funziona la reattività di Vue 3?** I Proxy intercettano letture (tracciamento delle dipendenze) e scritture (trigger degli effetti dipendenti). Vue 2 usava `Object.defineProperty`, che non vedeva le nuove proprietà né gli indici degli array.
+- **Composable vs mixin?** I composable rendono esplicita l'origine di ogni valore, evitano collisioni di nomi e si tipizzano bene; i mixin fondevano opzioni in modo implicito.
+- **Come carichi i dati di una route?** Con un composable o un `watch` sul parametro della route (con `immediate: true`), gestendo gli stati di caricamento, vuoto ed errore e annullando la richiesta precedente se il parametro cambia.
+- **Pinia o Vuex?** Pinia è lo store ufficiale di Vue 3: API più semplice (niente mutation), ottimo supporto a TypeScript e store modulari. Vuex è in manutenzione.
 
-**`computed` vs `watch`?** Valore derivato e memorizzato vs esecuzione di un effetto collaterale al cambiare di una sorgente.
+**Avanzato**
+- **Perché serve `nextTick`?** Gli aggiornamenti del DOM sono raggruppati e applicati in modo asincrono: dopo aver modificato lo stato, il DOM non è ancora aggiornato fino al tick successivo.
+- **Composition API vs Options API?** La Composition API raggruppa il codice per funzionalità invece che per tipo di opzione, si tipizza meglio e permette di estrarre la logica nei composable; la Options API resta valida per componenti semplici.
+- **Quando `shallowRef`?** Per grandi oggetti immutabili o di librerie esterne che sostituisci per intero: evita di rendere reattivo in profondità ogni campo.
+- **Vue vs React, in una frase?** Vue traccia le dipendenze e aggiorna in modo mirato con stato mutabile; React ri-esegue il componente e confronta il risultato, con stato immutabile.
+- **Come ottimizzi una lista lenta?** Key stabili, `computed` per filtri e ordinamenti, `shallowRef` per dati grandi, virtualizzazione per migliaia di righe e paginazione lato server.
+- **Cos'è Nuxt e quando serve l'SSR?** Nuxt è il meta-framework di Vue con SSR, generazione statica e routing basato su file. L'SSR serve per SEO e per un primo rendering veloce, al costo di un server e dell'idratazione nel client.
 
-**Props vs emits?** Dati verso il figlio e notifiche verso il genitore. Evita la mutazione diretta delle props.
+## Approfondisci
 
-**Perché `:key` in `v-for`?** Fornisce un'identità stabile per riutilizzare e riordinare correttamente nodi/componenti.
-
-**Composition vs Options API?** Entrambe supportate. Composition raggruppa logica per funzionalità e lavora bene con TypeScript; Options raggruppa per `data`, `methods`, `computed` ecc.
-
-**Approfondisci quando serve:** [Vue: Introduction](https://vuejs.org/guide/introduction.html), [`<script setup>`](https://vuejs.org/api/sfc-script-setup.html), [Props](https://vuejs.org/guide/components/props.html), [Computed](https://vuejs.org/guide/essentials/computed.html). Gli esempi Vue richiedono un progetto Vue/Vite: non si eseguono aprendo il `.md`.
+- [Vue — Guida](https://vuejs.org/guide/introduction.html) · [Reattività in profondità](https://vuejs.org/guide/extras/reactivity-in-depth.html)
+- [Pinia](https://pinia.vuejs.org/) · [Vue Router](https://router.vuejs.org/)
+- [Vue + TypeScript](https://vuejs.org/guide/typescript/composition-api.html)
