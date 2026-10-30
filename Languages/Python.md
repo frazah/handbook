@@ -59,13 +59,44 @@ Mantiene l'ordine di inserimento (da Python 3.7). Le chiavi devono essere hashab
 | Leggere | `stock["MUG"]` (`KeyError` se manca) · `stock.get("CAP")` (`None`) · `stock.get("CAP", 0)` | `O(1)` |
 | Scrivere | `stock["CAP"] = 5` · `stock.update({"MUG": 9, "HAT": 2})` · `stock \|= other` | `O(1)` |
 | Default se manca | `stock.setdefault("BAG", 0)` | `O(1)` |
+| Più valori per chiave | `groups.setdefault(k, []).append(v)` · `defaultdict(list)` (sotto) | `O(1)` |
 | Rimuovere | `del stock["PEN"]` · `stock.pop("PEN")` · `stock.pop("PEN", None)` (senza errore) | `O(1)` |
 | Esiste la chiave? | `"MUG" in stock` (controlla le chiavi, non i valori) | `O(1)` |
 | Iterare | `for sku in stock` · `stock.keys()` · `stock.values()` · `for sku, qty in stock.items()` | `O(n)` |
 | Unire (nuovo dict) | `{**a, **b}` · `a \| b` (a parità di chiave vince `b`) | `O(n)` |
 | Ordinare per valore | `sorted(stock.items(), key=lambda kv: kv[1], reverse=True)` | `O(n log n)` |
 
-Varianti in `collections`: `defaultdict(list)` (valore di default automatico), `Counter` (conteggi), `OrderedDict` (`move_to_end`, utile per le cache LRU).
+#### Varianti in `collections`
+
+Sono sottoclassi di `dict`: stessa sintassi, più un comportamento extra.
+
+| Tipo | Cosa aggiunge | Quando |
+|---|---|---|
+| `defaultdict(factory)` | una chiave mancante viene creata con `factory()` (`list`, `set`, `int`) | raggruppare, contare senza `if k in d` |
+| `Counter(iterable)` | conta gli elementi; chiave mancante → `0`; `most_common(n)`, `+`/`-` tra counter | frequenze, anagrammi, top-k |
+| `OrderedDict` | `move_to_end(k)` e `popitem(last=False)` (toglie il più vecchio) | cache LRU |
+
+```python
+from collections import Counter, OrderedDict, defaultdict
+
+orders = [("ada", "MUG"), ("lin", "PEN"), ("ada", "BAG"), ("ada", "MUG")]
+
+skus_by_customer = defaultdict(list)       # chiave mancante -> []
+for name, sku in orders:
+    skus_by_customer[name].append(sku)     # niente setdefault né if
+assert skus_by_customer["ada"] == ["MUG", "BAG", "MUG"]
+
+sold = Counter(sku for _, sku in orders)   # {"MUG": 2, "PEN": 1, "BAG": 1}
+assert sold["CAP"] == 0                    # chiave mancante -> 0, non KeyError
+assert sold.most_common(1) == [("MUG", 2)]
+assert Counter("listen") == Counter("silent")   # anagrammi
+
+recent = OrderedDict(a=1, b=2, c=3)
+recent.move_to_end("a")                    # "a" diventa il più recente
+assert recent.popitem(last=False) == ("b", 2)   # esce il meno recente
+```
+
+Attenzione: con `defaultdict` anche una lettura (`d["zoe"]`) inserisce la chiave; per controllare usa `"zoe" in d`.
 
 ### Set: elementi unici, non ordinati
 
