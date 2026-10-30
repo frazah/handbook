@@ -29,6 +29,93 @@
 | Tipi | `list[int]`, `dict[str, int]`, `str \| None` |
 | Pattern matching (3.10+) | `match event: case {"type": "paid", "id": oid}: ...` |
 
+## Strutture dati built-in
+
+Il costo delle operazioni è spiegato in [Big-O e strutture dati](../Fundamentals/Big-O%20e%20strutture%20dati.md).
+
+### Lista (`list`): sequenza ordinata e mutabile
+
+| Operazione | Sintassi | Costo |
+|---|---|---|
+| Dichiarare | `skus = []` · `skus = ["MUG", "PEN"]` · `list(range(5))` · `[0] * n` | |
+| Leggere / scrivere | `skus[0]` · `skus[-1]` (ultimo) · `skus[1] = "BAG"` | `O(1)` |
+| Aggiungere in coda | `skus.append("BAG")` · `skus.extend(["CAP", "HAT"])` · `skus += [...]` | `O(1)`* |
+| Inserire in posizione | `skus.insert(0, "NEW")` | `O(n)` |
+| Rimuovere | `skus.pop()` (ultimo, `O(1)`) · `skus.pop(i)` · `skus.remove("PEN")` (prima occorrenza) · `del skus[i]` | `O(n)` |
+| Cercare | `"MUG" in skus` · `skus.index("MUG")` · `skus.count("MUG")` | `O(n)` |
+| Slicing (copia) | `skus[1:3]` · `skus[:2]` · `skus[::-1]` · `skus[:]` | `O(k)` |
+| Ordinare | `skus.sort()` (in place) · `sorted(skus)` (nuova lista) · `key=len, reverse=True` | `O(n log n)` |
+| Altro | `len(skus)` · `skus.reverse()` · `skus.clear()` · `min/max/sum(nums)` | |
+
+\* ammortizzato
+
+### Dizionario (`dict`): hash map chiave → valore
+
+Mantiene l'ordine di inserimento (da Python 3.7). Le chiavi devono essere hashable (`str`, `int`, `tuple`, non `list`).
+
+| Operazione | Sintassi | Costo |
+|---|---|---|
+| Dichiarare | `stock = {}` · `stock = {"MUG": 10, "PEN": 0}` · `dict(MUG=10)` · `dict(zip(keys, values))` | |
+| Leggere | `stock["MUG"]` (`KeyError` se manca) · `stock.get("CAP")` (`None`) · `stock.get("CAP", 0)` | `O(1)` |
+| Scrivere | `stock["CAP"] = 5` · `stock.update({"MUG": 9, "HAT": 2})` · `stock \|= other` | `O(1)` |
+| Default se manca | `stock.setdefault("BAG", 0)` | `O(1)` |
+| Rimuovere | `del stock["PEN"]` · `stock.pop("PEN")` · `stock.pop("PEN", None)` (senza errore) | `O(1)` |
+| Esiste la chiave? | `"MUG" in stock` (controlla le chiavi, non i valori) | `O(1)` |
+| Iterare | `for sku in stock` · `stock.keys()` · `stock.values()` · `for sku, qty in stock.items()` | `O(n)` |
+| Unire (nuovo dict) | `{**a, **b}` · `a \| b` (a parità di chiave vince `b`) | `O(n)` |
+| Ordinare per valore | `sorted(stock.items(), key=lambda kv: kv[1], reverse=True)` | `O(n log n)` |
+
+Varianti in `collections`: `defaultdict(list)` (valore di default automatico), `Counter` (conteggi), `OrderedDict` (`move_to_end`, utile per le cache LRU).
+
+### Set: elementi unici, non ordinati
+
+| Operazione | Sintassi | Costo |
+|---|---|---|
+| Dichiarare | `seen = set()` (**non** `{}`, che è un dict vuoto) · `{"MUG", "PEN"}` · `set(skus)` | |
+| Aggiungere / rimuovere | `seen.add("MUG")` · `seen.update(skus)` · `seen.remove("X")` (`KeyError`) · `seen.discard("X")` | `O(1)` |
+| Appartenenza | `"MUG" in seen` | `O(1)` |
+| Unione / intersezione | `a \| b` · `a & b` | `O(len(a) + len(b))` |
+| Differenza / simmetrica | `a - b` · `a ^ b` (in uno solo dei due) | |
+| Sottoinsieme | `a <= b` · `a.issubset(b)` · `a.isdisjoint(b)` | |
+
+`frozenset` è la versione immutabile e hashable, utilizzabile come chiave di un dict o elemento di un set.
+
+### Tupla (`tuple`): sequenza immutabile
+
+| Operazione | Sintassi |
+|---|---|
+| Dichiarare | `point = (3, 4)` · `single = (5,)` (la virgola è obbligatoria) · `tuple(skus)` |
+| Spacchettare | `x, y = point` · `sku, *rest = ("MUG", 2, 1299)` |
+| Record con nomi | `from typing import NamedTuple` → `class Item(NamedTuple): sku: str; qty: int` |
+
+Si usa per valori a dimensione fissa (coordinate, chiavi composte come `(customer_id, month)`) e per restituire più valori da una funzione.
+
+### Deque e heap
+
+| Struttura | Dichiarare | Operazioni (`O(1)` / `O(log n)`) |
+|---|---|---|
+| `deque` (coda a due estremi) | `from collections import deque` → `q = deque([1, 2])` · `deque(maxlen=3)` | `append`, `appendleft`, `pop`, `popleft`, `q[0]` |
+| Heap (min-heap su una lista) | `import heapq` → `h = []` · `heapq.heapify(nums)` | `heappush(h, x)`, `heappop(h)`, `h[0]` (minimo) |
+
+### Comprehension e trasformazioni
+
+```python
+orders = [("ada", "MUG", 2), ("lin", "PEN", 5), ("ada", "BAG", 1)]
+
+customers = [name for name, _, _ in orders]                 # lista: ['ada', 'lin', 'ada']
+unique_customers = {name for name, _, _ in orders}          # set: {'ada', 'lin'}
+qty_by_sku = {sku: qty for _, sku, qty in orders}           # dict: {'MUG': 2, 'PEN': 5, 'BAG': 1}
+big = [sku for _, sku, qty in orders if qty >= 2]           # con filtro: ['MUG', 'PEN']
+labels = ["bulk" if q >= 5 else "std" for _, _, q in orders]  # con ternario
+
+matrix = [[0] * 3 for _ in range(2)]                        # lista 2D (righe indipendenti)
+flat = [x for row in matrix for x in row]                   # appiattire: cicli nell'ordine dei for
+inverted = {qty: sku for sku, qty in qty_by_sku.items()}    # invertire un dict
+
+assert unique_customers == {"ada", "lin"} and big == ["MUG", "PEN"]
+assert inverted[5] == "PEN" and len(flat) == 6
+```
+
 ## Riferimenti e mutabilità
 
 ```python
