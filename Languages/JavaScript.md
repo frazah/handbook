@@ -192,6 +192,123 @@ document.querySelector("#cart").addEventListener("click", (event) => {
 });
 ```
 
+## Implementa da zero
+
+Nei colloqui frontend si chiede spesso di riscrivere utility note: servono a mostrare closure, `this`, timer e Promise. Queste sono le versioni minime da saper scrivere alla lavagna.
+
+**Debounce e throttle.** Entrambi avvolgono una funzione e tengono lo stato in una closure. Il *debounce* aspetta una pausa: ogni nuova chiamata annulla il timer precedente. Il *throttle* lascia passare al massimo una chiamata per intervallo.
+
+```js
+function debounce(fn, ms) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer); // ogni chiamata riparte da zero
+    timer = setTimeout(() => fn.apply(this, args), ms); // conserva this e argomenti
+  };
+}
+
+function throttle(fn, ms) {
+  let last = 0;
+  return function (...args) {
+    const now = Date.now();
+    if (now - last < ms) return; // troppo presto: la chiamata viene scartata
+    last = now;
+    fn.apply(this, args);
+  };
+}
+
+const searchProducts = debounce((query) => console.log("cerco", query), 300);
+```
+
+Questo throttle esegue la prima chiamata e scarta le altre (*leading*); lodash può eseguire anche l'ultima (*trailing*), così l'evento finale non va perso.
+
+**`Promise.all`.** Le due trappole sono l'ordine dei risultati (quello dell'input, non quello di arrivo) e l'array vuoto, che deve risolvere subito.
+
+```js
+function promiseAll(values) {
+  return new Promise((resolve, reject) => {
+    const results = new Array(values.length);
+    let pending = values.length;
+    if (pending === 0) return resolve(results);
+    values.forEach((value, i) => {
+      Promise.resolve(value).then((result) => { // accetta anche valori non-Promise
+        results[i] = result;                   // posizione dell'input
+        if (--pending === 0) resolve(results);
+      }, reject);                              // la prima rejection vince
+    });
+  });
+}
+
+promiseAll([Promise.resolve("ORD-101"), 42]).then(console.log); // -> ["ORD-101", 42]
+```
+
+**Memoize e curry.** Il *memoize* mette in cache il risultato di una funzione pura per argomento. Il *curry* trasforma `f(a, b, c)` in `f(a)(b)(c)`, così puoi fissare i primi argomenti e riusare la funzione.
+
+```js
+function memoize(fn) {
+  const cache = new Map();
+  return (arg) => {
+    if (!cache.has(arg)) cache.set(arg, fn(arg)); // has: anche undefined è un risultato
+    return cache.get(arg);
+  };
+}
+
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) return fn.apply(this, args); // fn.length = n. parametri
+    return (...more) => curried.apply(this, [...args, ...more]);
+  };
+}
+
+const grossCents = curry((vatRate, discount, cents) => Math.round(cents * (1 + vatRate) * (1 - discount)));
+const italianSale = grossCents(0.22)(0.1); // IVA e sconto fissati una volta
+italianSale(1000); // -> 1098
+```
+
+Limiti del memoize: un solo argomento (con più argomenti serve una chiave, es. `JSON.stringify(args)`) e cache senza limite (in produzione: LRU).
+
+**EventEmitter (pub/sub).** Una mappa da nome dell'evento a insieme di callback. Far restituire a `on` la funzione di disiscrizione aiuta a evitare i memory leak.
+
+```js
+class EventEmitter {
+  #listeners = new Map(); // evento -> Set di callback
+
+  on(event, fn) {
+    if (!this.#listeners.has(event)) this.#listeners.set(event, new Set());
+    this.#listeners.get(event).add(fn);
+    return () => this.off(event, fn);
+  }
+  off(event, fn) {
+    this.#listeners.get(event)?.delete(fn);
+  }
+  emit(event, ...args) {
+    // copia: un listener può disiscriversi mentre iteriamo
+    for (const fn of [...(this.#listeners.get(event) ?? [])]) fn(...args);
+  }
+}
+
+const orders = new EventEmitter();
+const unsubscribe = orders.on("paid", (id) => console.log(`ordine ${id} pagato`));
+orders.emit("paid", 101); // -> ordine 101 pagato
+unsubscribe();
+```
+
+**Flatten.** È la ricorsione classica sugli array annidati; nel codice reale si usa `items.flat(depth)`.
+
+```js
+function flatten(items, depth = Infinity) {
+  const out = [];
+  for (const item of items) {
+    if (Array.isArray(item) && depth > 0) out.push(...flatten(item, depth - 1));
+    else out.push(item);
+  }
+  return out;
+}
+
+flatten([1, [2, [3, [4]]]]);    // -> [1, 2, 3, 4]
+flatten([1, [2, [3, [4]]]], 1); // -> [1, 2, [3, [4]]]
+```
+
 ## Per gli esercizi di coding
 
 - `sort()` senza comparatore ordina **come stringhe**: `[10, 9, 1].sort()` → `[1, 10, 9]`. Usa `nums.sort((a, b) => a - b)`.
@@ -248,7 +365,7 @@ class MinHeap {
 - **Event delegation?** Un listener su un antenato comune che, grazie al bubbling, gestisce gli eventi dei figli, anche quelli aggiunti dinamicamente.
 - **Shallow vs deep copy?** Lo spread copia solo il primo livello; `structuredClone` copia ricorsivamente (ma non funzioni né prototipi custom).
 - **`call`, `apply` e `bind`?** Tutti fissano `this`: `call(thisArg, a, b)` e `apply(thisArg, [a, b])` invocano subito la funzione, `bind` restituisce una nuova funzione con `this` (ed eventuali argomenti) fissati.
-- **Debounce vs throttle?** Il debounce esegue la funzione solo dopo una pausa di N ms dall'ultimo evento (ricerca mentre digiti); il throttle la esegue al massimo una volta ogni N ms (scroll, resize). Entrambi si implementano con una closure e `setTimeout`.
+- **Debounce vs throttle?** Il debounce esegue la funzione solo dopo una pausa di N ms dall'ultimo evento (ricerca mentre digiti); il throttle la esegue al massimo una volta ogni N ms (scroll, resize). Entrambi tengono lo stato (timer o ultimo istante) in una closure ([implementazione](#implementa-da-zero)).
 
 **Avanzato**
 - **Ereditarietà prototipale vs classi?** Gli oggetti delegano le proprietà mancanti al loro prototipo lungo una catena; `class` è zucchero sintattico che imposta `prototype` e `super`.

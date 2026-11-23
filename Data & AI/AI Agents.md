@@ -25,6 +25,8 @@
 | RAG | Retrieval-Augmented Generation: recupera documenti pertinenti e li inserisce nel contesto |
 | Eval | insieme di casi di test con criteri di valutazione |
 | Prompt caching | riuso del prefisso già elaborato del prompt: meno costo e latenza |
+| Temperature | casualità nella scelta dei token: bassa per estrarre e classificare, più alta per testi creativi |
+| MCP | Model Context Protocol: standard per collegare tool e dati esterni a qualsiasi applicazione LLM |
 
 ## Prompt engineering essenziale
 
@@ -117,6 +119,28 @@ response = client.messages.create(model="claude-opus-5-5", max_tokens=16000,
 
 In produzione l'SDK offre un **Tool Runner** (`client.beta.messages.tool_runner`) che gestisce il ciclo al posto tuo; il loop manuale serve quando vuoi il controllo completo.
 
+## Pattern di workflow e di agente
+
+Il ciclo sopra si chiama **ReAct** (*Reason + Act*): il modello alterna ragionamento, azione (un tool) e osservazione del risultato. È il pattern agentico di base. Attorno a lui ci sono pattern ricorrenti, dal più prevedibile al più autonomo:
+
+| Pattern | Come funziona | Quando |
+|---|---|---|
+| Prompt chaining | passi fissi: l'output di uno è l'input del successivo, con controlli nel mezzo | compito scomponibile a priori (estrai → verifica → riassumi) |
+| Routing | un primo passo classifica la richiesta e la manda al prompt o al modello giusto | richieste eterogenee (reso, fattura, problema tecnico) |
+| Parallelizzazione | sotto-compiti indipendenti in parallelo, oppure più tentativi messi ai voti | velocità; più affidabilità sulle decisioni critiche |
+| ReAct | ragiona → chiama un tool → osserva → ripete | il percorso dipende da ciò che si scopre |
+| Plan-and-execute | prima un piano esplicito, poi l'esecuzione passo per passo, con revisione del piano se un passo fallisce | compiti lunghi; il piano si può ispezionare o far approvare |
+| Reflection (evaluator-optimizer) | un secondo passaggio critica l'output con criteri espliciti e chiede una revisione | esiste un criterio verificabile (test che passano, rubrica) |
+| Orchestrator-workers | vedi [Multi-agente](#multi-agente) | lavoro divisibile in parti indipendenti |
+
+I primi tre sono **workflow**: i passi li decide il codice. Gli altri danno più controllo al modello. Scegli il più semplice che risolve il problema.
+
+**MCP (Model Context Protocol)** è un protocollo aperto che collega un'applicazione LLM (*client*: un IDE, una chat, il tuo agente) a sistemi esterni (*server*).
+
+- Un server espone **tool** (azioni), **resources** (dati) e **prompt** (template). Ogni client compatibile li usa senza integrazioni su misura: N applicazioni × M sistemi diventano N + M implementazioni.
+- I messaggi sono JSON-RPC, in locale (stdio) o via HTTP.
+- Un server di terze parti è codice non fidato: permessi minimi, e attenzione alle descrizioni dei tool, che entrano nel contesto e possono contenere prompt injection.
+
 ## Structured output
 
 Quando l'output deve essere elaborato dal codice (classificazione di un ticket, estrazione di campi da un'email), vincolalo a uno schema e **validalo** comunque prima dell'uso: `stop_reason == "max_tokens"` può troncarlo, e i valori possono essere sintatticamente validi ma sbagliati.
@@ -176,6 +200,7 @@ Un orchestratore che delega sotto-compiti ad altri agenti (ricerca in parallelo,
 - Un **golden set** di casi reali con il risultato atteso, eseguito a ogni modifica del prompt o del modello (test di regressione).
 - **Controlli deterministici** quando possibile (JSON valido, tool giusto chiamato, numero corretto); **LLM-as-judge** con una rubrica per qualità e tono, verificato a campione da un umano.
 - Per gli agenti misura anche il **percorso**: numero di passi, tool chiamati, costo e latenza per compito completato.
+- **In produzione: tracing.** Registra ogni passo (prompt, chiamate ai tool con input e output, token, latenza, errori) per poter ricostruire un fallimento. Imposta allarmi su costo, latenza e tasso di errore, e aggiungi i casi reali falliti al golden set.
 
 ## Sicurezza
 
@@ -206,6 +231,8 @@ Un orchestratore che delega sotto-compiti ad altri agenti (ricerca in parallelo,
 - **RAG o fine-tuning?** Il RAG per dare conoscenza aggiornata e citabile (documenti che cambiano); il fine-tuning per cambiare stile, formato o comportamento su compiti ripetitivi. Spesso basta il RAG con buoni prompt.
 - **Come valuti un sistema RAG?** Separando retrieval (recall@k, il documento giusto è tra i risultati?) e generazione (fedeltà alle fonti, pertinenza), con un set di domande annotate.
 - **Workflow o agente?** Workflow quando i passi sono noti a priori: è più prevedibile, economico e testabile. Agente quando il percorso dipende da ciò che si scopre strada facendo.
+- **ReAct vs plan-and-execute?** ReAct decide un passo alla volta guardando l'ultimo risultato: è flessibile, ma rischia di girare a vuoto sui compiti lunghi. Plan-and-execute fissa prima un piano: è più prevedibile e ispezionabile, ma va rivisto quando la realtà non corrisponde al piano.
+- **Cos'è MCP e che problema risolve?** Un protocollo standard con cui un'applicazione LLM scopre e usa i tool e i dati di un server esterno. Evita di riscrivere la stessa integrazione per ogni applicazione; il server va comunque trattato come non fidato.
 - **Perché gli structured output?** Garantiscono un formato elaborabile dal codice invece di fare il parsing di testo libero; vanno comunque validati semanticamente.
 - **Come funziona un transformer, in breve?** Trasforma i token in vettori e, strato dopo strato, li aggiorna con la **self-attention**: ogni token pesa quanto sono rilevanti gli altri. Il costo cresce con il quadrato della lunghezza del contesto.
 - **Cosa sono gli embedding e un vector database?** Gli embedding sono vettori in cui testi simili per significato sono vicini; un vector database li indicizza per trovare rapidamente i più simili (approximate nearest neighbor).
@@ -221,4 +248,5 @@ Un orchestratore che delega sotto-compiti ad altri agenti (ricerca in parallelo,
 
 - [Anthropic — Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
 - [Claude API — Tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) · [Prompt engineering](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
 - [OWASP Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/)

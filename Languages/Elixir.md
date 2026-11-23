@@ -191,6 +191,29 @@ end
 - `call` è **sincrono** (aspetta la risposta, timeout di default 5 s); `cast` è **asincrono** (nessuna risposta, nessuna backpressure).
 - Il GenServer elabora un messaggio alla volta: è un modo semplice di serializzare l'accesso a uno stato, ma può diventare un collo di bottiglia.
 
+**`handle_info`** riceve tutti i messaggi che non arrivano da `call` o `cast`: timer, notifiche `:DOWN` dei monitor, messaggi inviati con `send`. Lo schema classico per un lavoro periodico è un messaggio che il processo si rimanda da solo:
+
+```elixir
+# variante di init/1 dell'esempio sopra: controllo delle scorte ogni 5 minuti
+@impl true
+def init(stock) do
+  schedule_check()
+  {:ok, stock}
+end
+
+@impl true
+def handle_info(:check_stock, stock) do
+  low = for {sku, qty} <- stock, qty < 3, do: sku
+  if low != [], do: IO.puts("Scorte basse: #{Enum.join(low, ", ")}")
+  schedule_check()  # ripianifica il prossimo controllo
+  {:noreply, stock}
+end
+
+defp schedule_check, do: Process.send_after(self(), :check_stock, :timer.minutes(5))
+```
+
+**Trappola:** l'`handle_info` di default registra e scarta i messaggi inattesi; se lo definisci tu, un messaggio senza clausola fa crashare il server (`FunctionClauseError`). Chiudi con `def handle_info(_msg, state), do: {:noreply, state}`.
+
 ```elixir
 # In lib/shop/application.ex
 children = [
@@ -206,7 +229,23 @@ Supervisor.start_link(children, strategy: :one_for_one)
 | `:one_for_all` | riavvia tutti i figli |
 | `:rest_for_one` | riavvia quel figlio e quelli avviati dopo di lui |
 
-Altri strumenti: **Task** (`Task.async/await`, `Task.async_stream` per lavoro parallelo con concorrenza limitata), **Agent** (stato semplice), **ETS** (tabelle in memoria condivise e molto veloci), **Registry** (nomi dinamici dei processi).
+**Riavvii infiniti?** No: oltre `max_restarts` riavvii in `max_seconds` (default 3 in 5 s) il supervisor termina e passa il problema al proprio supervisor, fino alla radice. Meglio fermare l'applicazione che girare in un ciclo di crash.
+
+**`DynamicSupervisor`** avvia figli **a runtime**, uno per entità che nasce e muore: un processo per ogni carrello o sessione. Si abbina al **Registry**, che dà ai processi un nome derivato da un id:
+
+```elixir
+# illustrativo: Shop.Cart è un GenServer che in start_link/1 si registra
+# con name: {:via, Registry, {Shop.CartRegistry, cart_id}}
+children = [
+  {Registry, keys: :unique, name: Shop.CartRegistry},
+  {DynamicSupervisor, name: Shop.CartSupervisor, strategy: :one_for_one}
+]
+
+DynamicSupervisor.start_child(Shop.CartSupervisor, {Shop.Cart, "cart-42"})
+GenServer.call({:via, Registry, {Shop.CartRegistry, "cart-42"}}, :items)  # trova il processo per id
+```
+
+Altri strumenti: **Task** (`Task.async/await`, `Task.async_stream` per lavoro parallelo con concorrenza limitata), **Agent** (stato semplice), **ETS** (tabelle in memoria condivise e molto veloci).
 
 ## Progetti e test
 
@@ -263,6 +302,8 @@ end
 
 **Avanzato**
 - **Cosa significa "let it crash"?** Non scrivere codice difensivo per ogni errore imprevisto: lascia che il processo muoia e che il supervisor lo riavvii in uno stato noto. L'isolamento dei processi impedisce che il guasto si propaghi.
+- **Un worker continua a crashare: cosa succede?** Il supervisor lo riavvia finché non supera `max_restarts` in `max_seconds`; poi termina anch'esso e l'errore risale l'albero. Si indaga con i log del crash e, su un nodo live, con `:observer` o `Process.info/2` (lunghezza della mailbox, memoria).
+- **Supervisor o DynamicSupervisor?** Il primo per figli noti all'avvio (cache, pool, repository); il secondo per processi creati e distrutti a runtime (una sessione, un job), di solito insieme al Registry.
 - **Perché la BEAM ha latenze prevedibili?** Lo scheduling è preemptive per riduzioni e il GC lavora per singolo processo, senza pause globali "stop the world".
 - **Quando un GenServer è un collo di bottiglia?** Quando molti client lo chiamano: serializza tutto. Le soluzioni sono ETS per le letture concorrenti, il partizionamento in più processi o un pool.
 - **Come funziona la TCO?** Se la chiamata ricorsiva è l'ultima operazione, il frame corrente viene riutilizzato: la ricorsione con accumulatore usa memoria costante.

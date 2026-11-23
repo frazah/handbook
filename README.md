@@ -12,9 +12,10 @@ Un manuale personale da tenere aperto **mentre programmi** (esercizi di coding, 
 |---|---|---|---|
 | [Big-O e strutture dati](Fundamentals/Big-O%20e%20strutture%20dati.md) | [Python](Languages/Python.md) | [FastAPI](Web%20%26%20Backend/FastAPI.md) | [Data Science](Data%20%26%20AI/Data%20Science.md) |
 | [Pattern algoritmici](Fundamentals/Pattern%20algoritmici.md) | [JavaScript](Languages/JavaScript.md) | [React + TypeScript](Web%20%26%20Backend/React.md) | [AI Agents](Data%20%26%20AI/AI%20Agents.md) |
-| [Web e HTTP](Fundamentals/Web%20e%20HTTP.md) | [TypeScript](Languages/TypeScript.md) | [Vue 3 + TypeScript](Web%20%26%20Backend/Vue.md) | [Bioinformatica](Data%20%26%20AI/Bioinformatics.md) |
-| | [SQL](Languages/SQL.md) | | |
-| | [Elixir](Languages/Elixir.md) | | |
+| [Alberi e grafi](Fundamentals/Alberi%20e%20grafi.md) | [TypeScript](Languages/TypeScript.md) | [Vue 3 + TypeScript](Web%20%26%20Backend/Vue.md) | [Bioinformatica](Data%20%26%20AI/Bioinformatics.md) |
+| [Backtracking e DP](Fundamentals/Backtracking%20e%20DP.md) | [SQL](Languages/SQL.md) | | |
+| [Linked list e heap](Fundamentals/Linked%20list%20e%20heap.md) | [Elixir](Languages/Elixir.md) | | |
+| [Web e HTTP](Fundamentals/Web%20e%20HTTP.md) | | | |
 
 **Recipes** (progetti completi): [Dashboard ordini — React + FastAPI](Recipes/React%20%2B%20FastAPI.md) · [Report vendite — pandas + SQL](Recipes/pandas%20%2B%20SQL.md)
 
@@ -83,21 +84,22 @@ Un esempio realistico **non** è un servizio pronto per la produzione: in un amb
 ## Come usarlo
 
 - **Mentre programmi:** apri la cartella in VS Code e cerca con `Cmd+Shift+F` (sintassi, nome di una funzione, nome di un pattern). La sezione *Sintassi al volo* è pensata per questo.
-- **Esercizi di coding:** parti da [Pattern algoritmici](Fundamentals/Pattern%20algoritmici.md) per riconoscere il tipo di problema, poi usa la sezione *Per gli esercizi di coding* del linguaggio che stai usando.
+- **Esercizi di coding:** riconosci il problema con la tabella *segnale → pattern* di [Pattern algoritmici](Fundamentals/Pattern%20algoritmici.md), che copre tutta la roadmap NeetCode e rimanda alle altre schede di Fundamentals; poi usa la sezione *Per gli esercizi di coding* del tuo linguaggio.
 - **Prima di un colloquio:** leggi *Modello mentale*, poi prova a rispondere alle *Domande da colloquio* a voce prima di leggere la risposta. Per ogni risposta prova a citare un'alternativa, un errore frequente e un trade-off.
 
 ## Verifiche
 
-Ambiente di verifica: Python 3.9 (sola libreria standard) e SQLite 3.51. I blocchi marcati `illustrativo` richiedono dipendenze o servizi esterni e non sono stati eseguiti.
+Ambiente di verifica: Python 3.9 e 3.15 (sola libreria standard) e SQLite 3.51. I blocchi marcati `illustrativo` richiedono dipendenze o servizi esterni e non sono stati eseguiti.
 
 | Parte | Verifica |
 |---|---|
-| Big-O, Pattern algoritmici, Web e HTTP | Tutti i blocchi Python eseguiti, con `assert` |
+| Big-O, Pattern algoritmici, Linked list e heap, Alberi e grafi, Backtracking e DP, Web e HTTP | Tutti i blocchi Python eseguiti, con `assert` |
 | Python, AI Agents (agente locale e retrieval), Bioinformatica | Tutti i blocchi non illustrativi eseguiti |
 | SQL, Recipe pandas + SQL | Tutte le query eseguite in sequenza su SQLite; risultati nei commenti confrontati con l'output reale |
 | Data Science | Statistica (stdlib) eseguita; codice pandas, NumPy e scikit-learn **solo riletto** |
 | FastAPI, Recipe React + FastAPI | Logica SQLite del backend eseguita; codice FastAPI, Pydantic e test **solo riletto** |
-| JavaScript, TypeScript, React, Vue | **Solo riletto**: Node e `tsc` non disponibili |
+| JavaScript: sezione *Implementa da zero* | Eseguita con JavaScriptCore (`jsc`), con timer simulati e `assert` |
+| JavaScript (resto), TypeScript, React, Vue | **Solo riletto**: Node e `tsc` non disponibili |
 | Elixir | **Solo riletto**: Elixir/BEAM non disponibile |
 | Link | Tutti i link relativi e le ancore controllati automaticamente |
 

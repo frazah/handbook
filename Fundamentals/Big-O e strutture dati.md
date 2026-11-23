@@ -1,7 +1,7 @@
 # Big-O e strutture dati
 
 > Come stimare il costo di una soluzione e quale struttura dati scegliere. Serve in ogni esercizio di coding e in ogni colloquio tecnico.
-> Collegate: [Pattern algoritmici](Pattern%20algoritmici.md) · [Python](../Languages/Python.md#per-gli-esercizi-di-coding) · [JavaScript](../Languages/JavaScript.md#per-gli-esercizi-di-coding)
+> Collegate: [Pattern algoritmici](Pattern%20algoritmici.md) · [Alberi e grafi](Alberi%20e%20grafi.md) · [Python](../Languages/Python.md#per-gli-esercizi-di-coding) · [JavaScript](../Languages/JavaScript.md#per-gli-esercizi-di-coding)
 
 ## Modello mentale
 
@@ -57,6 +57,10 @@ Memoria contigua: accesso per indice `O(1)`, ma inserire o rimuovere in mezzo sp
 - In Python e JavaScript **le stringhe sono immutabili**: `s += c` in un ciclo crea ogni volta una nuova stringa, quindi `O(n²)` nel caso peggiore. Accumula in una lista e usa `"".join(parts)`.
 - Lo slicing `a[i:j]` **copia** `j - i` elementi: dentro un ciclo diventa un costo nascosto.
 
+## Linked list
+
+Nodi sparsi in memoria, collegati da puntatori (anche all'indietro, nella lista doppia). Inserire o togliere un nodo che hai già in mano costa `O(1)`, arrivarci costa `O(n)`, e la località di cache è scarsa. Uso tipico: la **cache LRU** (hash map + lista doppia). Le tecniche per gli esercizi sono in [Linked list e heap](Linked%20list%20e%20heap.md#linked-list).
+
 ## Hash map e set
 
 Calcolano un hash della chiave per trovare il "bucket" in `O(1)` medio. Le collisioni degradano il caso peggiore a `O(n)`. Le chiavi devono essere **immutabili/hashable** (in Python: `tuple` sì, `list` no).
@@ -91,19 +95,19 @@ assert next_order == "order-101"
 
 ## Heap (coda di priorità)
 
-Albero binario completo salvato in un array: il minimo sta sempre in cima. Usalo quando ti serve ripetutamente "il più piccolo/grande" o i **top-k**.
+Albero binario completo salvato in un array: il minimo sta sempre in cima. Usalo quando ti serve ripetutamente "il più piccolo/grande": code di priorità, top-k, mediana in streaming ([pattern](Linked%20list%20e%20heap.md#heap-top-k-e-due-heap)). `heapq` è solo un min-heap: per un max-heap inserisci `-valore`; `heapify` trasforma una lista in heap in `O(n)`.
 
 ```python
 import heapq
 
-sales = {"BOOK-1": 120, "MUG-2": 340, "PEN-3": 95, "BAG-4": 210}
-
-# Top-k in O(n log k): heap di dimensione k, si scarta sempre il minimo.
-top = heapq.nlargest(2, sales.items(), key=lambda item: item[1])
-assert top == [("MUG-2", 340), ("BAG-4", 210)]
+# Coda di priorità degli ordini: (priorità, id). Le tuple si confrontano elemento per elemento.
+queue: list[tuple[int, int]] = []
+heapq.heappush(queue, (2, 101))
+heapq.heappush(queue, (1, 102))  # priorità più alta = numero più basso
+heapq.heappush(queue, (2, 103))
+assert heapq.heappop(queue) == (1, 102)
+assert queue[0] == (2, 101)       # la cima si legge in O(1) senza estrarla
 ```
-
-`heapq` è solo un min-heap: per un max-heap inserisci `-valore`.
 
 ## Alberi e BST
 
@@ -181,7 +185,7 @@ for a, b in routes:
 assert graph["BOL"] == ["MIL", "ROM"]
 ```
 
-Anche una griglia è un grafo implicito: i vicini di `(r, c)` sono le 4 celle adiacenti. Gli algoritmi (BFS, DFS, Dijkstra, ordinamento topologico) sono in [Pattern algoritmici](Pattern%20algoritmici.md).
+Anche una griglia è un grafo implicito: i vicini di `(r, c)` sono le 4 celle adiacenti. Gli algoritmi (BFS, DFS, Dijkstra, ordinamento topologico, MST) sono in [Alberi e grafi](Alberi%20e%20grafi.md).
 
 ## Union-Find (Disjoint Set)
 
@@ -218,6 +222,8 @@ Checklist per scegliere la struttura:
 | Elementi in ordine FIFO, BFS | `deque` |
 | Annullare l'ultimo, parentesi, "prossimo maggiore" | stack (lista) |
 | Ripetutamente il min/max, top-k | heap |
+| Mediana di valori che arrivano in streaming | due heap |
+| Inserire/togliere in mezzo dato il nodo, LRU | linked list (doppia) + hash map |
 | Ricerca in dati ordinati | ricerca binaria (`bisect`) |
 | Prefissi di stringhe | trie |
 | Gruppi che si fondono | union-find |
@@ -233,6 +239,7 @@ Checklist per scegliere la struttura:
 **Intermedio**
 - **Cos'è la complessità ammortizzata?** Il costo medio su una sequenza di operazioni. `append` raddoppia la capacità quando l'array è pieno, quindi le copie costano in totale `O(n)` su `n` inserimenti.
 - **Quando un heap invece di ordinare?** Quando servono solo i top-k (`O(n log k)` contro `O(n log n)`) o quando gli elementi arrivano in streaming.
+- **Come implementi una cache LRU con `get` e `put` in `O(1)`?** Hash map dalla chiave al nodo di una lista doppiamente collegata ordinata per uso: a ogni accesso sposti il nodo in testa, quando sei pieno togli la coda. La lista doppia serve perché staccare un nodo richiede il precedente.
 - **Lista di adiacenza o matrice?** Lista per grafi sparsi (memoria `O(V+E)`); matrice se il grafo è denso o servono controlli `O(1)` sugli archi.
 - **Perché le chiavi di un dict devono essere immutabili?** Se una chiave cambiasse, cambierebbe il suo hash e non si ritroverebbe più nel bucket giusto.
 

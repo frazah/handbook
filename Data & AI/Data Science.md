@@ -98,6 +98,8 @@ report = (
 | p-value | probabilità di osservare un risultato almeno così estremo **se l'ipotesi nulla fosse vera**. Non è la probabilità che l'ipotesi nulla sia vera |
 | Errore di I / II tipo | falso positivo (α) / falso negativo (β); la potenza è 1 − β |
 | Correlazione | misura una relazione lineare, non la causalità; attenzione ai confondenti |
+| Teorema di Bayes | `P(A\|B) = P(B\|A) · P(A) / P(B)`: aggiorna una probabilità iniziale (*prior*) alla luce di un'osservazione |
+| Paradosso di Simpson | un andamento presente in ogni gruppo si inverte aggregando i gruppi, se hanno dimensioni diverse: segmenta prima di concludere |
 
 ```python
 import statistics as st
@@ -110,6 +112,25 @@ mean, sd, n = st.mean(order_values), st.stdev(order_values), len(order_values)
 margin = 1.96 * sd / n ** 0.5
 print(f"{mean:.1f} ± {margin:.1f}")  # -> 58.6 ± 75.0: con 6 ordini e un outlier, quasi nessuna informazione
 ```
+
+### Probabilità condizionata e Bayes
+
+Domanda classica: "un test è accurato al 95%, scatta l'allarme: qual è la probabilità che sia vero?". La risposta dipende dal **tasso di base**: se l'evento è raro, quasi tutti gli allarmi sono falsi positivi.
+
+```python
+# Antifrode: l'1% degli ordini è fraudolento. Il modello segnala il 95% delle frodi
+# (sensibilità) ma anche il 5% degli ordini legittimi (falsi positivi).
+p_fraud = 0.01
+p_alert_if_fraud = 0.95
+p_alert_if_legit = 0.05
+
+p_alert = p_alert_if_fraud * p_fraud + p_alert_if_legit * (1 - p_fraud)  # probabilità totale
+p_fraud_if_alert = p_alert_if_fraud * p_fraud / p_alert                   # Bayes
+
+print(f"{p_fraud_if_alert:.0%}")  # -> 16%: su 100 ordini segnalati, solo ~16 sono frodi
+```
+
+Per ragionarci a voce, usa i conteggi: su 10 000 ordini ci sono 100 frodi, di cui 95 segnalate, e 9 900 ordini legittimi, di cui 495 segnalati. Gli allarmi veri sono quindi 95 su 590.
 
 ### A/B test
 
@@ -180,10 +201,17 @@ print(scores.mean(), scores.std())
 | Modello | Quando |
 |---|---|
 | Regressione lineare / logistica | baseline, interpretabilità, pochi dati |
+| Albero decisionale | regole leggibili ("se giorni dall'ultimo ordine > 60 e ordini < 2…"); da solo va in overfitting |
 | Random forest | buon default su dati tabellari, poco tuning |
 | Gradient boosting (XGBoost, LightGBM) | di solito il migliore su dati tabellari |
 | k-means | segmentazione dei clienti (cluster sferici, va scelto k) |
+| PCA | ridurre molte feature correlate a poche componenti che conservano la maggior parte della varianza |
 | Reti neurali | testo, immagini, audio, dataset molto grandi |
+
+**Come funziona un albero:** a ogni nodo sceglie la feature e la soglia che rendono i due gruppi più "puri" (minima impurità di Gini o entropia), fino a una profondità massima. Da solo è instabile; gli **ensemble** lo correggono:
+
+- **Random forest (bagging):** molti alberi profondi, ognuno su un campione diverso di righe e feature; la media dei voti **riduce la varianza**.
+- **Gradient boosting:** alberi piccoli **in sequenza**, ognuno corregge gli errori residui dei precedenti; **riduce il bias**, ma va regolato (learning rate, numero di alberi, early stopping) per non andare in overfitting.
 
 ### Metriche
 
@@ -213,6 +241,9 @@ Con il 2% di frodi, un modello che dice sempre "non frode" ha il 98% di accuracy
 - **Precision o recall?** Dipende dal costo degli errori: in una diagnosi conta il recall (non perdere i positivi), in un filtro antispam la precision (non bloccare email buone).
 - **Cos'è il data leakage?** Informazione del test o del futuro che entra nel training. Esempi: scaling sull'intero dataset, feature calcolate dopo l'evento, lo stesso cliente sia in train sia in test.
 - **`groupby().agg` vs `transform`?** `agg` restituisce una riga per gruppo; `transform` restituisce un valore per ogni riga originale, utile per confrontare ogni riga con il suo gruppo.
+
+- **Random forest vs gradient boosting?** La random forest media molti alberi indipendenti (riduce la varianza, robusta con poco tuning); il boosting costruisce alberi in sequenza che correggono gli errori residui (riduce il bias, di solito più accurato ma più sensibile agli iperparametri).
+- **Un test accurato al 95% è positivo: è probabile che l'evento sia vero?** Dipende dal tasso di base. Con un evento raro (1%) la maggior parte dei positivi è falsa: per Bayes la probabilità è circa 16%. Si spiega meglio con i conteggi su 10 000 casi.
 
 **Avanzato**
 - **Bias-variance trade-off?** L'errore atteso si scompone in bias² + varianza + rumore. Aumentare la complessità riduce il bias e aumenta la varianza; si cerca il minimo con la validazione.

@@ -1,7 +1,7 @@
 # Bioinformatica
 
 > Biologia, formati e algoritmi essenziali per un informatico senza studi biologici che si prepara a un ruolo in bioinformatica o AI for biology. Solo concetti e analisi di dati: nessuna procedura di laboratorio.
-> Collegate: [Python](../Languages/Python.md) · [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md#programmazione-dinamica) · [Data Science](Data%20Science.md)
+> Collegate: [Python](../Languages/Python.md) · [Programmazione dinamica](../Fundamentals/Backtracking%20e%20DP.md#programmazione-dinamica) · [Data Science](Data%20Science.md)
 
 ## Modello mentale
 
@@ -142,6 +142,39 @@ Una tipica analisi di varianti (*variant calling*):
 
 **Riproducibilità:** workflow manager (**Snakemake**, **Nextflow**) che descrivono i passi come un DAG, con versioni fissate degli strumenti (conda, container) e la versione del genoma di riferimento registrata (GRCh37 e GRCh38 hanno coordinate diverse).
 
+## RNA-seq ed espressione differenziale
+
+L'RNA-seq misura l'**espressione genica**: quante read cadono su ogni gene, in ogni campione. La domanda tipica è "quali geni cambiano tra pazienti e controlli?".
+
+1. **QC e trimming**, come sopra.
+2. **Allineamento** con un allineatore *splice-aware* (STAR, HISAT2), perché le read dell'RNA maturo "saltano" gli introni. In alternativa, il **pseudo-allineamento** sul trascrittoma (Salmon, kallisto) stima direttamente le abbondanze ed è molto più veloce.
+3. **Matrice dei conteggi:** read per gene (righe) per campione (colonne), ad esempio con featureCounts.
+4. **Espressione differenziale** con DESeq2 o edgeR sui conteggi **grezzi**: la normalizzazione la fanno loro.
+5. **Correzione per test multipli**, poi analisi di arricchimento (quali processi biologici sono sovrarappresentati tra i geni trovati).
+
+- **Perché la binomiale negativa:** i conteggi sono interi e **sovradispersi**. Tra repliche biologiche la varianza supera la media, mentre la Poisson le assume uguali: sottostimerebbe la variabilità e darebbe troppi falsi positivi. Con poche repliche (spesso 3 per gruppo) i metodi stimano la dispersione "prendendo in prestito" informazione dagli altri geni.
+- **Le repliche biologiche** (individui diversi) contano più della profondità di sequenziamento: senza repliche non si può stimare la variabilità.
+
+**Test multipli.** 20 000 geni testati ad α = 0,05 danno circa 1 000 falsi positivi anche se non cambia nulla. **Bonferroni** (soglia α/m) evita anche un solo falso positivo, ma perde molte scoperte vere. **Benjamini-Hochberg** controlla la **FDR** (*false discovery rate*): la quota attesa di falsi positivi tra i risultati significativi.
+
+```python
+def benjamini_hochberg(p_values: dict[str, float], fdr: float = 0.05) -> list[str]:
+    """Geni significativi mantenendo la quota attesa di falsi positivi sotto `fdr`."""
+    ranked = sorted(p_values.items(), key=lambda kv: kv[1])  # p-value crescenti
+    m = len(ranked)
+    cutoff = 0
+    for k, (_, p) in enumerate(ranked, start=1):
+        if p <= k / m * fdr:  # soglia che cresce con il rango
+            cutoff = k        # il più grande k che passa: si tengono tutti i primi k
+    return [gene for gene, _ in ranked[:cutoff]]
+
+p = {"GENE_A": 0.0001, "GENE_B": 0.004, "GENE_C": 0.019, "GENE_D": 0.03, "GENE_E": 0.6}
+assert benjamini_hochberg(p) == ["GENE_A", "GENE_B", "GENE_C", "GENE_D"]
+# Bonferroni (soglia 0,05 / 5 = 0,01) terrebbe solo GENE_A e GENE_B.
+```
+
+In pratica si leggono i **p-value aggiustati** (`padj` in DESeq2) insieme all'effetto (*log2 fold change*): un gene significativo ma con un cambiamento minimo raramente interessa.
+
 ## Omics e machine learning
 
 - **Matrice di espressione:** righe = campioni, colonne = geni (decine di migliaia). Tipicamente **p ≫ n** (molte più feature che campioni): alto rischio di overfitting, servono regolarizzazione e riduzione dimensionale (PCA).
@@ -168,6 +201,9 @@ Una tipica analisi di varianti (*variant calling*):
 **Intermedio**
 - **Perché non si usa Needleman-Wunsch per allineare le read?** Costa `O(n·m)`: con milioni di read e un genoma di miliardi di basi è impraticabile. Si usano indici (k-mer, FM-index) e seed-and-extend, applicando la DP solo su piccole regioni.
 - **Cos'è la copertura e perché conta?** Il numero medio di read per posizione. Con copertura bassa non si distingue una variante vera da un errore di sequenziamento.
+- **Come è fatta una pipeline RNA-seq?** QC e trimming → allineamento splice-aware (STAR) o pseudo-allineamento (Salmon) → matrice dei conteggi per gene → espressione differenziale (DESeq2/edgeR) → correzione FDR → arricchimento funzionale. Con le scelte da motivare: numero di repliche, controllo del batch effect, soglie su `padj` e fold change.
+- **Perché DESeq2 usa la binomiale negativa e non la Poisson?** Perché i conteggi tra repliche biologiche sono sovradispersi (varianza > media); la Poisson sottostimerebbe la varianza e produrrebbe troppi falsi positivi.
+- **Perché correggere per test multipli? Bonferroni o FDR?** Testando migliaia di geni, un α del 5% produce centinaia di falsi positivi. Bonferroni controlla la probabilità di anche un solo errore ed è troppo conservativa; Benjamini-Hochberg controlla la quota di falsi positivi tra le scoperte ed è lo standard in genomica.
 - **Cos'è un batch effect?** Una variazione tecnica sistematica tra lotti. Si previene con un disegno sperimentale bilanciato e si corregge con metodi specifici; altrimenti i modelli imparano il lotto invece della biologia.
 
 **Avanzato**

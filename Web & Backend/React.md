@@ -97,6 +97,8 @@ La `key` dice a React quale elemento è quale tra un render e l'altro. Deve esse
 | `useCallback` | memorizzare una funzione (stesso riferimento tra i render) |
 | `useContext` | leggere un valore fornito da un antenato |
 | `useId` | id stabili per l'accessibilità (`htmlFor`) |
+| `useLayoutEffect` | come `useEffect`, ma prima che il browser disegni: misurare il DOM senza sfarfallii |
+| `useTransition` / `useDeferredValue` | aggiornamenti non urgenti, interrompibili ([rendering concorrente](#rendering-concorrente)) |
 
 ### useEffect e caricamento dati
 
@@ -158,6 +160,42 @@ export function useCart() {
 - Liste molto lunghe: **virtualizzazione** (TanStack Virtual). Codice pesante: `React.lazy` + `<Suspense>` per lo split del bundle.
 - Il **React Compiler** (React 19) applica la memoization automaticamente, riducendo la necessità di `useMemo`/`useCallback`.
 
+## Rendering concorrente
+
+Fino a React 17 un render bloccava il thread fino alla fine: filtrare una lista enorme a ogni tasto rendeva l'input lento. Da React 18 il render è **interrompibile**: l'architettura interna **Fiber** divide il lavoro in piccole unità, così React può gestire prima un tasto o un click e poi riprendere (o scartare) il render non urgente.
+
+Sta a te dire cosa **non è urgente**:
+
+- **`useTransition`**: avvolgi l'aggiornamento di stato in `startTransition`; `isPending` ti dice che il nuovo render è in corso. Si usa quando controlli tu il `set` (cambio di tab, filtri).
+- **`useDeferredValue`**: ricevi una copia "in ritardo" di un valore. Si usa quando il valore arriva da fuori, ad esempio da una prop o da un input.
+
+```tsx
+import { memo, useDeferredValue, useState } from "react";
+
+type Product = { id: number; name: string };
+
+// memo è indispensabile: senza, la lista si ri-renderizzerebbe comunque a ogni tasto
+const ProductList = memo(function ProductList({ products, filter }: { products: Product[]; filter: string }) {
+  const visible = products.filter((p) => p.name.toLowerCase().includes(filter.toLowerCase()));
+  return <ul>{visible.map((p) => <li key={p.id}>{p.name}</li>)}</ul>;
+});
+
+export function ProductSearch({ products }: { products: Product[] }) {
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query); // resta indietro mentre l'utente digita
+  return (
+    <>
+      <input value={query} onChange={(e) => setQuery(e.target.value)} /> {/* urgente */}
+      <div style={{ opacity: query !== deferredQuery ? 0.5 : 1 }}>      {/* risultati "vecchi" */}
+        <ProductList products={products} filter={deferredQuery} />
+      </div>
+    </>
+  );
+}
+```
+
+**Rispetto al debounce:** non c'è un ritardo fisso (su un dispositivo veloce l'aggiornamento è immediato), ma le richieste di rete non diminuiscono: per quelle serve ancora il debounce.
+
 ## Error boundary, Suspense e StrictMode
 
 - **Error boundary:** un componente (ancora una classe, o `react-error-boundary`) che cattura gli errori di render dei figli e mostra un fallback. Non cattura gli errori negli event handler né nel codice async.
@@ -210,6 +248,8 @@ test("aggiunge un prodotto al carrello", async () => {
 - **Context vs state manager (Redux, Zustand)?** Context è un meccanismo di *trasporto*: ogni consumer si ri-renderizza a ogni cambio. Gli store esterni permettono sottoscrizioni a porzioni di stato e strumenti di debug. Per lo stato del server si usa una data library.
 - **Cos'è una stale closure?** Una funzione (effetto, callback, timer) che ha catturato i valori di un render precedente. Si risolve con le dipendenze corrette, con gli aggiornamenti funzionali o con un `ref`.
 - **Server vs Client Components?** I Server Components girano solo sul server, non aggiungono JS al bundle e possono accedere direttamente ai dati; i Client Components gestiscono stato ed eventi nel browser.
+- **Cos'è il rendering concorrente?** La capacità di interrompere un render in corso per dare precedenza agli aggiornamenti urgenti (input, click). Lo attivi segnando gli aggiornamenti come non urgenti con `useTransition` o `useDeferredValue`; si basa su Fiber, che divide il render in unità di lavoro.
+- **`useTransition` vs `useDeferredValue` vs debounce?** `useTransition` avvolge un `set` che controlli tu; `useDeferredValue` rimanda un valore che ricevi da fuori; il debounce aspetta un tempo fisso ed è l'unico che riduce le chiamate di rete.
 - **Perché StrictMode esegue gli effetti due volte?** Per verificare che ogni effetto abbia un cleanup corretto: un componente deve sopravvivere a mount → unmount → mount.
 
 ## Approfondisci
