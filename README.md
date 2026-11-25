@@ -17,6 +17,8 @@ Un manuale personale da tenere aperto **mentre programmi** (esercizi di coding, 
 | [Linked list e heap](Fundamentals/Linked%20list%20e%20heap.md) | [Elixir](Languages/Elixir.md) | | |
 | [Web e HTTP](Fundamentals/Web%20e%20HTTP.md) | | | |
 
+**NeetCode 150** (notebook per categoria, sintassi e concetti per risolvere i problemi): [indice](NeetCode%20150/README.md)
+
 **Recipes** (progetti completi): [Dashboard ordini — React + FastAPI](Recipes/React%20%2B%20FastAPI.md) · [Report vendite — pandas + SQL](Recipes/pandas%20%2B%20SQL.md)
 
 ## Regole editoriali
