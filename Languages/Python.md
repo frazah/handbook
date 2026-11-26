@@ -29,7 +29,7 @@
 | Tipi | `list[int]`, `dict[str, int]`, `str \| None` |
 | Pattern matching (3.10+) | `match event: case {"type": "paid", "id": oid}: ...` |
 
-## Per gli esercizi di coding
+### Per gli esercizi di coding
 
 | Strumento | Uso tipico |
 |---|---|
