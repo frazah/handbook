@@ -1,7 +1,7 @@
 # AI Agents
 
 > Applicazioni costruite su LLM: dalla singola chiamata al modello agli **agenti** che usano strumenti in un ciclo. Concetti, pattern e rischi che servono per progettarle e per parlarne a un colloquio.
-> Collegate: [Python](../Languages/Python.md) · [SQL](../Languages/SQL.md) · [Data Science](Data%20Science.md) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md)
+> Collegate: [Python](../Languages/Python.md) · [SQL](../Languages/SQL.md) · [Data Science](Data%20Science.md) · [Web e HTTP](../Web/Web%20e%20HTTP.md)
 
 ## Modello mentale
 

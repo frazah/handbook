@@ -1,7 +1,7 @@
 # FastAPI
 
 > Framework Python per API HTTP: definisci gli endpoint con funzioni tipizzate e ottieni validazione, serializzazione e documentazione OpenAPI automatiche.
-> Prerequisiti: [Python](../Languages/Python.md) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md) · Collegate: [SQL](../Languages/SQL.md) · [Recipe React + FastAPI](../Recipes/React%20%2B%20FastAPI.md)
+> Prerequisiti: [Python](../Languages/Python.md) · [Web e HTTP](Web%20e%20HTTP.md) · Collegate: [SQL](../Languages/SQL.md) · [Recipe React + FastAPI](../Recipes/React%20%2B%20FastAPI.md)
 
 ## Modello mentale
 
@@ -128,7 +128,7 @@ async def out_of_stock_handler(request: Request, exc: OutOfStockError) -> JSONRe
     return JSONResponse(status_code=409, content={"title": "Prodotto esaurito", "sku": exc.sku})
 ```
 
-Così la logica di dominio non conosce HTTP, e il formato degli errori resta coerente (vedi [Problem Details](../Fundamentals/Web%20e%20HTTP.md#design-di-api-rest)).
+Così la logica di dominio non conosce HTTP, e il formato degli errori resta coerente (vedi [Problem Details](Web%20e%20HTTP.md#design-di-api-rest)).
 
 ## Organizzazione del progetto
 
@@ -174,7 +174,7 @@ Per il database in un progetto reale: **SQLAlchemy 2.0** (ORM o Core) con migraz
 
 ## Autenticazione
 
-Schema tipico: login con username e password → il server verifica l'hash (argon2/bcrypt) → emette un **JWT** a scadenza breve → il client lo invia in `Authorization: Bearer`. Concetti e trade-off in [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md#cookie-sessioni-e-token).
+Schema tipico: login con username e password → il server verifica l'hash (argon2/bcrypt) → emette un **JWT** a scadenza breve → il client lo invia in `Authorization: Bearer`. Concetti e trade-off in [Web e HTTP](Web%20e%20HTTP.md#cookie-sessioni-e-token).
 
 ```python
 # illustrativo: richiede fastapi + PyJWT

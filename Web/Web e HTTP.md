@@ -1,7 +1,7 @@
 # Web e HTTP
 
 > I fondamenti che ogni colloquio frontend o backend dà per scontati: HTTP, caching, autenticazione, CORS, design di API REST, sicurezza.
-> Collegate: [FastAPI](../Web%20%26%20Backend/FastAPI.md) · [React](../Web%20%26%20Backend/React.md) · [Vue](../Web%20%26%20Backend/Vue.md)
+> Collegate: [FastAPI](FastAPI.md) · [React](React.md) · [Vue](Vue.md)
 
 ## Modello mentale
 

@@ -1,7 +1,7 @@
 # SQL
 
 > Il linguaggio dei database relazionali: dichiari *cosa* vuoi, il motore decide *come* ottenerlo. Esempi su SQLite, con note per PostgreSQL.
-> Collegate: [FastAPI](../Web%20%26%20Backend/FastAPI.md) · [Recipe pandas + SQL](../Recipes/pandas%20%2B%20SQL.md) · [Data Science](../Data%20%26%20AI/Data%20Science.md)
+> Collegate: [FastAPI](../Web/FastAPI.md) · [Recipe pandas + SQL](../Recipes/pandas%20%2B%20SQL.md) · [Data Science](../Data%20%26%20AI/Data%20Science.md)
 
 ## Modello mentale
 
@@ -12,9 +12,23 @@
 - Una **transazione** raggruppa operazioni che riescono o falliscono insieme (ACID).
 - Un **indice** è una struttura ordinata (B-tree) che accelera le letture e rallenta le scritture.
 
-## Schema di riferimento
+## Sintassi al volo
 
-Tutti gli esempi successivi girano su questo schema, nell'ordine in cui compaiono.
+| Ti serve | Sintassi |
+|---|---|
+| Filtrare | `WHERE status IN ('paid', 'shipped') AND total_cents > 1000` |
+| Pattern | `WHERE email LIKE '%@example.test'` |
+| Valori mancanti | `IS NULL` · `COALESCE(x, 0)` (primo non NULL) |
+| Ordinare e paginare | `ORDER BY created_at DESC LIMIT 20` |
+| Aggregare | `COUNT(*)`, `COUNT(col)` (ignora i NULL), `SUM`, `AVG`, `MIN`, `MAX` |
+| Filtro sui gruppi | `GROUP BY customer_id HAVING COUNT(*) > 1` |
+| Condizioni | `CASE WHEN total_cents > 3000 THEN 'big' ELSE 'small' END` |
+| Date (SQLite) | `strftime('%Y-%m', created_at)` · PostgreSQL: `date_trunc('month', created_at)` |
+| Unire risultati | `UNION` (rimuove i duplicati, più lento) · `UNION ALL` |
+
+### Schema di riferimento
+
+Tutti gli esempi della scheda, compresi quelli per gli esercizi qui sotto, girano su questo schema, nell'ordine in cui compaiono.
 
 ```sql
 CREATE TABLE customers (
@@ -58,19 +72,45 @@ INSERT INTO order_items VALUES (101, 1, 2, 1299), (102, 2, 1, 250), (103, 3, 1, 
 
 **Normalizzazione** in breve: ogni fatto sta in un solo posto (1NF: valori atomici; 2NF/3NF: nessuna colonna che dipenda da una parte della chiave o da un'altra colonna non chiave). `unit_price_cents` è una **denormalizzazione voluta**: è un dato storico, non deve cambiare se cambia il prezzo del prodotto.
 
-## Sintassi al volo
+### Per gli esercizi di coding
 
-| Ti serve | Sintassi |
-|---|---|
-| Filtrare | `WHERE status IN ('paid', 'shipped') AND total_cents > 1000` |
-| Pattern | `WHERE email LIKE '%@example.test'` |
-| Valori mancanti | `IS NULL` · `COALESCE(x, 0)` (primo non NULL) |
-| Ordinare e paginare | `ORDER BY created_at DESC LIMIT 20` |
-| Aggregare | `COUNT(*)`, `COUNT(col)` (ignora i NULL), `SUM`, `AVG`, `MIN`, `MAX` |
-| Filtro sui gruppi | `GROUP BY customer_id HAVING COUNT(*) > 1` |
-| Condizioni | `CASE WHEN total_cents > 3000 THEN 'big' ELSE 'small' END` |
-| Date (SQLite) | `strftime('%Y-%m', created_at)` · PostgreSQL: `date_trunc('month', created_at)` |
-| Unire risultati | `UNION` (rimuove i duplicati, più lento) · `UNION ALL` |
+I classici dei colloqui SQL, sui dati iniziali dello schema sopra (prima delle modifiche delle sezioni successive).
+
+```sql
+-- 1. Secondo ordine più alto (DISTINCT gestisce i pareggi; LIMIT/OFFSET dopo l'ordinamento).
+SELECT DISTINCT total_cents FROM orders ORDER BY total_cents DESC LIMIT 1 OFFSET 1;
+-- -> 2598
+
+-- 2. Top-N per gruppo: l'ordine più recente di ogni cliente.
+SELECT customer_id, id FROM (
+  SELECT customer_id, id,
+         ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) AS rn
+  FROM orders
+) WHERE rn = 1;
+-- -> 1 105 · 2 104   (Grace non ha ordini: non compare)
+
+-- 3. Duplicati: email presenti più volte (qui nessuna, grazie al vincolo UNIQUE).
+SELECT email, COUNT(*) FROM customers GROUP BY email HAVING COUNT(*) > 1;
+
+-- 4. Crescita mese su mese.
+WITH m AS (
+  SELECT strftime('%Y-%m', created_at) AS month, SUM(total_cents) AS revenue
+  FROM orders WHERE status IN ('paid', 'shipped') GROUP BY month
+)
+SELECT month, revenue,
+       ROUND(100.0 * (revenue - LAG(revenue) OVER (ORDER BY month))
+             / LAG(revenue) OVER (ORDER BY month), 1) AS growth_pct
+FROM m;
+-- -> 2026-09 2598 NULL · 2026-10 6049 132.8
+
+-- 5. Prodotti più venduti per quantità.
+SELECT p.sku, SUM(oi.quantity) AS units
+FROM order_items AS oi JOIN products AS p ON p.id = oi.product_id
+GROUP BY p.sku ORDER BY units DESC;
+-- -> MUG-2 4 · PEN-3 2 · BAG-4 1
+```
+
+Altri da conoscere: *gaps and islands* (giorni consecutivi con ordini: `date - ROW_NUMBER()` è costante dentro un'isola), retention per coorte, mediana con le window function.
 
 ## JOIN
 
@@ -233,46 +273,6 @@ email = "x' OR '1'='1"  # input malevolo
 rows = conn.execute("SELECT * FROM customers WHERE email = ?", (email,)).fetchall()
 assert rows == []  # il parametro è trattato come semplice testo
 ```
-
-## Per gli esercizi di coding
-
-I classici dei colloqui SQL, tutti sullo schema sopra.
-
-```sql
--- 1. Secondo ordine più alto (DISTINCT gestisce i pareggi; LIMIT/OFFSET dopo l'ordinamento).
-SELECT DISTINCT total_cents FROM orders ORDER BY total_cents DESC LIMIT 1 OFFSET 1;
--- -> 2598
-
--- 2. Top-N per gruppo: l'ordine più recente di ogni cliente.
-SELECT customer_id, id FROM (
-  SELECT customer_id, id,
-         ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) AS rn
-  FROM orders
-) WHERE rn = 1;
--- -> 1 105 · 2 104 · 3 106
-
--- 3. Duplicati: email presenti più volte (qui nessuna, grazie al vincolo UNIQUE).
-SELECT email, COUNT(*) FROM customers GROUP BY email HAVING COUNT(*) > 1;
-
--- 4. Crescita mese su mese.
-WITH m AS (
-  SELECT strftime('%Y-%m', created_at) AS month, SUM(total_cents) AS revenue
-  FROM orders WHERE status IN ('paid', 'shipped') GROUP BY month
-)
-SELECT month, revenue,
-       ROUND(100.0 * (revenue - LAG(revenue) OVER (ORDER BY month))
-             / LAG(revenue) OVER (ORDER BY month), 1) AS growth_pct
-FROM m;
--- -> 2026-09 2598 NULL · 2026-10 6299 142.5   (l'ordine 102 ora è paid)
-
--- 5. Prodotti più venduti per quantità.
-SELECT p.sku, SUM(oi.quantity) AS units
-FROM order_items AS oi JOIN products AS p ON p.id = oi.product_id
-GROUP BY p.sku ORDER BY units DESC;
--- -> MUG-2 4 · PEN-3 2 · BAG-4 2
-```
-
-Altri da conoscere: *gaps and islands* (giorni consecutivi con ordini: `date - ROW_NUMBER()` è costante dentro un'isola), retention per coorte, mediana con le window function.
 
 ## Domande da colloquio
 

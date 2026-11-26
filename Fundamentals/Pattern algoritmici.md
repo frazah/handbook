@@ -1,8 +1,8 @@
 # Pattern algoritmici
 
 > I template ricorrenti negli esercizi di coding (LeetCode, NeetCode) e nei live coding. Riconosci il pattern, copia lo scheletro, adattalo.  
-> Questa scheda copre array, stringhe, intervalli, greedy e matrici; liste e heap, alberi e grafi, backtracking e DP hanno schede proprie.   
-> Collegate: [Linked list e heap](Linked%20list%20e%20heap.md) · [Alberi e grafi](Alberi%20e%20grafi.md) · [Backtracking e DP](Backtracking%20e%20DP.md) · [Big-O e strutture dati](Big-O%20e%20strutture%20dati.md) · [Python per gli esercizi](../Languages/Python.md#per-gli-esercizi-di-coding)
+> Questa scheda copre array, stringhe, intervalli, greedy, backtracking, DP e matrici; le tecniche legate a una struttura (liste, heap, alberi, trie, grafi) sono in [Big-O e strutture dati](Big-O%20e%20strutture%20dati.md).  
+> Collegate: [Big-O e strutture dati](Big-O%20e%20strutture%20dati.md) · [Python per gli esercizi](../Languages/Python.md#per-gli-esercizi-di-coding)
 
 ## Modello mentale
 
@@ -10,9 +10,10 @@
 - Parti sempre dalla **forza bruta**, stimane il costo, poi chiediti quale lavoro ripetuto puoi evitare (memorizzarlo, ordinare prima, usare una struttura migliore).
 - I vincoli su `n` ti dicono la complessità attesa ([tabella](Big-O%20e%20strutture%20dati.md#dai-vincoli-alla-complessità-attesa)).
 - Ottimizzare quasi sempre significa scambiare memoria per tempo (hash map, memo, prefix sum).
+- **Backtracking** quando servono *tutte* le soluzioni, **DP** quando ne basta il numero o la migliore: partono dallo stesso albero delle decisioni, ma la DP calcola ogni sottoproblema una volta sola.
 - Gli edge case uccidono più dei bug logici: input vuoto, un solo elemento, duplicati, negativi, overflow (in JS), tutto uguale.
 
-## Metodo in 6 passi (anche per il colloquio)
+### Metodo in 6 passi (anche per il colloquio)
 
 1. **Chiarisci:** input, output, vincoli, duplicati, ordinamento, valori negativi. Ripeti il problema a voce.
 2. **Esempi:** uno normale e uno limite, calcolati a mano.
@@ -32,16 +33,21 @@
 | ordinato (anche ruotato), "minimo valore tale che…", `n` enorme | [Ricerca binaria](#ricerca-binaria) |
 | intervalli, prenotazioni, sovrapposizioni | [Intervalli](#intervalli) |
 | parentesi, "prossimo maggiore/minore", istogramma | [Stack monotono](#stack-e-stack-monotono) |
-| lista collegata: inverti, unisci, ciclo, metà | [Linked list](Linked%20list%20e%20heap.md#linked-list) |
-| "k più grandi/vicini/frequenti", mediana in streaming | [Heap](Linked%20list%20e%20heap.md#heap-top-k-e-due-heap) |
+| lista collegata: inverti, unisci, ciclo, metà | [Linked list](Big-O%20e%20strutture%20dati.md#linked-list) |
+| "k più grandi/vicini/frequenti", mediana in streaming | [Heap](Big-O%20e%20strutture%20dati.md#heap-coda-di-priorità) |
 | "si può raggiungere?", una scelta locale che non serve rivedere | [Greedy](#greedy) |
 | matrice da ruotare o percorrere a spirale, cifre, potenze | [Matrici e matematica](#matrici-e-matematica) |
 | "senza spazio extra", XOR, conteggio di bit | [Bit manipulation](#bit-manipulation-essenziale) |
-| alberi, BST, trie, griglie, dipendenze, cammini minimi | [Alberi e grafi](Alberi%20e%20grafi.md) |
-| "tutte le combinazioni/permutazioni/sottoinsiemi" | [Backtracking](Backtracking%20e%20DP.md#backtracking) |
-| "numero di modi", "minimo costo", "massimo con scelte" | [Programmazione dinamica](Backtracking%20e%20DP.md#programmazione-dinamica) |
+| alberi: profondità, diametro, livelli, BST | [Alberi e BST](Big-O%20e%20strutture%20dati.md#alberi-e-bst) |
+| prefissi, autocompletamento | [Trie](Big-O%20e%20strutture%20dati.md#trie) |
+| isole, regioni, "dopo quanti minuti…", distanza minima in passi | [BFS e DFS su griglia](Big-O%20e%20strutture%20dati.md#bfs-e-dfs-su-griglia) |
+| prerequisiti, ordine valido | [Ordinamento topologico](Big-O%20e%20strutture%20dati.md#ordinamento-topologico) |
+| cammino minimo con pesi, collegare tutto al costo minimo | [Dijkstra e MST](Big-O%20e%20strutture%20dati.md#cammini-minimi-e-mst) |
+| gruppi che si fondono, arco ridondante | [Union-Find](Big-O%20e%20strutture%20dati.md#union-find-disjoint-set) |
+| "tutte le combinazioni/permutazioni/sottoinsiemi" | [Backtracking](#backtracking) |
+| "numero di modi", "minimo costo", "massimo con scelte" | [Programmazione dinamica](#programmazione-dinamica) |
 
-**Roadmap NeetCode:** qui trovi Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Intervals, Greedy, Math & Geometry e Bit Manipulation; il resto è nelle schede collegate. Nelle tabelle *Problema → idea chiave* i nomi sono quelli di LeetCode.
+**Roadmap NeetCode:** qui trovi Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Intervals, Greedy, Backtracking, 1-D e 2-D DP, Math & Geometry e Bit Manipulation; Linked List, Trees, Tries, Heap e Graphs sono in [Big-O e strutture dati](Big-O%20e%20strutture%20dati.md). Nelle tabelle *Problema → idea chiave* i nomi sono quelli di LeetCode.
 
 ## Hashing e conteggi
 
@@ -326,15 +332,15 @@ assert largest_rectangle([2, 1, 5, 6, 2, 3]) == 10
 | Min Stack | ogni elemento salva anche il minimo fino a lì: `(val, min(val, minimo_precedente))` |
 | Evaluate Reverse Polish Notation | stack di numeri; la divisione tronca verso zero: `int(a / b)`, non `a // b` |
 | Car Fleet | ordina per posizione decrescente e calcola il tempo d'arrivo; chi arriva prima di chi gli sta davanti si unisce alla sua flotta |
-| Generate Parentheses | è backtracking: [vedi qui](Backtracking%20e%20DP.md#backtracking) |
+| Generate Parentheses | è backtracking: [vedi qui](#backtracking) |
 
 ## Greedy
 
-Fai a ogni passo la scelta che sembra migliore, senza tornare indietro. Funziona solo quando sai giustificare che quella scelta non preclude l'ottimo (argomento di scambio); se trovi un controesempio, serve la [DP](Backtracking%20e%20DP.md#programmazione-dinamica). Il codice è corto: la difficoltà sta nel trovare la regola.
+Fai a ogni passo la scelta che sembra migliore, senza tornare indietro. Funziona solo quando sai giustificare che quella scelta non preclude l'ottimo (argomento di scambio); se trovi un controesempio, serve la [DP](#programmazione-dinamica). Il codice è corto: la difficoltà sta nel trovare la regola.
 
 | Problema | Idea chiave |
 |---|---|
-| Maximum Subarray | Kadane: estendi la somma corrente solo se è positiva ([codice](Backtracking%20e%20DP.md#dp-1d)) |
+| Maximum Subarray | Kadane: `current = max(x, current + x)`, cioè estendi la serie solo se è positiva; il risultato è il massimo di `current` |
 | Jump Game | tieni l'indice più lontano raggiungibile; se `i` lo supera, non arrivi in fondo |
 | Jump Game II | BFS "a livelli" sugli indici: ogni salto estende la frontiera fino al più lontano raggiungibile |
 | Gas Station | se il totale `gas − cost` è ≥ 0 una soluzione esiste; quando il serbatoio va sotto zero, riparti dalla stazione successiva |
@@ -342,6 +348,136 @@ Fai a ogni passo la scelta che sembra migliore, senza tornare indietro. Funziona
 | Merge Triplets to Form Target | scarta le triple con un valore oltre il target; le altre devono coprire ogni coordinata del target |
 | Partition Labels | salva l'ultima posizione di ogni lettera; chiudi il blocco quando `i` raggiunge la più lontana tra quelle viste |
 | Valid Parenthesis String | tieni l'intervallo `[min, max]` di parentesi aperte possibili; `*` lo allarga; se `max < 0` è invalida |
+
+## Backtracking
+
+Serve quando vuoi *tutte* le soluzioni (combinazioni, permutazioni, sottoinsiemi). Esplora l'albero delle scelte: **scegli → ricorri → annulla la scelta**. È esponenziale, quindi adatto a `n` piccoli (≤ 20 circa); si accelera **potando** i rami che non possono portare a una soluzione.
+
+**Sottoinsiemi:** per ogni elemento, prendo o non prendo.
+
+```python
+def subsets(items: list[str]) -> list[list[str]]:
+    out: list[list[str]] = []
+    def explore(i: int, chosen: list[str]) -> None:
+        if i == len(items):
+            out.append(chosen.copy())  # copia: chosen verrà modificata
+            return
+        chosen.append(items[i])  # prendo items[i]
+        explore(i + 1, chosen)
+        chosen.pop()             # annullo: non lo prendo
+        explore(i + 1, chosen)
+    explore(0, [])
+    return out
+
+assert len(subsets(["MUG", "PEN", "BAG"])) == 8  # 2³
+```
+
+**Combinazioni:** a ogni livello scegli il prossimo elemento da `start` in poi. Ordinare l'input permette sia di potare sia di saltare i duplicati.
+
+```python
+def bundles_with_budget(prices: list[int], budget: int) -> list[list[int]]:
+    """Tutte le combinazioni di prodotti (ognuno al più una volta) che costano esattamente budget."""
+    prices = sorted(prices)
+    out: list[list[int]] = []
+    def explore(start: int, remaining: int, chosen: list[int]) -> None:
+        if remaining == 0:
+            out.append(chosen.copy())
+            return
+        for i in range(start, len(prices)):
+            if prices[i] > remaining:
+                break     # potatura: da qui in poi sono tutti troppo cari
+            if i > start and prices[i] == prices[i - 1]:
+                continue  # stesso valore allo stesso livello: combinazione doppia
+            chosen.append(prices[i])
+            explore(i + 1, remaining - prices[i], chosen)
+            chosen.pop()
+    explore(0, budget, [])
+    return out
+
+assert bundles_with_budget([10, 5, 10, 15], 25) == [[5, 10, 10], [10, 15]]
+```
+
+| Problema | Idea chiave |
+|---|---|
+| Combination Sum | come sopra, ma ricorri con `i` invece di `i + 1`: lo stesso elemento si può riusare |
+| Subsets II / Combination Sum II | ordina e salta `a[i] == a[i − 1]` quando `i > start` |
+| Permutations | a ogni livello qualsiasi elemento non ancora usato (set degli usati, o lista dei rimanenti) |
+| Word Search | su griglia: segna la cella, prova le 4 direzioni, poi liberala |
+| Generate Parentheses | aggiungi `(` se `aperte < n`, `)` se `chiuse < aperte` |
+| Palindrome Partitioning | scegli dove finisce il prossimo pezzo; prosegui solo se è palindromo |
+| N-Queens | una regina per riga; set di colonne, diagonali `r − c` e antidiagonali `r + c` occupate |
+
+## Programmazione dinamica
+
+Serve quando il testo chiede **un numero** (quanti modi, costo minimo, valore massimo) e la forza bruta ricalcola gli stessi sottoproblemi. Ogni stato si calcola una volta: costo = numero di stati × costo di una transizione.
+
+1. **Stato:** cosa significa `dp[i]` (o `dp[i][j]`), in una frase. Trucco: scrivi la ricorsione a forza bruta; gli **argomenti che cambiano** sono lo stato.
+2. **Transizione:** come `dp[i]` dipende da stati più piccoli.
+3. **Casi base** e ordine di calcolo.
+4. **Memoization** (ricorsione + `@cache`) è la più facile da scrivere; la **tabulazione** (ciclo dal basso) evita il limite di ricorsione e permette di ridurre lo spazio.
+
+Lo stesso problema nelle due forme. **House Robber:** massimo valore senza prendere due elementi adiacenti.
+
+```python
+from functools import cache
+
+def max_loot(values: list[int]) -> int:
+    @cache
+    def best(i: int) -> int:  # stato: il meglio ottenibile dall'indice i in poi
+        if i >= len(values):
+            return 0
+        return max(values[i] + best(i + 2), best(i + 1))  # prendo i (e salto i+1) o lo salto
+    return best(0)
+
+def max_loot_table(values: list[int]) -> int:
+    take = skip = 0  # bastano gli ultimi due stati: spazio O(1)
+    for value in values:
+        take, skip = skip + value, max(take, skip)
+    return max(take, skip)
+
+assert max_loot([2, 7, 9, 3, 1]) == max_loot_table([2, 7, 9, 3, 1]) == 12
+```
+
+### DP 1D
+
+| Problema | Stato e transizione |
+|---|---|
+| Climbing Stairs | `dp[i] = dp[i−1] + dp[i−2]` (Fibonacci) |
+| House Robber II | case in cerchio: risolvi senza la prima e senza l'ultima, prendi il massimo |
+| Coin Change | `dp[x] = 1 + min(dp[x − c])` sulle monete `c`; `inf` se irraggiungibile |
+| Decode Ways | `dp[i] = dp[i−1]` (se la cifra non è 0) `+ dp[i−2]` (se le ultime due cifre sono tra 10 e 26) |
+| Word Break | `dp[i]` = il prefisso lungo `i` si compone: esiste `j` con `dp[j]` e `s[j:i]` nel dizionario |
+| Longest Increasing Subsequence | `dp[i] = 1 + max(dp[j])` per `j < i` con `a[j] < a[i]`: `O(n²)`; con `bisect` sulle code minime `O(n log n)` |
+| Longest Palindromic Substring | espandi attorno a ognuno dei `2n − 1` centri: `O(n²)`, spazio `O(1)` |
+| Maximum Product Subarray | come Kadane, ma tieni massimo **e minimo** che finiscono in `i`: un negativo li scambia |
+
+### DP 2D
+
+Lo stato ha due indici: due stringhe (`i` caratteri di una, `j` dell'altra), una griglia, oppure indice + capacità.
+
+```python
+def lcs(a: str, b: str) -> int:
+    """Longest Common Subsequence. dp[i][j] = LCS di a[:i] e b[:j]."""
+    dp = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]  # riga e colonna 0: stringa vuota
+    for i in range(1, len(a) + 1):
+        for j in range(1, len(b) + 1):
+            if a[i - 1] == b[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1  # carattere in comune: diagonale + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])  # scarta un carattere da a o da b
+    return dp[-1][-1]
+
+assert lcs("abcde", "ace") == 3
+```
+
+| Problema | Stato e transizione |
+|---|---|
+| Unique Paths | `dp[r][c] = dp[r−1][c] + dp[r][c−1]`; basta una riga |
+| Edit Distance | uguali → `dp[i−1][j−1]`; altrimenti `1 + min(cancella, inserisci, sostituisci)` |
+| Zaino 0/1 / Partition Equal Subset Sum | `dp[c]` = meglio con capacità `c`; scorri `c` **all'indietro** così ogni oggetto si usa una volta |
+| Coin Change II | conta le **combinazioni**: ciclo esterno sulle monete, interno sugli importi (`dp[x] += dp[x − c]`) |
+| Best Time to Buy and Sell Stock with Cooldown | macchina a stati: `@cache` su `(i, posso_comprare)`; dopo una vendita salti un giorno |
+| Longest Increasing Path in a Matrix | DFS con `@cache` sulla cella: i valori strettamente crescenti escludono i cicli |
 
 ## Matrici e matematica
 
@@ -394,16 +530,23 @@ assert spiral([[1, 2, 3], [4, 5, 6], [7, 8, 9]]) == [1, 2, 3, 6, 9, 8, 7, 4, 5]
 - **Quando la ricerca binaria?** Su dati ordinati, o su una risposta monotona ("con capacità x ce la faccio?").
 - **Perché lo stack monotono è `O(n)` anche con un `while` dentro il `for`?** Ogni indice entra nello stack una volta ed esce al più una volta: il totale delle operazioni è `2n`.
 
+- **Backtracking o DP?** Backtracking se devi elencare le soluzioni; DP se ti basta contarle o trovare la migliore e i sottoproblemi si ripetono.
+
 **Intermedio**
 - **Sliding window vs two pointers?** La sliding window è un caso di two pointers dove interessa il contenuto *tra* i puntatori (sottoarray contiguo). Non funziona se gli elementi negativi rompono la monotonia della somma: lì serve il prefix sum.
 - **Come capisci che il greedy è corretto?** Con un argomento di scambio: qualsiasi soluzione ottima può essere trasformata in quella greedy senza peggiorare. Se trovi un controesempio, passa alla DP.
 - **Come eviti i duplicati in 3Sum senza un set?** Ordinando: i valori uguali diventano adiacenti, e basta saltare quelli uguali al precedente sia per il primo elemento sia per il secondo.
 
+- **Memoization vs tabulazione?** Top-down è più naturale e calcola solo gli stati necessari; bottom-up evita lo stack di ricorsione e permette di tenere solo le righe che servono.
+- **Come eviti risultati duplicati nel backtracking?** Ordina l'input e, allo stesso livello dell'albero, salta un valore uguale al precedente (`i > start and a[i] == a[i−1]`).
+
 **Avanzato**
+- **Perché in Coin Change II l'ordine dei cicli conta?** Con le monete nel ciclo esterno ogni combinazione si costruisce in un solo ordine; con gli importi nel ciclo esterno `1+2` e `2+1` contano come due.
+- **Complessità del backtracking su sottoinsiemi?** `O(2ⁿ · n)`: 2ⁿ sottoinsiemi, ciascuno copiato in `O(n)`. Per le permutazioni `O(n! · n)`.
 - **Perché in Trapping Rain Water bastano due puntatori?** L'acqua sopra una barra dipende dal minimo tra il massimo alla sua sinistra e quello alla sua destra. Se il massimo sinistro è il più basso dei due, quel minimo è già noto per la barra di sinistra (a destra c'è comunque una barra almeno altrettanto alta): la calcoli e avanzi.
 
 ## Approfondisci
 
 - [NeetCode Roadmap](https://neetcode.io/roadmap) — esercizi raggruppati per pattern
 - [CP-Algorithms](https://cp-algorithms.com/) — algoritmi spiegati con rigore
-- [Python `bisect`](https://docs.python.org/3/library/bisect.html) · [`heapq`](https://docs.python.org/3/library/heapq.html)
+- [Python `bisect`](https://docs.python.org/3/library/bisect.html) · [`heapq`](https://docs.python.org/3/library/heapq.html) · [`functools.cache`](https://docs.python.org/3/library/functools.html#functools.cache)

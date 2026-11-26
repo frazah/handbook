@@ -1,7 +1,7 @@
 # Recipe: dashboard ordini (React + FastAPI)
 
 > Un progetto piccolo ma completo: API FastAPI su SQLite e frontend React + TypeScript per elencare, filtrare, creare ordini e aggiornarne lo stato.
-> Concetti in: [FastAPI](../Web%20%26%20Backend/FastAPI.md) · [React](../Web%20%26%20Backend/React.md) · [SQL](../Languages/SQL.md) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md)
+> Concetti in: [FastAPI](../Web/FastAPI.md) · [React](../Web/React.md) · [SQL](../Languages/SQL.md) · [Web e HTTP](../Web/Web%20e%20HTTP.md)
 
 ## Cosa impari
 
@@ -236,7 +236,7 @@ cd frontend && npm install && npm run dev   # http://localhost:5173
 ## Come estenderlo
 
 - **Paginazione keyset** su `GET /orders` ([SQL](../Languages/SQL.md#paginazione-keyset)) e **TanStack Query** nel frontend per cache e refetch.
-- **Autenticazione** con JWT e filtro `customer_id` in ogni query ([FastAPI](../Web%20%26%20Backend/FastAPI.md#autenticazione)).
+- **Autenticazione** con JWT e filtro `customer_id` in ogni query ([FastAPI](../Web/FastAPI.md#autenticazione)).
 - **Transizioni di stato valide** (`cancelled` non torna `paid`): 409 Conflict per i passaggi non ammessi.
 - **Optimistic UI** con `useOptimistic` (React 19) o aggiornando lo stato prima della risposta.
 - **Deploy:** PostgreSQL + migrazioni Alembic, `VITE_API_URL` per l'ambiente, CORS con l'origine di produzione.

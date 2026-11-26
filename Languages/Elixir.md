@@ -1,7 +1,7 @@
 # Elixir
 
 > Linguaggio funzionale sulla **BEAM**, la VM di Erlang: concorrenza a milioni di processi leggeri, tolleranza ai guasti, sistemi sempre attivi (chat, realtime, IoT, backend con Phoenix).
-> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md)
+> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [Web e HTTP](../Web/Web%20e%20HTTP.md)
 
 ## Modello mentale
 
@@ -29,6 +29,23 @@
 | Pipe | `orders \|> Enum.filter(&paid?/1) \|> Enum.map(& &1.total)` |
 | Struct | `%Order{id: 1, status: :pending}` |
 | Sigil | `~w(paid shipped)a` → `[:paid, :shipped]` |
+
+### Per gli esercizi di coding
+
+| Ti serve | Funzione |
+|---|---|
+| Frequenze | `Enum.frequencies(list)` · `Enum.frequencies_by(list, &f/1)` |
+| Raggruppare | `Enum.group_by(orders, & &1.customer_id)` |
+| Accumulare | `Enum.reduce(list, acc, fn x, acc -> ... end)` |
+| Aggiornare una mappa | `Map.update(map, key, default, &(&1 + 1))` |
+| Ordinare | `Enum.sort_by(orders, & &1.total_cents, :desc)` |
+| Finestre e coppie | `Enum.chunk_every(list, 3, 1, :discard)` · `Enum.zip(a, b)` |
+| Coda FIFO | `:queue.new()`, `:queue.in/2`, `:queue.out/1` |
+| Indice | `Enum.with_index(list)` |
+| Uscita anticipata | `Enum.reduce_while(list, acc, fn x, acc -> {:cont, acc} \| {:halt, acc} end)` |
+
+- Le liste sono **concatenate**: `[x | list]` costa `O(1)`, `list ++ [x]` e `Enum.at(list, i)` costano `O(n)`. Costruisci la lista al contrario e chiama `Enum.reverse/1` alla fine.
+- Per accessi casuali usa una mappa con indici come chiavi oppure una tupla (`elem/2` è `O(1)`).
 
 ## Pattern matching e funzioni
 
@@ -267,23 +284,6 @@ end
 ```
 
 **Phoenix** è il framework web di riferimento; **LiveView** costruisce UI interattive renderizzate dal server, con aggiornamenti via WebSocket e poco JavaScript.
-
-## Per gli esercizi di coding
-
-| Ti serve | Funzione |
-|---|---|
-| Frequenze | `Enum.frequencies(list)` · `Enum.frequencies_by(list, &f/1)` |
-| Raggruppare | `Enum.group_by(orders, & &1.customer_id)` |
-| Accumulare | `Enum.reduce(list, acc, fn x, acc -> ... end)` |
-| Aggiornare una mappa | `Map.update(map, key, default, &(&1 + 1))` |
-| Ordinare | `Enum.sort_by(orders, & &1.total_cents, :desc)` |
-| Finestre e coppie | `Enum.chunk_every(list, 3, 1, :discard)` · `Enum.zip(a, b)` |
-| Coda FIFO | `:queue.new()`, `:queue.in/2`, `:queue.out/1` |
-| Indice | `Enum.with_index(list)` |
-| Uscita anticipata | `Enum.reduce_while(list, acc, fn x, acc -> {:cont, acc} \| {:halt, acc} end)` |
-
-- Le liste sono **concatenate**: `[x | list]` costa `O(1)`, `list ++ [x]` e `Enum.at(list, i)` costano `O(n)`. Costruisci la lista al contrario e chiama `Enum.reverse/1` alla fine.
-- Per accessi casuali usa una mappa con indici come chiavi oppure una tupla (`elem/2` è `O(1)`).
 
 ## Domande da colloquio
 

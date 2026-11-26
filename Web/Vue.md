@@ -1,7 +1,7 @@
 # Vue 3 + TypeScript
 
 > Framework progressivo per interfacce: template HTML dichiarativi, **reattività automatica** e Single File Component (`.vue`) con template, logica e stile insieme.
-> Prerequisiti: [JavaScript](../Languages/JavaScript.md) · [TypeScript](../Languages/TypeScript.md) · Collegate: [React](React.md) (confronto in fondo) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md)
+> Prerequisiti: [JavaScript](../Languages/JavaScript.md) · [TypeScript](../Languages/TypeScript.md) · Collegate: [React](React.md) (confronto in fondo) · [Web e HTTP](Web%20e%20HTTP.md)
 
 ## Modello mentale
 

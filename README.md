@@ -8,14 +8,13 @@ Un manuale personale da tenere aperto **mentre programmi** (esercizi di coding, 
 
 ## Indice
 
-| Fundamentals | Languages | Web & Backend | Data & AI |
+| Fundamentals | Languages | Web | Data & AI |
 |---|---|---|---|
-| [Big-O e strutture dati](Fundamentals/Big-O%20e%20strutture%20dati.md) | [Python](Languages/Python.md) | [FastAPI](Web%20%26%20Backend/FastAPI.md) | [Data Science](Data%20%26%20AI/Data%20Science.md) |
-| [Pattern algoritmici](Fundamentals/Pattern%20algoritmici.md) | [JavaScript](Languages/JavaScript.md) | [React + TypeScript](Web%20%26%20Backend/React.md) | [AI Agents](Data%20%26%20AI/AI%20Agents.md) |
-| [Alberi e grafi](Fundamentals/Alberi%20e%20grafi.md) | [TypeScript](Languages/TypeScript.md) | [Vue 3 + TypeScript](Web%20%26%20Backend/Vue.md) | [Bioinformatica](Data%20%26%20AI/Bioinformatics.md) |
-| [Backtracking e DP](Fundamentals/Backtracking%20e%20DP.md) | [SQL](Languages/SQL.md) | | |
-| [Linked list e heap](Fundamentals/Linked%20list%20e%20heap.md) | [Elixir](Languages/Elixir.md) | | |
-| [Web e HTTP](Fundamentals/Web%20e%20HTTP.md) | | | |
+| [Big-O e strutture dati](Fundamentals/Big-O%20e%20strutture%20dati.md) | [Python](Languages/Python.md) | [Web e HTTP](Web/Web%20e%20HTTP.md) | [Data Science](Data%20%26%20AI/Data%20Science.md) |
+| [Pattern algoritmici](Fundamentals/Pattern%20algoritmici.md) | [JavaScript](Languages/JavaScript.md) | [React + TypeScript](Web/React.md) | [AI Agents](Data%20%26%20AI/AI%20Agents.md) |
+| | [TypeScript](Languages/TypeScript.md) | [Vue 3 + TypeScript](Web/Vue.md) | [Bioinformatica](Data%20%26%20AI/Bioinformatics.md) |
+| | [SQL](Languages/SQL.md) | [FastAPI](Web/FastAPI.md) | |
+| | [Elixir](Languages/Elixir.md) | | |
 
 **NeetCode 150** (notebook per categoria, sintassi e concetti per risolvere i problemi): [indice](NeetCode%20150/README.md)
 
@@ -25,7 +24,7 @@ Un manuale personale da tenere aperto **mentre programmi** (esercizi di coding, 
 
 ### Sintesi prima di tutto
 
-- **Una scheda si scorre in pochi minuti.** Obiettivo 250–400 righe per scheda: è una reference, non un libro. Se un argomento richiede di più, tieni l'essenziale e metti un link in *Approfondisci*.
+- **Una scheda si scorre in pochi minuti.** Obiettivo 250–500 righe per scheda: è una reference, non un libro. Se un argomento richiede di più, tieni l'essenziale e metti un link in *Approfondisci*.
 - **Codice corto.** Un blocco mostra *una* idea: idealmente ≤ 15 righe, mai oltre 25. Niente boilerplate (setup ripetuti, import ovvi, gestione errori non pertinente al punto).
 - **Prosa asciutta.** Introduzioni di 1–2 frasi, spiegazioni in elenchi brevi o tabelle. Se una frase non aggiunge informazione, va tolta.
 
@@ -61,8 +60,8 @@ Tutte le schede seguono lo stesso scheletro, così sai sempre dove cercare:
 | **Intestazione** | Una riga: cos'è e quando la usi. Prerequisiti e schede collegate. |
 | **Modello mentale** | Come funziona dentro, in 5–10 punti. È la base delle risposte da colloquio. |
 | **Sintassi al volo** | Tabelle di lookup per quando stai scrivendo codice. |
+| ↳ **Per gli esercizi di coding** (H3) | idiomi e strutture della libreria standard che servono negli esercizi algoritmici. |
 | **Argomenti** (H2 / H3) | Per ogni argomento: introduzione → codice commentato → errori comuni. Dal più usato al più avanzato. |
-| **Per gli esercizi di coding** | *(linguaggi)* idiomi e strutture della libreria standard che servono negli esercizi algoritmici. |
 | **Domande da colloquio** | 8–15 domande raggruppate per livello. Risposte di 1–3 frasi, con il trade-off chiave. |
 | **Approfondisci** | Link a documentazione ufficiale e risorse autorevoli. |
 
@@ -95,7 +94,7 @@ Ambiente di verifica: Python 3.9 e 3.15 (sola libreria standard) e SQLite 3.51. 
 
 | Parte | Verifica |
 |---|---|
-| Big-O, Pattern algoritmici, Linked list e heap, Alberi e grafi, Backtracking e DP, Web e HTTP | Tutti i blocchi Python eseguiti, con `assert` |
+| Big-O, Pattern algoritmici, Web e HTTP | Tutti i blocchi Python eseguiti, con `assert` |
 | Python, AI Agents (agente locale e retrieval), Bioinformatica | Tutti i blocchi non illustrativi eseguiti |
 | SQL, Recipe pandas + SQL | Tutte le query eseguite in sequenza su SQLite; risultati nei commenti confrontati con l'output reale |
 | Data Science | Statistica (stdlib) eseguita; codice pandas, NumPy e scikit-learn **solo riletto** |

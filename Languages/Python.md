@@ -1,7 +1,7 @@
 # Python
 
 > Linguaggio per scripting, backend, dati e AI. Leggibile, "batteries included", tipizzazione dinamica con type hint opzionali.
-> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [FastAPI](../Web%20%26%20Backend/FastAPI.md) · [Data Science](../Data%20%26%20AI/Data%20Science.md)
+> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [FastAPI](../Web/FastAPI.md) · [Data Science](../Data%20%26%20AI/Data%20Science.md)
 
 ## Modello mentale
 
@@ -416,7 +416,7 @@ def stock() -> dict[str, int]:  # ogni test riceve un dict nuovo
 - **Cos'è il GIL e che impatto ha?** Un lock che permette a un solo thread di eseguire bytecode Python. Il lavoro CPU-bound non scala con i thread (si usano processi o librerie native); l'I/O sì, perché il GIL viene rilasciato durante l'attesa.
 - **asyncio vs thread?** asyncio usa un solo thread con multitasking cooperativo: è leggero e scala a migliaia di connessioni, ma richiede librerie async e non tollera chiamate bloccanti. I thread funzionano con codice bloccante ma costano di più.
 - **Come gestisce la memoria CPython?** Con il reference counting (un oggetto viene liberato quando i riferimenti arrivano a zero) più un GC generazionale che raccoglie i cicli di riferimenti.
-- **Perché i type hint non bastano per validare input esterni?** Non vengono controllati a runtime: per i dati in ingresso serve una validazione esplicita (es. Pydantic in [FastAPI](../Web%20%26%20Backend/FastAPI.md)).
+- **Perché i type hint non bastano per validare input esterni?** Non vengono controllati a runtime: per i dati in ingresso serve una validazione esplicita (es. Pydantic in [FastAPI](../Web/FastAPI.md)).
 
 ## Approfondisci
 

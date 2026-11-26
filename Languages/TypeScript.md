@@ -1,7 +1,7 @@
 # TypeScript
 
 > JavaScript con un sistema di tipi statico. Trova errori prima dell'esecuzione e rende espliciti i contratti tra moduli, API e componenti.
-> Prerequisito: [JavaScript](JavaScript.md) · Collegate: [React](../Web%20%26%20Backend/React.md) · [Vue](../Web%20%26%20Backend/Vue.md)
+> Prerequisito: [JavaScript](JavaScript.md) · Collegate: [React](../Web/React.md) · [Vue](../Web/Vue.md)
 
 ## Modello mentale
 
@@ -26,6 +26,28 @@
 | Costante letterale | `const STATUSES = ["pending", "paid"] as const` |
 | Controllo senza allargare | `const routes = {...} satisfies Record<string, string>` |
 | Asserzione (evitala) | `value as Order` · `el!` (non-null) |
+
+### Per gli esercizi di coding
+
+```ts
+// Firme chiare: input e output tipizzati, il resto è inferito.
+function topKFrequent(skus: string[], k: number): string[] {
+  const counts = new Map<string, number>();
+  for (const sku of skus) counts.set(sku, (counts.get(sku) ?? 0) + 1);
+  return [...counts.entries()]
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, k)
+    .map(([sku]) => sku);
+}
+
+const grid: number[][] = Array.from({ length: 3 }, () => Array<number>(4).fill(0));
+const pair: [number, number] = [0, 1]; // tupla: lunghezza e tipi fissi
+const seen: Record<string, boolean> = {};
+```
+
+- Con `noUncheckedIndexedAccess`, `nums[i]` è `number | undefined`: controllalo o usa `!` solo se sei certo dell'indice.
+- `!` (non-null assertion) e `as` spengono il controllo: un errore lì diventa un crash a runtime.
+- `Map<K, V>` si tipizza meglio di un oggetto con chiavi dinamiche.
 
 ## `type` vs `interface`
 
@@ -164,28 +186,6 @@ Gli `enum` generano codice JavaScript a runtime e hanno qualche stranezza (gli e
 | `exactOptionalPropertyTypes` | `x?: string` non accetta un `undefined` esplicito |
 | `noImplicitOverride` | richiede `override` sui metodi ridefiniti |
 | `verbatimModuleSyntax` | impone `import type` per gli import usati solo come tipi |
-
-## Per gli esercizi di coding
-
-```ts
-// Firme chiare: input e output tipizzati, il resto è inferito.
-function topKFrequent(skus: string[], k: number): string[] {
-  const counts = new Map<string, number>();
-  for (const sku of skus) counts.set(sku, (counts.get(sku) ?? 0) + 1);
-  return [...counts.entries()]
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, k)
-    .map(([sku]) => sku);
-}
-
-const grid: number[][] = Array.from({ length: 3 }, () => Array<number>(4).fill(0));
-const pair: [number, number] = [0, 1]; // tupla: lunghezza e tipi fissi
-const seen: Record<string, boolean> = {};
-```
-
-- Con `noUncheckedIndexedAccess`, `nums[i]` è `number | undefined`: controllalo o usa `!` solo se sei certo dell'indice.
-- `!` (non-null assertion) e `as` spengono il controllo: un errore lì diventa un crash a runtime.
-- `Map<K, V>` si tipizza meglio di un oggetto con chiavi dinamiche.
 
 ## Domande da colloquio
 

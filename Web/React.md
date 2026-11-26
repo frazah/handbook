@@ -1,7 +1,7 @@
 # React + TypeScript
 
 > Libreria per costruire interfacce come composizione di **componenti**: funzioni che ricevono dati e restituiscono la UI da mostrare.
-> Prerequisiti: [JavaScript](../Languages/JavaScript.md) · [TypeScript](../Languages/TypeScript.md) · Collegate: [Vue](Vue.md) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md) · [Recipe React + FastAPI](../Recipes/React%20%2B%20FastAPI.md)
+> Prerequisiti: [JavaScript](../Languages/JavaScript.md) · [TypeScript](../Languages/TypeScript.md) · Collegate: [Vue](Vue.md) · [Web e HTTP](Web%20e%20HTTP.md) · [Recipe React + FastAPI](../Recipes/React%20%2B%20FastAPI.md)
 
 ## Modello mentale
 

@@ -1,7 +1,7 @@
 # Bioinformatica
 
 > Biologia, formati e algoritmi essenziali per un informatico senza studi biologici che si prepara a un ruolo in bioinformatica o AI for biology. Solo concetti e analisi di dati: nessuna procedura di laboratorio.
-> Collegate: [Python](../Languages/Python.md) · [Programmazione dinamica](../Fundamentals/Backtracking%20e%20DP.md#programmazione-dinamica) · [Data Science](Data%20Science.md)
+> Collegate: [Python](../Languages/Python.md) · [Programmazione dinamica](../Fundamentals/Pattern%20algoritmici.md#programmazione-dinamica) · [Data Science](Data%20Science.md)
 
 ## Modello mentale
 

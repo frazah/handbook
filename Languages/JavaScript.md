@@ -1,7 +1,7 @@
 # JavaScript
 
-> Il linguaggio del browser e di Node.js: dinamico, single-thread con event loop, funzioni come valori. Base di [TypeScript](TypeScript.md), [React](../Web%20%26%20Backend/React.md) e [Vue](../Web%20%26%20Backend/Vue.md).
-> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [Web e HTTP](../Fundamentals/Web%20e%20HTTP.md)
+> Il linguaggio del browser e di Node.js: dinamico, single-thread con event loop, funzioni come valori. Base di [TypeScript](TypeScript.md), [React](../Web/React.md) e [Vue](../Web/Vue.md).
+> Collegate: [Pattern algoritmici](../Fundamentals/Pattern%20algoritmici.md) · [Web e HTTP](../Web/Web%20e%20HTTP.md)
 
 ## Modello mentale
 
@@ -37,6 +37,47 @@
 | `includes`, `at(-1)` | boolean / ultimo elemento | no |
 | `sort`, `reverse`, `splice`, `push`, `pop` | l'array stesso | **sì** |
 | `toSorted`, `toReversed`, `with` (ES2023) | nuovo array | no |
+
+### Per gli esercizi di coding
+
+- `sort()` senza comparatore ordina **come stringhe**: `[10, 9, 1].sort()` → `[1, 10, 9]`. Usa `nums.sort((a, b) => a - b)`.
+- `Map`/`Set` per conteggi e "già visto": `counts.set(x, (counts.get(x) ?? 0) + 1)`.
+- Array 2D: `Array.from({ length: rows }, () => Array(cols).fill(0))`. Con `Array(rows).fill([])` tutte le righe sono **lo stesso array**.
+- `Number.MAX_SAFE_INTEGER` è 2⁵³−1: oltre si perde precisione e serve `BigInt` (`10n ** 20n`).
+- Divisione intera: `Math.trunc(a / b)` (verso zero) o `Math.floor` (verso −∞).
+- Stringhe immutabili: accumula in un array e chiama `join("")`.
+- Non esistono **heap** e **deque** nativi. Per una coda BFS usa un array con un indice di testa (`queue[head++]`) invece di `shift()`, che è `O(n)`. Heap minimo:
+
+```js
+class MinHeap {
+  #a = [];
+  get size() { return this.#a.length; }
+  peek() { return this.#a[0]; }
+  push(x) {
+    const a = this.#a;
+    a.push(x);
+    for (let i = a.length - 1, p; i > 0 && a[(p = (i - 1) >> 1)] > a[i]; i = p) {
+      [a[i], a[p]] = [a[p], a[i]]; // risale finché il padre è più grande
+    }
+  }
+  pop() {
+    const a = this.#a, top = a[0], last = a.pop();
+    if (a.length) {
+      a[0] = last;
+      for (let i = 0; ; ) { // scende scambiando con il figlio minore
+        const l = 2 * i + 1, r = l + 1;
+        let m = i;
+        if (l < a.length && a[l] < a[m]) m = l;
+        if (r < a.length && a[r] < a[m]) m = r;
+        if (m === i) break;
+        [a[i], a[m]] = [a[m], a[i]];
+        i = m;
+      }
+    }
+    return top;
+  }
+}
+```
 
 ## Tipi, uguaglianza e coercizione
 
@@ -307,47 +348,6 @@ function flatten(items, depth = Infinity) {
 
 flatten([1, [2, [3, [4]]]]);    // -> [1, 2, 3, 4]
 flatten([1, [2, [3, [4]]]], 1); // -> [1, 2, [3, [4]]]
-```
-
-## Per gli esercizi di coding
-
-- `sort()` senza comparatore ordina **come stringhe**: `[10, 9, 1].sort()` → `[1, 10, 9]`. Usa `nums.sort((a, b) => a - b)`.
-- `Map`/`Set` per conteggi e "già visto": `counts.set(x, (counts.get(x) ?? 0) + 1)`.
-- Array 2D: `Array.from({ length: rows }, () => Array(cols).fill(0))`. Con `Array(rows).fill([])` tutte le righe sono **lo stesso array**.
-- `Number.MAX_SAFE_INTEGER` è 2⁵³−1: oltre si perde precisione e serve `BigInt` (`10n ** 20n`).
-- Divisione intera: `Math.trunc(a / b)` (verso zero) o `Math.floor` (verso −∞).
-- Stringhe immutabili: accumula in un array e chiama `join("")`.
-- Non esistono **heap** e **deque** nativi. Per una coda BFS usa un array con un indice di testa (`queue[head++]`) invece di `shift()`, che è `O(n)`. Heap minimo:
-
-```js
-class MinHeap {
-  #a = [];
-  get size() { return this.#a.length; }
-  peek() { return this.#a[0]; }
-  push(x) {
-    const a = this.#a;
-    a.push(x);
-    for (let i = a.length - 1, p; i > 0 && a[(p = (i - 1) >> 1)] > a[i]; i = p) {
-      [a[i], a[p]] = [a[p], a[i]]; // risale finché il padre è più grande
-    }
-  }
-  pop() {
-    const a = this.#a, top = a[0], last = a.pop();
-    if (a.length) {
-      a[0] = last;
-      for (let i = 0; ; ) { // scende scambiando con il figlio minore
-        const l = 2 * i + 1, r = l + 1;
-        let m = i;
-        if (l < a.length && a[l] < a[m]) m = l;
-        if (r < a.length && a[r] < a[m]) m = r;
-        if (m === i) break;
-        [a[i], a[m]] = [a[m], a[i]];
-        i = m;
-      }
-    }
-    return top;
-  }
-}
 ```
 
 ## Domande da colloquio
