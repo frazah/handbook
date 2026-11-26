@@ -1,6 +1,7 @@
 # Pattern algoritmici
 
-> I template ricorrenti negli esercizi di coding (LeetCode, NeetCode) e nei live coding. Riconosci il pattern, copia lo scheletro, adattalo. Questa scheda copre array, stringhe, intervalli, greedy e matrici; liste e heap, alberi e grafi, backtracking e DP hanno schede proprie.
+> I template ricorrenti negli esercizi di coding (LeetCode, NeetCode) e nei live coding. Riconosci il pattern, copia lo scheletro, adattalo.  
+> Questa scheda copre array, stringhe, intervalli, greedy e matrici; liste e heap, alberi e grafi, backtracking e DP hanno schede proprie.   
 > Collegate: [Linked list e heap](Linked%20list%20e%20heap.md) · [Alberi e grafi](Alberi%20e%20grafi.md) · [Backtracking e DP](Backtracking%20e%20DP.md) · [Big-O e strutture dati](Big-O%20e%20strutture%20dati.md) · [Python per gli esercizi](../Languages/Python.md#per-gli-esercizi-di-coding)
 
 ## Modello mentale

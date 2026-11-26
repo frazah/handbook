@@ -1,19 +1,38 @@
 # Big-O e strutture dati
 
-> Come stimare il costo di una soluzione e quale struttura dati scegliere. Serve in ogni esercizio di coding e in ogni colloquio tecnico.
+> Come stimare il costo di una soluzione e quale struttura dati scegliere.  
+> Serve in ogni esercizio di coding e in ogni colloquio tecnico.  
 > Collegate: [Pattern algoritmici](Pattern%20algoritmici.md) · [Alberi e grafi](Alberi%20e%20grafi.md) · [Python](../Languages/Python.md#per-gli-esercizi-di-coding) · [JavaScript](../Languages/JavaScript.md#per-gli-esercizi-di-coding)
 
 ## Modello mentale
 
 - **Big-O** descrive come cresce il costo (tempo o memoria) al crescere dell'input `n`, ignorando costanti e termini minori: `3n² + 10n` → `O(n²)`.
-- Si ragiona di solito sul **caso peggiore**; per le hash map si cita il **caso medio** (`O(1)`), sapendo che il peggiore è `O(n)`.
-- **Ammortizzato:** un'operazione a volte costosa ma rara, spalmata su molte economiche. `append` su array dinamico è `O(1)` ammortizzato anche se ogni tanto rialloca e copia tutto.
 - **Spazio:** conta la memoria *aggiuntiva* (strutture ausiliarie, stack della ricorsione), non l'input.
+- **Ammortizzato:** un'operazione a volte costosa ma rara, spalmata su molte economiche. `append` su array dinamico è `O(1)` ammortizzato anche se ogni tanto rialloca e copia tutto.
+- Si ragiona di solito sul **caso peggiore**; per le hash map si cita il caso medio (`O(1)`), sapendo che il peggiore è `O(n)`.
+- Dimezzare il problema a ogni passo → `O(log n)`. 
+- Ordinare → `O(n log n)`.
 - Cicli annidati sullo stesso input → si moltiplicano (`O(n²)`); passi in sequenza → si sommano e domina il maggiore.
-- Dimezzare il problema a ogni passo → `O(log n)`. Ordinare → `O(n log n)`.
-- La struttura giusta trasforma una ricerca `O(n)` in `O(1)` (set/dict) o `O(log n)` (heap, BST, ricerca binaria): è l'ottimizzazione più frequente negli esercizi.
+- La struttura giusta trasforma una ricerca `O(n)` in `O(1)` (set/dict) oppure `O(log n)` (heap, BST, ricerca binaria): è l'ottimizzazione più frequente negli esercizi.
 
 ## Sintassi al volo
+
+### Per gli esercizi di coding
+
+Checklist per scegliere la struttura:
+
+| Se ti serve… | Usa |
+|---|---|
+| "L'ho già visto?" / conteggi | `set` / `dict` / `Counter` |
+| Elementi in ordine FIFO, BFS | `deque` |
+| Annullare l'ultimo, parentesi, "prossimo maggiore" | stack (lista) |
+| Ripetutamente il min/max, top-k | heap |
+| Mediana di valori che arrivano in streaming | due heap |
+| Inserire/togliere in mezzo dato il nodo, LRU | linked list (doppia) + hash map |
+| Ricerca in dati ordinati | ricerca binaria (`bisect`) |
+| Prefissi di stringhe | trie |
+| Gruppi che si fondono | union-find |
+| Relazioni tra entità | lista di adiacenza |
 
 ### Dai vincoli alla complessità attesa
 
@@ -21,13 +40,15 @@ Con circa 10⁸ operazioni semplici al secondo, i vincoli dell'esercizio suggeri
 
 | `n` fino a | Complessità accettabile | Tipicamente |
 |---|---|---|
+| 10⁷+ | `O(n)`, `O(log n)` | una passata, two pointers, matematica |
+| 10⁵ – 10⁶ | `O(n log n)` | sort, heap, ricerca binaria |
+| 5 000 | `O(n²)` | doppio ciclo, DP 2D |
 | 10–20 | `O(2ⁿ)`, `O(n!)` | backtracking, sottoinsiemi |
 | 500 | `O(n³)` | DP su intervalli |
-| 5 000 | `O(n²)` | doppio ciclo, DP 2D |
-| 10⁵ – 10⁶ | `O(n log n)` | sort, heap, ricerca binaria |
-| 10⁷+ | `O(n)`, `O(log n)` | una passata, two pointers, matematica |
 
 ### Costo delle operazioni
+
+Accesso 1, Ricerca n, inserimento n, rimozione n
 
 | Struttura | Accesso | Ricerca | Inserimento | Rimozione | Note |
 |---|---|---|---|---|---|
@@ -50,20 +71,26 @@ Con circa 10⁸ operazioni semplici al secondo, i vincoli dell'esercizio suggeri
 | Heap | `heapq` (min-heap) | nessuno: va scritto ([esempio](../Languages/JavaScript.md#per-gli-esercizi-di-coding)) |
 | Ordinato | `bisect` su lista ordinata | nessuno nativo |
 
-## Array e stringhe
+## Array
 
 Memoria contigua: accesso per indice `O(1)`, ma inserire o rimuovere in mezzo sposta tutti gli elementi successivi.
 
-- In Python e JavaScript **le stringhe sono immutabili**: `s += c` in un ciclo crea ogni volta una nuova stringa, quindi `O(n²)` nel caso peggiore. Accumula in una lista e usa `"".join(parts)`.
-- Lo slicing `a[i:j]` **copia** `j - i` elementi: dentro un ciclo diventa un costo nascosto.
+## Stringhe
+
+In Python e JavaScript **le stringhe sono immutabili**: `s += c` in un ciclo crea ogni volta una nuova stringa, quindi `O(n²)` nel caso peggiore.  Meglio accumulare in una lista e usare `"".join(parts)`.
+Lo slicing `a[i:j]` **copia** `j - i` elementi: dentro un ciclo diventa un costo nascosto.
 
 ## Linked list
 
-Nodi sparsi in memoria, collegati da puntatori (anche all'indietro, nella lista doppia). Inserire o togliere un nodo che hai già in mano costa `O(1)`, arrivarci costa `O(n)`, e la località di cache è scarsa. Uso tipico: la **cache LRU** (hash map + lista doppia). Le tecniche per gli esercizi sono in [Linked list e heap](Linked%20list%20e%20heap.md#linked-list).
+Nodi sparsi in memoria, collegati da puntatori (anche all'indietro, nella lista doppia).  
+Inserire o togliere un nodo che hai già in mano costa `O(1)`, arrivarci costa `O(n)`, e la località di cache è scarsa.  
+Uso tipico: la **cache LRU** (hash map + lista doppia). Le tecniche per gli esercizi sono in [Linked list e heap](Linked%20list%20e%20heap.md#linked-list).
 
 ## Hash map e set
 
-Calcolano un hash della chiave per trovare il "bucket" in `O(1)` medio. Le collisioni degradano il caso peggiore a `O(n)`. Le chiavi devono essere **immutabili/hashable** (in Python: `tuple` sì, `list` no).
+Calcolano un hash della chiave per trovare il "bucket" in `O(1)` medio.  
+Le collisioni degradano il caso peggiore a `O(n)`.  
+Le chiavi devono essere **immutabili/hashable** (in Python: `tuple` sì, `list` no).
 
 ```python
 # Prodotti ordinati insieme: per ogni ordine, trova la prima coppia che somma al budget.
@@ -80,9 +107,9 @@ assert pair_within_budget([1299, 500, 2500, 700], 1999) == (0, 3)  # O(n) invece
 
 ## Stack, code e deque
 
-- **Stack (LIFO):** parentesi bilanciate, undo, DFS iterativa, monotonic stack.
-- **Coda (FIFO):** BFS, elaborazione di job in ordine di arrivo.
-- In Python `list.pop(0)` è `O(n)`: per le code usa `deque.popleft()`, che è `O(1)`.
+**Stack (LIFO):** parentesi bilanciate, undo, DFS iterativa, monotonic stack.  
+**Coda (FIFO):** BFS, elaborazione di job in ordine di arrivo.  
+In Python `list.pop(0)` è `O(n)`: per le code usa `deque.popleft()`, che è `O(1)`.
 
 ```python
 from collections import deque
@@ -95,7 +122,9 @@ assert next_order == "order-101"
 
 ## Heap (coda di priorità)
 
-Albero binario completo salvato in un array: il minimo sta sempre in cima. Usalo quando ti serve ripetutamente "il più piccolo/grande": code di priorità, top-k, mediana in streaming ([pattern](Linked%20list%20e%20heap.md#heap-top-k-e-due-heap)). `heapq` è solo un min-heap: per un max-heap inserisci `-valore`; `heapify` trasforma una lista in heap in `O(n)`.
+Albero binario completo salvato in un array: il minimo sta sempre in cima.  
+Usalo quando ti serve ripetutamente "il più piccolo/grande": code di priorità, top-k, mediana in streaming ([pattern](Linked%20list%20e%20heap.md#heap-top-k-e-due-heap)).  
+`heapq` è solo un min-heap: per un max-heap inserisci `-valore`; `heapify` trasforma una lista in heap in `O(n)`.
 
 ```python
 import heapq
@@ -111,9 +140,10 @@ assert queue[0] == (2, 101)       # la cima si legge in O(1) senza estrarla
 
 ## Alberi e BST
 
-- **Albero binario:** ogni nodo ha al più due figli. Visite: *preorder* (nodo, sx, dx), *inorder* (sx, nodo, dx), *postorder* (sx, dx, nodo), *level order* (BFS).
-- **BST:** sx < nodo < dx, quindi la visita inorder restituisce i valori ordinati. Le operazioni costano `O(h)`: `O(log n)` se bilanciato (AVL, red-black), `O(n)` se degenera in una lista.
-- Altezza e ricorsione: la ricorsione su un albero usa `O(h)` di stack.
+**Albero binario:** ogni nodo ha al più due figli. Visite: *preorder* (nodo, sx, dx), *inorder* (sx, nodo, dx), *postorder* (sx, dx, nodo), *level order* (BFS).  
+**BST:** sx < nodo < dx, quindi la visita inorder restituisce i valori ordinati.  
+Le operazioni costano `O(h)`: `O(log n)` se bilanciato (AVL, red-black), `O(n)` se degenera in una lista.  
+Altezza e ricorsione: la ricorsione su un albero usa `O(h)` di stack.
 
 ```python
 from dataclasses import dataclass
@@ -185,11 +215,13 @@ for a, b in routes:
 assert graph["BOL"] == ["MIL", "ROM"]
 ```
 
-Anche una griglia è un grafo implicito: i vicini di `(r, c)` sono le 4 celle adiacenti. Gli algoritmi (BFS, DFS, Dijkstra, ordinamento topologico, MST) sono in [Alberi e grafi](Alberi%20e%20grafi.md).
+Anche una griglia è un grafo implicito: i vicini di `(r, c)` sono le 4 celle adiacenti.  
+Gli algoritmi (BFS, DFS, Dijkstra, ordinamento topologico, MST) sono in [Alberi e grafi](Alberi%20e%20grafi.md).
 
 ## Union-Find (Disjoint Set)
 
-Mantiene gruppi disgiunti e risponde a "sono nello stesso gruppo?" in tempo quasi costante. Si usa per componenti connesse, cicli in grafi non diretti e algoritmo di Kruskal.
+Mantiene gruppi disgiunti e risponde a "sono nello stesso gruppo?" in tempo quasi costante.   
+Si usa per componenti connesse, cicli in grafi non diretti e algoritmo di Kruskal.
 
 ```python
 class UnionFind:
@@ -211,23 +243,6 @@ uf = UnionFind(4)
 uf.union(0, 1); uf.union(2, 3)
 assert uf.find(0) == uf.find(1) and uf.find(1) != uf.find(2)
 ```
-
-## Per gli esercizi di coding
-
-Checklist per scegliere la struttura:
-
-| Se ti serve… | Usa |
-|---|---|
-| "L'ho già visto?" / conteggi | `set` / `dict` / `Counter` |
-| Elementi in ordine FIFO, BFS | `deque` |
-| Annullare l'ultimo, parentesi, "prossimo maggiore" | stack (lista) |
-| Ripetutamente il min/max, top-k | heap |
-| Mediana di valori che arrivano in streaming | due heap |
-| Inserire/togliere in mezzo dato il nodo, LRU | linked list (doppia) + hash map |
-| Ricerca in dati ordinati | ricerca binaria (`bisect`) |
-| Prefissi di stringhe | trie |
-| Gruppi che si fondono | union-find |
-| Relazioni tra entità | lista di adiacenza |
 
 ## Domande da colloquio
 

@@ -29,6 +29,51 @@
 | Tipi | `list[int]`, `dict[str, int]`, `str \| None` |
 | Pattern matching (3.10+) | `match event: case {"type": "paid", "id": oid}: ...` |
 
+## Per gli esercizi di coding
+
+| Strumento | Uso tipico |
+|---|---|
+| `Counter(xs)` | frequenze; `.most_common(k)`; `c1 == c2` per gli anagrammi |
+| `defaultdict(list)` | raggruppare senza controllare se la chiave esiste |
+| `deque(xs)`, `deque(maxlen=k)` | coda BFS: `append`, `appendleft`, `pop`, `popleft` in `O(1)` |
+| `heapq` | min-heap su una lista: `heapify` (`O(n)`), `heappush`/`heappop` (`O(log n)`), `h[0]` = minimo, `nlargest`; max-heap con `-x` |
+| `bisect_left(a, x)` | posizione di inserimento in una lista ordinata, `O(log n)` |
+| `sorted(xs, key=..., reverse=True)` | ordinamento **stabile**; chiavi multiple con tuple |
+| `itertools` | `accumulate` (prefix sum), `combinations`, `permutations`, `product`, `pairwise`, `groupby` |
+| `functools.cache` | memoization per la DP top-down |
+| `math.inf`, `float("inf")` | valore iniziale per i minimi |
+| `ord(ch) - ord("a")` | indice 0–25 di una lettera: conteggi in un array di 26 (chiave per gli anagrammi) |
+| `divmod(i, cols)` | da indice lineare a `(riga, colonna)` |
+| `list(zip(*grid))` | trasposta di una matrice (righe ↔ colonne) |
+| `heappush(h, (prio, i, obj))` | heap di oggetti: l'indice `i` fa da spareggio, così `obj` non viene mai confrontato |
+
+```python
+import heapq
+from bisect import bisect_left
+from itertools import accumulate
+
+orders = [("ada", 2599), ("lin", 1200), ("ada", 990)]
+
+ranked = sorted(orders, key=lambda o: (-o[1], o[0]))  # totale decrescente, poi nome
+assert ranked[0] == ("ada", 2599)
+
+assert list(accumulate([1, 2, 3])) == [1, 3, 6]     # prefix sum
+assert bisect_left([10, 20, 30], 25) == 2
+
+heap = []
+for cents in (2599, 1200, 990):
+    heapq.heappush(heap, -cents)                    # max-heap con valori negati
+assert -heap[0] == 2599
+```
+
+**Trappole frequenti:**
+- La ricorsione profonda supera il limite (~1000): `sys.setrecursionlimit(10**6)` oppure riscrivi in modo iterativo.
+- Costruire stringhe con `+=` in un ciclo: usa `"".join(parts)`.
+- `list.pop(0)` e `x in list` costano `O(n)`: usa `deque` e `set`.
+- Gli interi hanno precisione arbitraria (niente overflow); la divisione intera è `//`, e `-7 // 2 == -4` (arrotonda verso -∞). Per troncare verso zero, come in C o Java (es. *Evaluate Reverse Polish Notation*), usa `int(a / b)`.
+- Su LeetCode le firme usano `Optional[TreeNode]` e classi già definite (`ListNode`, `TreeNode`): non ridefinirle.
+
+
 ## Strutture dati built-in
 
 Il costo delle operazioni è spiegato in [Big-O e strutture dati](../Fundamentals/Big-O%20e%20strutture%20dati.md).
@@ -347,50 +392,6 @@ def test_apply_discount(total, percent, expected):
 def stock() -> dict[str, int]:  # ogni test riceve un dict nuovo
     return {"MUG-2": 1}
 ```
-
-## Per gli esercizi di coding
-
-| Strumento | Uso tipico |
-|---|---|
-| `Counter(xs)` | frequenze; `.most_common(k)`; `c1 == c2` per gli anagrammi |
-| `defaultdict(list)` | raggruppare senza controllare se la chiave esiste |
-| `deque(xs)`, `deque(maxlen=k)` | coda BFS: `append`, `appendleft`, `pop`, `popleft` in `O(1)` |
-| `heapq` | min-heap su una lista: `heapify` (`O(n)`), `heappush`/`heappop` (`O(log n)`), `h[0]` = minimo, `nlargest`; max-heap con `-x` |
-| `bisect_left(a, x)` | posizione di inserimento in una lista ordinata, `O(log n)` |
-| `sorted(xs, key=..., reverse=True)` | ordinamento **stabile**; chiavi multiple con tuple |
-| `itertools` | `accumulate` (prefix sum), `combinations`, `permutations`, `product`, `pairwise`, `groupby` |
-| `functools.cache` | memoization per la DP top-down |
-| `math.inf`, `float("inf")` | valore iniziale per i minimi |
-| `ord(ch) - ord("a")` | indice 0–25 di una lettera: conteggi in un array di 26 (chiave per gli anagrammi) |
-| `divmod(i, cols)` | da indice lineare a `(riga, colonna)` |
-| `list(zip(*grid))` | trasposta di una matrice (righe ↔ colonne) |
-| `heappush(h, (prio, i, obj))` | heap di oggetti: l'indice `i` fa da spareggio, così `obj` non viene mai confrontato |
-
-```python
-import heapq
-from bisect import bisect_left
-from itertools import accumulate
-
-orders = [("ada", 2599), ("lin", 1200), ("ada", 990)]
-
-ranked = sorted(orders, key=lambda o: (-o[1], o[0]))  # totale decrescente, poi nome
-assert ranked[0] == ("ada", 2599)
-
-assert list(accumulate([1, 2, 3])) == [1, 3, 6]     # prefix sum
-assert bisect_left([10, 20, 30], 25) == 2
-
-heap = []
-for cents in (2599, 1200, 990):
-    heapq.heappush(heap, -cents)                    # max-heap con valori negati
-assert -heap[0] == 2599
-```
-
-**Trappole frequenti:**
-- La ricorsione profonda supera il limite (~1000): `sys.setrecursionlimit(10**6)` oppure riscrivi in modo iterativo.
-- Costruire stringhe con `+=` in un ciclo: usa `"".join(parts)`.
-- `list.pop(0)` e `x in list` costano `O(n)`: usa `deque` e `set`.
-- Gli interi hanno precisione arbitraria (niente overflow); la divisione intera è `//`, e `-7 // 2 == -4` (arrotonda verso -∞). Per troncare verso zero, come in C o Java (es. *Evaluate Reverse Polish Notation*), usa `int(a / b)`.
-- Su LeetCode le firme usano `Optional[TreeNode]` e classi già definite (`ListNode`, `TreeNode`): non ridefinirle.
 
 ## Domande da colloquio
 
